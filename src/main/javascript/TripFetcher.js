@@ -73,7 +73,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
 
 
     displayTrip: function(id){
-        this.tripDisplayer.clear();
+        this.tripDisplayer.showSpinner();
         this.heightDisplayer.hideHeightProfile();
         this.tripMapDisplayer.hideTrip();
         var that = this;

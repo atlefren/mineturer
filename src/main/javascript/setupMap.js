@@ -6,7 +6,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     if(!perma){
         var heightDisplayer = new TripOrganizer.HeightProfileDisplayer("ele");
         var tripDisplayer = new TripOrganizer.TripInfoDisplayer("tripdetail");
-
+        tripDisplayer.setText("Velg en tur i menyen!");
         var uploader = new TripOrganizer.TripUploader();
         var tripFetcher = new TripOrganizer.TripFetcher("trips");
         tripFetcher.addTripDisplayer(tripDisplayer);
@@ -101,7 +101,9 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     }
     else {
-        map.zoomToMaxExtent()
+        map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
+        //TODO get point representation of all tracks, and add to map, Zoom map to extent
+        //map.zoomToMaxExtent()
     }
 
 

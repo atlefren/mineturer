@@ -7,7 +7,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     if(!perma){
         var heightDisplayer = new TripOrganizer.HeightProfileDisplayer("ele");
         var tripDisplayer = new TripOrganizer.TripInfoDisplayer("tripdetail");
-
+        tripDisplayer.setText("Velg en tur i menyen!");
         var uploader = new TripOrganizer.TripUploader();
         var tripFetcher = new TripOrganizer.TripFetcher("trips");
         tripFetcher.addTripDisplayer(tripDisplayer);
@@ -102,7 +102,9 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     }
     else {
-        map.zoomToMaxExtent()
+        map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
+        //TODO get point representation of all tracks, and add to map, Zoom map to extent
+        //map.zoomToMaxExtent()
     }
 
 
@@ -183,7 +185,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
 
 
     displayTrip: function(id){
-        this.tripDisplayer.clear();
+        this.tripDisplayer.showSpinner();
         this.heightDisplayer.hideHeightProfile();
         this.tripMapDisplayer.hideTrip();
         var that = this;
@@ -577,19 +579,19 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
         //console.log("display trip info");
 
-        var desc = "n/a";
+        var desc = "";
         if(trip.description){
-            desc = trip.description
+            desc = "<div class='descr'>" + trip.description +"</div>"
         }
 
         var speed = this.round((trip.distance/trip.duration)*3.6,2);
 
                 var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
-                    "<p><b>Beskrivelse: </b></a>" + desc+"</p>"+
-                    "<p><b>Start: </b></a>" + trip.start+"</p>"+
-                    "<p><b>Stopp: </b></a>" + trip.stop+"</p>" +
-                    "<p><b>Total tid: </b> " + this.convertTime(trip.duration)  + "</p>" +
-                    "<p><b>Lengde: </b> " + this.meterToKm(trip.distance)  + " km</p>" +
+                    desc +
+                    "<p><b>Start:</b> " + trip.start+"</p>"+
+                    "<p><b>Stopp:</b> " + trip.stop+"</p>" +
+                    "<p><b>Total tid:</b> " + this.convertTime(trip.duration)  + "</p>" +
+                    "<p><b>Lengde:</b> " + this.meterToKm(trip.distance)  + " km</p>" +
                     "<p><b>Gjennomsnittsfart:</b> " + speed + " km/t</p>" +
                     "<p><b>Permalenke:</b><br /><a href='' target='blank' id='perma'>Permalink</a></p>"
                 );
@@ -606,9 +608,27 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
             var paramstring = OpenLayers.Util.getParameterString(this.createParams());
             perma.innerHTML = "showTrip?"+paramstring;
             perma.href="showTrip?"+paramstring;
-            //console.log("setting params ", paramstring)
-
         }
+    },
+
+
+    setText: function(text){
+        var div = document.createElement("div");
+        div.className="vertContainer";
+        var p = document.createElement("p");
+        p.innerHTML=text;
+        p.className="customtext";
+        div.appendChild(p);
+        document.getElementById(this.divId).appendChild(div);
+    },
+
+
+    showSpinner: function(){
+        this.clear();
+        var img = document.createElement("img");
+        img.setAttribute("src","gfx/ajax-loader.gif");
+        img.className = "spinner";
+        document.getElementById(this.divId).appendChild(img);
     },
 
     createParams: function() {
@@ -627,7 +647,7 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
         var hours=Math.floor(a/3600);
         var minutes=Math.floor(a/60)-(hours*60);
         var seconds=a-(hours*3600)-(minutes*60);
-        return hours +"." + minutes + "." + seconds;
+        return hours +"t " + minutes + "m " + seconds +"s";
     },
 
     meterToKm: function(meter){

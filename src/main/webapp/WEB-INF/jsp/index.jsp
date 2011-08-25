@@ -28,7 +28,6 @@
     <script type="text/javascript" src="scripts/jquery.flot.js"></script>
     <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript" src="scripts/OpenLayers-2.11-rc1/OpenLayers.js"></script>
-    <script type="text/javascript" src="scripts/proj4js/proj4js.js"></script>
     <script type="text/javascript" src="scripts/GpxUploader.js"></script>
     <script type="text/javascript" src="scripts/spin.js"></script>
 </head>
@@ -46,6 +45,7 @@
             <div id="upload"></div>
         </div>
         <div id="eleContainer">
+            <div><h4>Høydeprofil</h4></div>
             <div id="ele" style="width:490px;height:290px;float:left;margin:5px;">
             </div>
         </div>

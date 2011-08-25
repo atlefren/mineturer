@@ -1,3 +1,7 @@
+body {
+    font-family: Gill Sans, sans-serif;
+}
+
 #head {
     margin:  2px;
 }
@@ -57,7 +61,7 @@
     padding-top: 0;
     border:  1px solid gray;
     width:500px;
-    height: 700px;
+    height: 800px;
     float:left;
 
 }
@@ -70,14 +74,47 @@
 }
 
 #tripdetail{
-    width:299px;
+    width:289px;
     height: 400px;
     float: left;
+    padding: 5px;
     border-right:  1px dotted gray;
+}
+
+#tripdetail h3{
+    margin-top: 0;
+    margin-bottom: 5px;
 }
 .tripbody p{
     margin-top: 2px;
     margin-bottom: 2px;
+}
+
+#tripdetail .spinner  {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 190px;
+}
+
+#tripdetail .vertContainer{
+    display: table-cell;
+    vertical-align: middle;
+    height: 390px;
+    width: 100%;
+}
+
+#tripdetail .customtext{
+    color: gray;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#tripdetail .descr{
+    background: #FFFF80;
+    border:  1px dotted gray;
+    padding: 3px;
 }
 
 .tripbody {
@@ -107,11 +144,12 @@
 }
 #trips {
     height: 350px;
+    overflow-y: scroll;
 }
 
 #map {
     border:  1px solid gray;
     width:700px;
-    height:700px;
+    height:800px;
     float:left
 }
