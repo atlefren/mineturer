@@ -1,0 +1,117 @@
+#head {
+    margin:  2px;
+}
+
+#head h1 {
+    margin: 0;
+}
+
+#trips .triphead{
+    margin: 0;
+    background: #ccc;
+    padding: 4px;
+    cursor: pointer;
+}
+.triphead h4{
+    margin: 0;
+}
+
+.hidden{
+    display: none;
+}
+
+.uploadForm {
+    background: none repeat scroll 0 0 white;
+    border: 1px solid black;
+    -moz-border-radius: 5px;
+
+    position: absolute;
+    height: 500px;
+    left: 715px;
+    top: 49px;
+    width: 400px;
+    z-index: 3000;
+    padding: 3px;
+}
+
+.link {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#wrapper {
+    width: 1210px;
+}
+
+#eleContainer{
+    width: 500px;
+    height: 300px;
+    clear: both;
+    border-top: 1px solid gray;
+}
+
+#sidebar {
+
+    margin-left: 5px;
+    padding-top: 0;
+    border:  1px solid gray;
+    width:500px;
+    height: 700px;
+    float:left;
+
+}
+
+#triplist {
+    width:200px;
+    height: 400px;
+    float: left;
+    background: none repeat scroll 0 0 #EEEEEE;
+}
+
+#tripdetail{
+    width:299px;
+    height: 400px;
+    float: left;
+    border-right:  1px dotted gray;
+}
+.tripbody p{
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.tripbody {
+    font-size: 12px;
+    background: #ffffff;
+    padding: 3px;
+}
+
+#upload {
+    margin-top: 2px;
+    margin-left: 3px;
+}
+
+.sidebarhead h3 {
+    margin: 0;
+    
+}
+
+.sidebarhead {
+    padding: 3px;
+    height: 20px;
+    
+}
+
+#trips .open {
+    background: white;
+}
+#trips {
+    height: 350px;
+}
+
+#map {
+    border:  1px solid gray;
+    width:700px;
+    height:700px;
+    float:left
+}

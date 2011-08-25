@@ -1,0 +1,52 @@
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         id="GeomeldingKart" version="2.5">
+
+    <display-name>GoBuss</display-name>
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>WEB-INF/applicationContext.xml</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <servlet>
+        <servlet-name>GpxUploader</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>index.html</url-pattern>
+    </servlet-mapping>
+
+        <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>uploadGpx</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>getTrips</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>getTripGeom</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>getTripHeights</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>showTrip</url-pattern>
+    </servlet-mapping>
+</web-app>
