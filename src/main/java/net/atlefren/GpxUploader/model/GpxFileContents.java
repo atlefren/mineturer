@@ -30,7 +30,7 @@ public class GpxFileContents {
     private ArrayList<GpxRoute> routes;
     private ArrayList<GpxTrack> tracks;
     private String SRS;
-    private WKTWriter wktWriter = new WKTWriter(3);
+    private WKTWriter wktWriter = new WKTWriter(2);
     private GeometryFactory factory = new GeometryFactory();
 
 
@@ -65,8 +65,7 @@ public class GpxFileContents {
             return start;
         }
         else {
-            String startString = getTracks().get(0).getTrackSegments().get(0).get(0).getTime();
-            start = parseDate(startString);
+            start = getTracks().get(0).getTrackSegments().get(0).get(0).getTime();
             return start;
         }
     }
@@ -79,12 +78,11 @@ public class GpxFileContents {
             GpxTrack lastTrack = getTracks().get(getTracks().size()-1);
             ArrayList<GpxPoint> lastSegment = lastTrack.getTrackSegments().get(lastTrack.getTrackSegments().size()-1);
             GpxPoint lastPoint = lastSegment.get(lastSegment.size()-1);
-            String stopString = lastPoint.getTime();
-            stop = parseDate(stopString);
+            stop = lastPoint.getTime();
             return stop;
         }
     }
-
+/*
     private Date parseDate(String date){
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.S'Z'"); //2011-05-29T10:14:59.000Z
         try{
@@ -103,7 +101,7 @@ public class GpxFileContents {
 
         }
     }
-
+*/
     public String getName() {
         if(name != null){
             return name;

@@ -5,6 +5,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 import net.atlefren.GpxUploader.dao.TripDao;
+import net.atlefren.GpxUploader.model.CentroidPoint;
 import net.atlefren.GpxUploader.model.Trip;
 import net.atlefren.GpxUploader.service.HeightProfileGenerator;
 import org.apache.log4j.Logger;
@@ -36,23 +37,31 @@ public class GetController {
     private static Logger logger = Logger.getLogger(TripDao.class);
 
 
+    @RequestMapping(value = "getCentroids", method = RequestMethod.GET)
+    @ResponseBody
+    public List<CentroidPoint> getTripCentroids(){
+        return tripDao.getCentroids("1","900913");
+    }
+
     @RequestMapping(value = "/getTrips", method = RequestMethod.GET)
     @ResponseBody
     public List<Trip> getTrips() {
-        return  tripDao.getTrips("test","900913");
+        return  tripDao.getTrips("1","900913");
     }
 
     @RequestMapping(value = "/getTripGeom", method = RequestMethod.GET)
     @ResponseBody
     public Trip getTripGeom(@RequestParam("id") int id) {
-        return tripDao.getTripGeom("test", "900913", id);
+        return tripDao.getTripGeom("1", "900913", id);
     }
+
+    //TODO: rewrite to calculate from points
 
     @RequestMapping(value = "/getTripHeights", method = RequestMethod.GET)
     @ResponseBody
     public List<List<Double>> getTripHeights(@RequestParam("id") int id) {
         HeightProfileGenerator profileGenerator = new HeightProfileGenerator();
-        return profileGenerator.generateFlotSeries(tripDao.getTracksForTrip("900913",id));
+        return profileGenerator.generateFlotSeries(tripDao.getPointsForTrip(id));
     }
 
 }

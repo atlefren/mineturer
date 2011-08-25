@@ -10,6 +10,11 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by IntelliJ IDEA.
  * User: atle
@@ -22,7 +27,7 @@ public class GpxPoint {
     private double lon;
     private double lat;
     private double ele;
-    private String time;
+    private Date time;
 
     private static Logger logger = Logger.getLogger(GpxPoint.class);
 
@@ -53,19 +58,21 @@ public class GpxPoint {
         this.ele = ele;
     }
 
-    public String getTime() {
+    public Date getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Date time){
         this.time = time;
+    }
+
+    public void setTime(String time) {
+        this.time = parseDate(time);
     }
 
     public Coordinate getPointAsCoord(String epsg){
         if(epsg.equals("4326")){
-            Coordinate coord = new Coordinate(getLon(),getLat());
-            coord.z = getEle();
-            return coord;
+            return new Coordinate(getLon(),getLat());
         }
         else {
             DirectPosition point= new GeneralDirectPosition(getLat(),getLon());
@@ -74,9 +81,7 @@ public class GpxPoint {
                 transformer = generateTransform("4326",epsg);
                 DirectPosition transformedPoint = transformer.transform( point, null);
                 double[] coordinates = transformedPoint.getCoordinate();
-                Coordinate coord = new Coordinate(coordinates[0],coordinates[1]);
-                coord.z = getEle();
-                return coord;
+                return new Coordinate(coordinates[0],coordinates[1]);
             }  catch (FactoryException e) {
                 logger.error("FactoryException", e);
             }
@@ -91,6 +96,25 @@ public class GpxPoint {
         CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:" + source);
         CoordinateReferenceSystem targetCRS = CRS.decode("EPSG:" + target);
         return CRS.findMathTransform(sourceCRS, targetCRS, true);
+    }
+
+    private Date parseDate(String date){
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.S'Z'"); //2011-05-29T10:14:59.000Z
+        try{
+            return formatter.parse(date);
+        }
+        catch (ParseException e){
+            logger.warn("parse exeption, trying new format"+ e);
+            try{
+                DateFormat newformatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'"); //2011-05-29T10:14:59.000Z
+                return newformatter.parse(date);
+            }
+            catch (ParseException e2){
+                logger.warn("parse exeption, trying new format"+ e2);
+                return null;
+            }
+
+        }
     }
 }
 

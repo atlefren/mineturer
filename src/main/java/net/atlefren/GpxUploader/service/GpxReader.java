@@ -43,9 +43,6 @@ import java.util.Date;
 @Component
 public class GpxReader {
 
-
-    private TripDao tripDao;
-
     public InputStream gpxInputStream;
     private static Logger logger = Logger.getLogger(GpxReader.class);
 
@@ -56,53 +53,12 @@ public class GpxReader {
     public GpxReader() {
     }
 
-    public void setTripDao(TripDao tripDao){
-        this.tripDao = tripDao;
-    }
-
-    public Trip readGpx(String name, String description) throws SAXException, IOException {
-
+    public GpxFileContents readAndCreateGpx() throws SAXException, IOException {
         XMLReader xr = XMLReaderFactory.createXMLReader();
         GpxSaxHandler gpxhandler = new GpxSaxHandler();
         xr.setContentHandler(gpxhandler);
         xr.parse(new InputSource(gpxInputStream));
-        GpxFileContents data = gpxhandler.getData();
-        if(name!=null && !name.equals("")){
-            data.setName(name);
-        }
-        if(description!=null && !description.equals("")){
-            data.setDescription(description);
-        }
-        if(tripDao!=null){
-            int id = tripDao.saveTripToDb(data);
-            return tripDao.getTripGeom("test", "900913", id);
-        }
-        else {
-            return null;
-        }
+        return gpxhandler.getData();
     }
-
-    public String readGpxFile(String filename) throws SAXException, IOException {
-
-        XMLReader xr = XMLReaderFactory.createXMLReader();
-
-        GpxSaxHandler gpxhandler = new GpxSaxHandler();
-
-        // Set the ContentHandler...
-        xr.setContentHandler(gpxhandler);
-        xr.parse( new InputSource(new FileReader(filename)) );
-        GpxFileContents data = gpxhandler.getData();
-
-        data.setSRS("32633");
-
-        double dur = data.getStop().getTime()-data.getStart().getTime();
-
-        Trip returnObject = new Trip(data.getId(),data.getName(),data.getDescription(),data.getStart(),data.getStop(),dur,data.getTracksAsWKT(),data.getRoutesAsWKT(),data.getWaypointsAsWKT());
-        Gson gson = new Gson();
-        return gson.toJson(returnObject);
-
-    }
-
-
 }
 

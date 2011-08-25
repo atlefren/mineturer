@@ -63,7 +63,8 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         "http://opencache.statkart.no/gatekeeper/gk/gk.open?",
         {'layers': 'topo2', 'format':'image/png'},
         {
-            visibility: true,
+            //visibility: true,
+            visibility:false,
             'isBaseLayer': true,
             'wrapDateLine': true,
              layerId: "topo2"
@@ -76,12 +77,22 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
                     strokeWidth: 2},
                 OpenLayers.Feature.Vector.style["default"]));
 
+    var centroidStyleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults({
+                    strokeColor: "green",
+                    fillColor: "red",
+                    strokeWidth: 2},
+                OpenLayers.Feature.Vector.style["default"]));
+
 
     var featureLayer = new OpenLayers.Layer.Vector("test",{displayInLayerSwitcher:false,styleMap: styleMap});
+    var cLayer = new OpenLayers.Layer.Vector("Turpunkter",{displayInLayerSwitcher:true,styleMap: centroidStyleMap});
     if(!perma){
         tripFetcher.addLayer(featureLayer);
     }
-    map.addLayers([wms, gmap, mapnik,gsat, featureLayer]);
+    map.addLayers([wms, gmap, mapnik,gsat,cLayer, featureLayer]);
+
+    //remove
+    map.setBaseLayer(gmap);
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
     if(perma){
@@ -102,9 +113,23 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     }
     else {
-        map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
-        //TODO get point representation of all tracks, and add to map, Zoom map to extent
-        //map.zoomToMaxExtent()
+        map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),10);
+        var centroidFetcher = new TripOrganizer.TripCentroidDisplayer(cLayer);
+        centroidFetcher.displayCentroids(false);
+
+        cLayer.events.on({
+                        'featureselected': function(evt) {
+                            var id = evt.feature.attributes.tripid;
+                            tripFetcher.displayTrip(id);
+                        }
+                    });
+        tripFetcher.events.on({
+            'tripadded':function(evt){
+                console.log("trip added");
+                centroidFetcher.displayCentroids(true);
+            }
+        });
+
     }
 
 
@@ -118,16 +143,18 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     tripMapDisplayer: null,
     heightDisplayer: null,
     tripDisplayer: null,
-
+    events: null,
+    EVENT_TYPES: ["tripadded"],
 
 
     initialize: function(div,options){
         OpenLayers.Util.extend(this, options);
+        this.events = new OpenLayers.Events(this, null, this.EVENT_TYPES);
         this.div=div;
     },
 
     addLayer:function(layer){
-        this.tripMapDisplayer = new TripOrganizer.TripDisplayer(layer);
+        this.tripMapDisplayer = new TripOrganizer.TripMapDisplayer(layer);
     },
 
     getTrips: function(){
@@ -166,14 +193,8 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     },
 
     addAndDisplayTrip: function(trip){
+        this.events.triggerEvent("tripadded");
         this.trips.push(trip);
-        //console.log("this:", this);
-        //console.log("displaying ", trip , " from tripFetcher");
-
-        /*
-        this.tripMapDisplayer.addTrip(trip);
-        this.tripMapDisplayer.showTrip(trip.id);
-        */
         this.tripMapDisplayer.showTrip(trip);
         this.createItem(trip,false,true,this);
         this.tripDisplayer.displayTripInfo(trip);
@@ -185,22 +206,26 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
 
 
     displayTrip: function(id){
-        this.tripDisplayer.showSpinner();
-        this.heightDisplayer.hideHeightProfile();
-        this.tripMapDisplayer.hideTrip();
-        var that = this;
-        $.getJSON(
-            "getTripGeom",
-            {id:id},
-            function(trips) {
-                //console.log(trips);
-                that.doDisplayTrip(trips);
-            }
-        );
+        if(id!=this.activeTrip){
+            $('#head_for_'+id).removeClass("closed").addClass("open");
+            this.activeTrip=id;
+            this.redraw();
+            this.tripDisplayer.showSpinner();
+            this.heightDisplayer.hideHeightProfile();
+            this.tripMapDisplayer.hideTrip();
+            var that = this;
+            $.getJSON(
+                "getTripGeom",
+                {id:id},
+                function(trips) {
+                    //console.log(trips);
+                    that.doDisplayTrip(trips);
+                }
+            );
+        }
     },
 
     doDisplayTrip: function(trip){
-        console.log("do display: ", trip);
         this.heightDisplayer.displayProfileFortrack(trip.id);
         this.tripDisplayer.displayTripInfo(trip);
         this.tripMapDisplayer.showTrip(trip);
@@ -217,21 +242,10 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         $head.click(function(){
             var id = this.id.replace("head_for_","");
             if($('#'+this.id).hasClass("closed")){
-                $('#body_for_'+id).removeClass("hidden");
-                $('#'+this.id).removeClass("closed").addClass("open");
+                //$('#body_for_'+id).removeClass("hidden");
 
                 that.displayTrip(id);
-                //that.tripMapDisplayer.showTrip(id);
 
-                /*
-                 for(var i=0;i<that.trips.length;i++){
-                    if(that.trips[i].id == id){
-                        that.tripDisplayer.displayTripInfo(that.trips[i]);
-                    }
-                }
-                */
-                //that.heightDisplayer.displayProfileFortrack(id);
-                that.activeTrip=id;
 
             }
             else {
@@ -239,7 +253,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
                 that.heightDisplayer.hideHeightProfile();
                 that.tripMapDisplayer.hideTrip();
                 that.activeTrip=null;
-                $('#body_for_'+id).addClass("hidden");
+                //$('#body_for_'+id).addClass("hidden");
                 $('#'+this.id).removeClass("open").addClass("closed");
 
             }
@@ -292,7 +306,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     CLASS_NAME: "TripOrganizer.TripFetcher"
 
 });
-TripOrganizer.TripDisplayer = OpenLayers.Class({
+TripOrganizer.TripMapDisplayer = OpenLayers.Class({
     layer: null,
     trips: null,
     format: new OpenLayers.Format.WKT(),
@@ -377,16 +391,6 @@ TripOrganizer.TripDisplayer = OpenLayers.Class({
         }
     },
 
-/*
-    replaceTrip: function(trip){
-        for(var i=0;i<this.trips.length;i++){
-            if(this.trips[i].id == trip.id){
-                this.trips[i] = trip;
-                this.doDisplayTrip(this.trips[i]);
-            }
-        }
-    },
-*/
     hideTrip: function(){
         //console.log("hide trip ", id);
         var rem = [];
@@ -398,9 +402,7 @@ TripOrganizer.TripDisplayer = OpenLayers.Class({
         this.layer.destroyFeatures(rem);
     },
 
-
-
-    CLASS_NAME: "TripOrganizer.TripDisplayer"
+    CLASS_NAME: "TripOrganizer.TripMapDisplayer"
 
 });
 TripOrganizer.TripUploader = OpenLayers.Class({
@@ -662,4 +664,67 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
     CLASS_NAME: "TripOrganizer.TripInfoDisplayer"
 
+});
+TripOrganizer.TripCentroidDisplayer = OpenLayers.Class({
+
+    format: new OpenLayers.Format.WKT(),
+    layer: null,
+    select: null,
+
+    initialize: function(layer){
+        this.layer = layer;
+        this.setUpSelect();
+    },
+
+    setUpSelect: function(){
+        this.select= new OpenLayers.Control.SelectFeature(
+                            this.layer,
+                            {
+                                clickout: false,
+                                toggle: false,
+                                multiple: false,
+                                hover: false,
+                                toggleKey: "ctrlKey", // ctrl key removes from selection
+                                multipleKey: "shiftKey", // shift key adds to selection
+                                box: false
+                            }
+                        );
+
+        this.layer.map.addControl(this.select);
+    },
+
+    displayCentroids: function(update){
+        var that = this;
+       $.getJSON(
+            "getCentroids",
+            {},
+            function(centroids) {
+                //console.log(trips);
+                that.doDisplayCentroids(centroids,update);
+            }
+        );
+    },
+
+    doDisplayCentroids: function(centroids,update){
+
+        var features = [];
+        this.layer.destroyFeatures();
+        var bounds =  new OpenLayers.Bounds();
+        for(var i=0;i<centroids.length;i++){
+            var feature =this.format.read(centroids[i].geom);
+                bounds.extend(feature.geometry.getBounds());
+                feature.attributes.tripid=centroids[i].id;
+                features.push(feature);
+        }
+        this.layer.addFeatures(features);
+        var mapExt =this.layer.map.getExtent();
+        if(!update){
+            if(!mapExt.containsBounds(bounds)){
+                this.layer.map.zoomToExtent(bounds);
+            }
+        }
+        this.select.activate();
+    },
+
+    CLASS_NAME:"TripOrganizer.TripCentroidDisplayer"
 });

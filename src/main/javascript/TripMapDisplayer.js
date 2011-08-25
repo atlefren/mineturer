@@ -1,4 +1,4 @@
-TripOrganizer.TripDisplayer = OpenLayers.Class({
+TripOrganizer.TripMapDisplayer = OpenLayers.Class({
     layer: null,
     trips: null,
     format: new OpenLayers.Format.WKT(),
@@ -83,16 +83,6 @@ TripOrganizer.TripDisplayer = OpenLayers.Class({
         }
     },
 
-/*
-    replaceTrip: function(trip){
-        for(var i=0;i<this.trips.length;i++){
-            if(this.trips[i].id == trip.id){
-                this.trips[i] = trip;
-                this.doDisplayTrip(this.trips[i]);
-            }
-        }
-    },
-*/
     hideTrip: function(){
         //console.log("hide trip ", id);
         var rem = [];
@@ -104,8 +94,6 @@ TripOrganizer.TripDisplayer = OpenLayers.Class({
         this.layer.destroyFeatures(rem);
     },
 
-
-
-    CLASS_NAME: "TripOrganizer.TripDisplayer"
+    CLASS_NAME: "TripOrganizer.TripMapDisplayer"
 
 });

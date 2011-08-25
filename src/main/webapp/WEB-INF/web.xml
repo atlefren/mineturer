@@ -49,4 +49,9 @@
         <servlet-name>GpxUploader</servlet-name>
         <url-pattern>showTrip</url-pattern>
     </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>getCentroids</url-pattern>
+    </servlet-mapping>
 </web-app>

@@ -5,6 +5,7 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import net.atlefren.GpxUploader.dao.TripDao;
+import net.atlefren.GpxUploader.util.GISUtils;
 import org.apache.log4j.Logger;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
@@ -38,17 +39,15 @@ public class LengthComputer {
 
         Coordinate last = null;
         double totalVincDist = 0.0;
-
         try{
             for(String trackwkt:trackWkts){
-                trackwkt = trackwkt.replaceFirst("SRID=4326;","");
                 MathTransform transformer = generateTransform("900913","4326");
                 MultiLineString track = (MultiLineString)wktReader.read(trackwkt);
                 track = (MultiLineString)JTS.transform(track, transformer);
                 Coordinate[] coords = track.getCoordinates();
                 for(Coordinate coord:coords){
                     if(last != null){
-                        totalVincDist += distVincentY(coord,last);
+                        totalVincDist += GISUtils.distVincentY(coord.y,coord.x,last.y,last.x);
                     }
                     last = coord;
                 }
@@ -74,7 +73,7 @@ public class LengthComputer {
         CoordinateReferenceSystem targetCRS = CRS.decode("EPSG:" + target);
         return CRS.findMathTransform(sourceCRS, targetCRS, true);
     }
-
+/*
 
     private double toRad(double deg){
         return deg*(Math.PI/180);
@@ -137,4 +136,5 @@ public class LengthComputer {
                 B/6*cos2SigmaM*(-3+4*sinSigma*sinSigma)*(-3+4*cos2SigmaM*cos2SigmaM)));
         return b*A*(sigma-deltaSigma);
     }
+    */
 }

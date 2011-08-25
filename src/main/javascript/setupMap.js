@@ -62,7 +62,8 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         "http://opencache.statkart.no/gatekeeper/gk/gk.open?",
         {'layers': 'topo2', 'format':'image/png'},
         {
-            visibility: true,
+            //visibility: true,
+            visibility:false,
             'isBaseLayer': true,
             'wrapDateLine': true,
              layerId: "topo2"
@@ -75,12 +76,22 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
                     strokeWidth: 2},
                 OpenLayers.Feature.Vector.style["default"]));
 
+    var centroidStyleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults({
+                    strokeColor: "green",
+                    fillColor: "red",
+                    strokeWidth: 2},
+                OpenLayers.Feature.Vector.style["default"]));
+
 
     var featureLayer = new OpenLayers.Layer.Vector("test",{displayInLayerSwitcher:false,styleMap: styleMap});
+    var cLayer = new OpenLayers.Layer.Vector("Turpunkter",{displayInLayerSwitcher:true,styleMap: centroidStyleMap});
     if(!perma){
         tripFetcher.addLayer(featureLayer);
     }
-    map.addLayers([wms, gmap, mapnik,gsat, featureLayer]);
+    map.addLayers([wms, gmap, mapnik,gsat,cLayer, featureLayer]);
+
+    //remove
+    map.setBaseLayer(gmap);
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
     if(perma){
@@ -102,8 +113,21 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     }
     else {
         map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
-        //TODO get point representation of all tracks, and add to map, Zoom map to extent
-        //map.zoomToMaxExtent()
+        var centroidFetcher = new TripOrganizer.TripCentroidDisplayer(cLayer);
+        centroidFetcher.displayCentroids(false);
+
+        cLayer.events.on({
+                        'featureselected': function(evt) {
+                            var id = evt.feature.attributes.tripid;
+                            tripFetcher.displayTrip(id);
+                        }
+                    });
+        tripFetcher.events.on({
+            'tripadded':function(evt){
+                centroidFetcher.displayCentroids(true);
+            }
+        });
+
     }
 
 

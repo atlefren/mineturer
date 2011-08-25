@@ -16,13 +16,13 @@ CREATE TABLE trips.tracks(
 trackid serial NOT NULL PRIMARY KEY,
 tripid int references trips.trips(tripid) ON DELETE CASCADE
 );
-SELECT addGeometryColumn('trips','tracks','geom',4326,'GEOMETRY',3);
+SELECT addGeometryColumn('trips','tracks','geom',4326,'GEOMETRY',2);
 
 CREATE TABLE trips.routes(
 routekid serial NOT NULL PRIMARY KEY,
 tripid int references trips.trips(tripid) ON DELETE CASCADE
 );
-SELECT addGeometryColumn('trips','routes','geom',4326,'GEOMETRY',3);
+SELECT addGeometryColumn('trips','routes','geom',4326,'GEOMETRY',2);
 
 
 CREATE TABLE trips.waypoints(
@@ -30,9 +30,17 @@ wpid serial NOT NULL PRIMARY KEY,
 tripid int references trips.trips(tripid) ON DELETE CASCADE
 );
 
-SELECT addGeometryColumn('trips','waypoints','geom',4326,'GEOMETRY',3);
+SELECT addGeometryColumn('trips','waypoints','geom',4326,'GEOMETRY',2);
 
+CREATE TABLE trips.points(
+pid serial NOT NULL PRIMARY KEY,
+tripid int references trips.trips(tripid) ON DELETE CASCADE,
+ele double,
+"time" timestamp
 
+);
+
+SELECT addGeometryColumn('trips','points','geom',4326,'POINT',2);
 
 
 

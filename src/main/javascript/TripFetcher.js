@@ -6,16 +6,18 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     tripMapDisplayer: null,
     heightDisplayer: null,
     tripDisplayer: null,
-
+    events: null,
+    EVENT_TYPES: ["tripadded"],
 
 
     initialize: function(div,options){
         OpenLayers.Util.extend(this, options);
+        this.events = new OpenLayers.Events(this, null, this.EVENT_TYPES);
         this.div=div;
     },
 
     addLayer:function(layer){
-        this.tripMapDisplayer = new TripOrganizer.TripDisplayer(layer);
+        this.tripMapDisplayer = new TripOrganizer.TripMapDisplayer(layer);
     },
 
     getTrips: function(){
@@ -54,14 +56,8 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     },
 
     addAndDisplayTrip: function(trip){
+        this.events.triggerEvent("tripadded");
         this.trips.push(trip);
-        //console.log("this:", this);
-        //console.log("displaying ", trip , " from tripFetcher");
-
-        /*
-        this.tripMapDisplayer.addTrip(trip);
-        this.tripMapDisplayer.showTrip(trip.id);
-        */
         this.tripMapDisplayer.showTrip(trip);
         this.createItem(trip,false,true,this);
         this.tripDisplayer.displayTripInfo(trip);
@@ -73,22 +69,26 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
 
 
     displayTrip: function(id){
-        this.tripDisplayer.showSpinner();
-        this.heightDisplayer.hideHeightProfile();
-        this.tripMapDisplayer.hideTrip();
-        var that = this;
-        $.getJSON(
-            "getTripGeom",
-            {id:id},
-            function(trips) {
-                //console.log(trips);
-                that.doDisplayTrip(trips);
-            }
-        );
+        if(id!=this.activeTrip){
+            $('#head_for_'+id).removeClass("closed").addClass("open");
+            this.activeTrip=id;
+            this.redraw();
+            this.tripDisplayer.showSpinner();
+            this.heightDisplayer.hideHeightProfile();
+            this.tripMapDisplayer.hideTrip();
+            var that = this;
+            $.getJSON(
+                "getTripGeom",
+                {id:id},
+                function(trips) {
+                    //console.log(trips);
+                    that.doDisplayTrip(trips);
+                }
+            );
+        }
     },
 
     doDisplayTrip: function(trip){
-        console.log("do display: ", trip);
         this.heightDisplayer.displayProfileFortrack(trip.id);
         this.tripDisplayer.displayTripInfo(trip);
         this.tripMapDisplayer.showTrip(trip);
@@ -105,21 +105,10 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         $head.click(function(){
             var id = this.id.replace("head_for_","");
             if($('#'+this.id).hasClass("closed")){
-                $('#body_for_'+id).removeClass("hidden");
-                $('#'+this.id).removeClass("closed").addClass("open");
+                //$('#body_for_'+id).removeClass("hidden");
 
                 that.displayTrip(id);
-                //that.tripMapDisplayer.showTrip(id);
 
-                /*
-                 for(var i=0;i<that.trips.length;i++){
-                    if(that.trips[i].id == id){
-                        that.tripDisplayer.displayTripInfo(that.trips[i]);
-                    }
-                }
-                */
-                //that.heightDisplayer.displayProfileFortrack(id);
-                that.activeTrip=id;
 
             }
             else {
@@ -127,7 +116,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
                 that.heightDisplayer.hideHeightProfile();
                 that.tripMapDisplayer.hideTrip();
                 that.activeTrip=null;
-                $('#body_for_'+id).addClass("hidden");
+                //$('#body_for_'+id).addClass("hidden");
                 $('#'+this.id).removeClass("open").addClass("closed");
 
             }
