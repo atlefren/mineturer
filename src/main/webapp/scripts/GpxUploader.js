@@ -74,8 +74,9 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     // create a vector layer for drawing
     var styleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults({
-                    strokeColor: "green",
-                    strokeWidth: 2},
+                    strokeColor: "#1E13FF",
+                    strokeWidth: 2
+                    },
                 OpenLayers.Feature.Vector.style["default"]));
 
     var centroidStyleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults({
@@ -635,19 +636,21 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
         var desc = "";
         if(trip.description){
-            desc = "<div class='descr'>" + trip.description +"</div>"
+            desc = "<dd class='descr'>" + trip.description +"</dd>"
         }
 
         var speed = this.round((trip.distance/trip.duration)*3.6,2);
 
                 var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
+                    "<dl>"+
                     desc +
-                    "<p><b>Start:</b> " + trip.start+"</p>"+
-                    "<p><b>Stopp:</b> " + trip.stop+"</p>" +
-                    "<p><b>Total tid:</b> " + this.convertTime(trip.duration)  + "</p>" +
-                    "<p><b>Lengde:</b> " + this.meterToKm(trip.distance)  + " km</p>" +
-                    "<p><b>Gjennomsnittsfart:</b> " + speed + " km/t</p>" +
-                    "<p><b>Permalenke:</b><br /><a href='' target='blank' id='perma'>Permalink</a></p>"
+                    "<dt><strong>Start:</strong></dt> <dd>" + trip.start+"</dd>"+
+                    "<dt><strong>Stopp:</strong></dt> <dd>" + trip.stop+"</dd>" +
+                    "<dt><strong>Total tid:</strong></dt> <dd>" + this.convertTime(trip.duration)  + "</dd>" +
+                    "<dt><strong>Lengde:</strong></dt> <dd>" + this.meterToKm(trip.distance)  + " km</dd>" +
+                    "<dt><strong>Gjennomsnittsfart:</strong></dt> <dd> " + speed + " km/t</dd>" +
+                    "<dt><strong>Permalenke:</strong><dt></dt><dd><a href='' target='blank' id='perma'>Permalink</a></dd>"+
+                    "</dl>"
                 );
         $("#"+this.divId).append("<h3>"+trip.name+"</h3>");
         $("#"+this.divId).append($body);
@@ -660,7 +663,7 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
            // console.log("map moved! ", this.createParams());
             var perma = document.getElementById("perma");
             var paramstring = OpenLayers.Util.getParameterString(this.createParams());
-            perma.innerHTML = "showTrip?"+paramstring;
+            perma.innerHTML = "Link";
             perma.href="showTrip?"+paramstring;
         }
     },
@@ -765,6 +768,11 @@ TripOrganizer.TripCentroidDisplayer = OpenLayers.Class({
         for(var i=0;i<centroids.length;i++){
             var feature =this.format.read(centroids[i].geom);
                 bounds.extend(feature.geometry.getBounds());
+                feature.style = {
+                    externalGraphic:"gfx/marker.png",
+                    graphicWidth:21,
+                    graphicHeight:25
+                };
                 feature.attributes.tripid=centroids[i].id;
                 features.push(feature);
         }

@@ -46,6 +46,11 @@ TripOrganizer.TripCentroidDisplayer = OpenLayers.Class({
         for(var i=0;i<centroids.length;i++){
             var feature =this.format.read(centroids[i].geom);
                 bounds.extend(feature.geometry.getBounds());
+                feature.style = {
+                    externalGraphic:"gfx/marker.png",
+                    graphicWidth:21,
+                    graphicHeight:25
+                };
                 feature.attributes.tripid=centroids[i].id;
                 features.push(feature);
         }

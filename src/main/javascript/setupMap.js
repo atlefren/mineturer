@@ -73,8 +73,9 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     // create a vector layer for drawing
     var styleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults({
-                    strokeColor: "green",
-                    strokeWidth: 2},
+                    strokeColor: "#1E13FF",
+                    strokeWidth: 2
+                    },
                 OpenLayers.Feature.Vector.style["default"]));
 
     var centroidStyleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults({

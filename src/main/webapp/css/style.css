@@ -122,6 +122,7 @@ body {
     background: #FFFF80;
     border:  1px dotted gray;
     padding: 3px;
+    margin-left: 0;
 }
 
 .tripbody {
@@ -177,3 +178,10 @@ body {
 
     background: #eee;
 }
+
+dl dt {
+    float:left;
+    font-weight:bold;
+    margin-right: 2px;
+}
+

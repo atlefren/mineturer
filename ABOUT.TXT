@@ -1,0 +1,10 @@
+GPS TRIP ORGANIZER
+
+
+A simple web page for managing GPX-tracks.
+- stores the tracks (and points) in a PostGIS database
+    - stored in EPSG:4326
+    - reprojected to EPSG:900913 for display
+- displays statistics, graph(s) and maps
+
+
