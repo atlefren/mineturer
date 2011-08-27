@@ -4,12 +4,25 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          id="GeomeldingKart" version="2.5">
 
-    <display-name>GoBuss</display-name>
+    <display-name>GpxUpload</display-name>
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>WEB-INF/applicationContext.xml</param-value>
+        <param-value>
+            WEB-INF/applicationContext.xml
+            WEB-INF/security-app-context.xml
+        </param-value>
     </context-param>
+
+
+<filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
@@ -22,36 +35,41 @@
 
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
-        <url-pattern>index.html</url-pattern>
+        <url-pattern>/trips</url-pattern>
     </servlet-mapping>
 
         <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
-        <url-pattern>uploadGpx</url-pattern>
+        <url-pattern>/uploadGpx</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
-        <url-pattern>getTrips</url-pattern>
+        <url-pattern>/getTrips</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
-        <url-pattern>getTripGeom</url-pattern>
+        <url-pattern>/getTripGeom</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
-        <url-pattern>getTripHeights</url-pattern>
+        <url-pattern>/getTripHeights</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
-        <url-pattern>showTrip</url-pattern>
+        <url-pattern>/getTripSpeeds</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
-        <url-pattern>getCentroids</url-pattern>
+        <url-pattern>/showTrip</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/getCentroids</url-pattern>
     </servlet-mapping>
 </web-app>

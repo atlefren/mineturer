@@ -8,7 +8,10 @@ import net.atlefren.GpxUploader.dao.TripDao;
 import net.atlefren.GpxUploader.model.CentroidPoint;
 import net.atlefren.GpxUploader.model.Trip;
 import net.atlefren.GpxUploader.service.HeightProfileGenerator;
+import net.atlefren.GpxUploader.service.SpeedProfileGenerator;
 import org.apache.log4j.Logger;
+import org.geotools.math.Statistics;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,31 +40,43 @@ public class GetController {
     private static Logger logger = Logger.getLogger(TripDao.class);
 
 
+
     @RequestMapping(value = "getCentroids", method = RequestMethod.GET)
     @ResponseBody
     public List<CentroidPoint> getTripCentroids(){
-        return tripDao.getCentroids("1","900913");
+        return tripDao.getCentroids(getUser(),"900913");
     }
 
-    @RequestMapping(value = "/getTrips", method = RequestMethod.GET)
+    @RequestMapping(value = "getTrips", method = RequestMethod.GET)
     @ResponseBody
     public List<Trip> getTrips() {
-        return  tripDao.getTrips("1","900913");
+        return  tripDao.getTrips(getUser(),"900913");
     }
 
-    @RequestMapping(value = "/getTripGeom", method = RequestMethod.GET)
+    @RequestMapping(value = "getTripGeom", method = RequestMethod.GET)
     @ResponseBody
     public Trip getTripGeom(@RequestParam("id") int id) {
-        return tripDao.getTripGeom("1", "900913", id);
+        return tripDao.getTripGeom(getUser(), "900913", id);
     }
 
     //TODO: rewrite to calculate from points
 
-    @RequestMapping(value = "/getTripHeights", method = RequestMethod.GET)
+    @RequestMapping(value = "getTripHeights", method = RequestMethod.GET)
     @ResponseBody
     public List<List<Double>> getTripHeights(@RequestParam("id") int id) {
         HeightProfileGenerator profileGenerator = new HeightProfileGenerator();
-        return profileGenerator.generateFlotSeries(tripDao.getPointsForTrip(id));
+        return profileGenerator.generateFlotSeries(tripDao.getPointsForTrip(id,getUser()));
+    }
+
+    @RequestMapping(value = "getTripSpeeds", method = RequestMethod.GET)
+    @ResponseBody
+    public List<List<Double>> getTripSpeeds(@RequestParam("id") int id) {
+        SpeedProfileGenerator profileGenerator = new SpeedProfileGenerator();
+        return profileGenerator.generateFlotSeries(tripDao.getPointsForTrip(id,getUser()));
+    }
+
+    private String getUser(){
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
 }

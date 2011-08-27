@@ -33,6 +33,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     if(!perma){
         tripDisplayer.setMap(map);
     }
+
     // create Google Mercator layers
     var gmap = new OpenLayers.Layer.Google(
         "Google Maps",
@@ -88,12 +89,17 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     if(!perma){
         tripFetcher.addLayer(featureLayer);
     }
-    map.addLayers([wms, gmap, mapnik,gsat,cLayer, featureLayer]);
 
-    //remove
-    map.setBaseLayer(gmap);
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
+    map.addLayers([wms, gmap, mapnik,gsat,cLayer, featureLayer]);
+      //map.addLayers([wms,mapnik,cLayer, featureLayer]);
+
+    //remove
+    /*
+    map.setBaseLayer(mapnik);
+    map.addControl(new OpenLayers.Control.LayerSwitcher());
+*/
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);
         for(var i =0;i<map.layers.length;i++){
@@ -129,7 +135,26 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         });
 
     }
+    /*
 
+    var speedProfileDisplayer = new TripOrganizer.SpeedProfileDisplayer("ele");
 
+    $("#hoyde").click(function(){
+        if(!heightDisplayer.active){
+            speedProfileDisplayer.hideProfile();
+            $('#fart').removeClass("active").addClass("inactive");
+            heightDisplayer.displayProfileFortrack(tripFetcher.activeTrip);
+            $('#hoyde').removeClass("inactive").addClass("active");
+        }
+    });
 
+    $("#fart").click(function(){
+        if(!speedProfileDisplayer.active){
+            heightDisplayer.hideHeightProfile();
+            $('#hoyde').removeClass("active").addClass("inactive");
+            speedProfileDisplayer.displayProfileFortrack(tripFetcher.activeTrip);
+            $('#fart').removeClass("inactive").addClass("active");
+        }
+    });
+*/
 }

@@ -57,35 +57,47 @@ public class TripDao {
     public List<Trip> getTrips(String user,String srid){
         this.srid = srid;
 
-        String sql = "SELECT tripid,title FROM trips.trips WHERE userid="+user;
+        String sql = "SELECT tripid,title FROM trips.trips WHERE userid='"+user+"'";
         Map<String, Object> map = new HashMap<String, Object>();
         return namedParameterJdbcTemplate.query(sql, map, tripRowMapper);
     }
 
 
     public List<CentroidPoint> getCentroids(String user,String srid){
-        String sql = "SELECT asText(ST_Centroid(st_transform(t.geom,"+srid+"))) as point, ts.tripid as tripid,ts.title as title FROM trips.tracks as t, trips.trips AS ts WHERE ts.tripid=t.tripid AND ts.userid="+user;
+        String sql = "SELECT asText(ST_Centroid(st_transform(t.geom,"+srid+"))) as point, ts.tripid as tripid,ts.title as title FROM trips.tracks as t, trips.trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+user+"'";
         Map<String, Object> map = new HashMap<String, Object>();
         return namedParameterJdbcTemplate.query(sql,map,wktPointRowMapper);
     }
 
     public Trip getTripGeom(String user,String srid,int id){
         this.srid = srid;
-        String sql = "SELECT * FROM trips.trips WHERE userid="+user+" AND tripid="+id;
+        String sql = "SELECT * FROM trips.trips WHERE userid='"+user+"' AND tripid="+id;
         Map<String, Object> map = new HashMap<String, Object>();
         return namedParameterJdbcTemplate.query(sql, map, tripGeomRowMapper).get(0);
     }
 
-    public List<GpxPoint> getPointsForTrip(int id){
+    public List<GpxPoint> getPointsForTrip(int id,String user){
         String sql = "SELECT st_x(geom) as lon, st_y(geom) as lat, ele, \"time\" FROM trips.points WHERE tripid="+id;
         Map<String, Object> map = new HashMap<String, Object>();
         return namedParameterJdbcTemplate.query(sql,map,pointRowMapper);
     }
 
+    public List<String> getTracksForTrip(String srid, int id){
+        this.srid = srid;
+        List<String> trackWkts =getTracksAsEwkt(id);
+        List<String> res = new ArrayList<String>();
+        for(String trackwkt:trackWkts){
+            res.add(trackwkt.replaceFirst("SRID="+srid+";",""));
+        }
+        return res;
+    }
+
+
+
     public int saveTripToDb(GpxFileContents trip,String user){
         Map<String,Object> namedParameters = new HashMap<String,Object>();
 
-        namedParameters.put("userid", Integer.parseInt(user));
+        namedParameters.put("userid", user);
         namedParameters.put("title", trip.getName());
         namedParameters.put("description", trip.getDescription());
         namedParameters.put("start", trip.getStart());
@@ -112,6 +124,17 @@ public class TripDao {
             }
         }
         return tripId;
+    }
+
+    private List<String> getTracksAsEwkt(int tripid){
+        String sql;
+        if(srid != null){
+            sql = "SELECT asEWKT(st_transform(geom,"+ srid+")) as ewkt FROM trips.tracks WHERE tripid=" + tripid;
+        }else {
+            sql = "SELECT asEWKT(geom) as ewkt FROM trips.tracks WHERE tripid=" + tripid;
+        }
+        Map<String, Object> map = new HashMap<String, Object>();
+        return  namedParameterJdbcTemplate.query(sql, map, geomRowMapper);
     }
 
     private List<String> getTracks(int tripid){

@@ -1,12 +1,16 @@
 
+
+
 DROP TABLE trips.trips;
 DROP TABLE trips.tracks;
 DROP TABLE trips.waypoints;
 DROP TABLE trips.routes;
 
+CREATE SCHEMA trips;
+
 CREATE TABLE trips.trips (
 tripid SERIAL  NOT NULL PRIMARY KEY,
-userid int ,
+userid varchar ,
 title varchar ,
 description text ,
 start timestamp ,
@@ -35,7 +39,7 @@ SELECT addGeometryColumn('trips','waypoints','geom',4326,'GEOMETRY',2);
 CREATE TABLE trips.points(
 pid serial NOT NULL PRIMARY KEY,
 tripid int references trips.trips(tripid) ON DELETE CASCADE,
-ele double,
+ele DOUBLE PRECISION,
 "time" timestamp
 
 );

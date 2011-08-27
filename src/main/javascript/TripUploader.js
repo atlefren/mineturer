@@ -39,7 +39,7 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         $uplDiv = $("<div id=\"uploadDiv\" class=\"uploadForm\"></div>");
 
 
-        var formString= "<form id=\"uploadForm\" action=\"/uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\">"+
+        var formString= "<form id=\"uploadForm\" action=\"uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\">"+
                         "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
                         "GPX-fil: <input type=\"file\" name=\"file\" /><br />"+
                         "Navn: <input type=\"text\" name=\"name\"><br />"+

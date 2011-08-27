@@ -10,6 +10,7 @@
           <include>TripMapDisplayer.js</include>
           <include>TripUploader.js</include>
           <include>HeightProfileDisplayer.js</include>
+          <include>SpeedProfileDisplayer.js</include>
           <include>TripInfoDisplayer.js</include>
           <include>TripCentroidDisplayer.js</include>
       </includes>

@@ -5,6 +5,7 @@ import net.atlefren.GpxUploader.dao.TripDao;
 import net.atlefren.GpxUploader.model.GpxFileContents;
 import net.atlefren.GpxUploader.model.Trip;
 import net.atlefren.GpxUploader.service.GpxReader;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,7 +29,7 @@ public class FileUploadController {
     @Resource
     private TripDao tripDao;
 
-    @RequestMapping(value = "/uploadGpx", method = RequestMethod.POST)
+    @RequestMapping(value = "uploadGpx", method = RequestMethod.POST)
     @ResponseBody
     public String handleFormUpload(@RequestParam("file") MultipartFile file,@RequestParam("desc")String desc,@RequestParam("name")String name ) {
 
@@ -45,8 +46,8 @@ public class FileUploadController {
                 if(desc!=null && !desc.equals("")){
                     contents.setDescription(desc);
                 }
-                int id = tripDao.saveTripToDb(contents,"1");
-                Trip obj = tripDao.getTripGeom("1", "900913", id);
+                int id = tripDao.saveTripToDb(contents,getUser());
+                Trip obj = tripDao.getTripGeom(getUser(), "900913", id);
                 Gson gson = new Gson();
                 return "<textarea>"+ gson.toJson(obj) +"</textarea>";
             }
@@ -61,6 +62,10 @@ public class FileUploadController {
         } else {
             return "<textarea>{\"error\":\"Ingen fil\"}</textarea>";
         }
+    }
+
+    private String getUser(){
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }
 

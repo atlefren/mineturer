@@ -19,7 +19,7 @@ public class MasterController {
     @Resource
     private TripDao tripDao;
 
-    @RequestMapping("/index.html")
+    @RequestMapping("/trips")
     public ModelAndView mapRequest() {
         return new ModelAndView("index");
     }

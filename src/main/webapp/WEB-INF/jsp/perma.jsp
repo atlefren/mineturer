@@ -24,6 +24,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="stylesheet" href="css/style.css"/>
 
+    <title>Gps Trip Organizer</title>
+
     <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript" src="scripts/OpenLayers-2.11-rc1/OpenLayers.js"></script>
     <script type="text/javascript" src="scripts/GpxUploader.js"></script>

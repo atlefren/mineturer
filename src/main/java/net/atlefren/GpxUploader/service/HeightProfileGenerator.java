@@ -15,6 +15,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,19 +30,19 @@ import java.util.List;
 public class HeightProfileGenerator {
 
     public List<List<Double>> generateFlotSeries(List<GpxPoint> points){
-
+        DecimalFormat df = new DecimalFormat("#.####");
         GpxPoint last = null;
         double totalVincDist = 0.0;
         List<List<Double>> res = new ArrayList<List<Double>>();
 
         for(GpxPoint point:points){
             if(last != null){
-                totalVincDist += GISUtils.distVincentY(point.getLon(),point.getLat(),last.getLon(),last.getLat());
-                List<Double> entry = new ArrayList<Double>();
-                    entry.add(totalVincDist);
-                    entry.add(point.getEle());
-                    res.add(entry);
+                totalVincDist += GISUtils.distVincentY(point.getLon(), point.getLat(), last.getLon(), last.getLat());
             }
+            List<Double> entry = new ArrayList<Double>();
+            entry.add(Double.valueOf(df.format(totalVincDist)));
+            entry.add(point.getEle());
+            res.add(entry);
             last = point;
         }
         return res;

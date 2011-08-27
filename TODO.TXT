@@ -1,0 +1,28 @@
+in no particular order:
+-handle different kinds of errors with gpx files
+-find a solution for speed graph
+- add labels to graph
+- clustering on trip points
+- change markers for trip points
+- find a faster server than kj0leskap
+- make it possible to delete trips
+- make it possible to edit trip info
+- consider displaying a simplified version of the geomerey
+- make a "merge trips" function
+- make a user register page
+- use a database-table for user management
+- write tests(!)
+- some gui-improvements
+- some kind of documentation?
+- prettier login-page
+- some kind of logo?
+- make it possible to change color for a trip
+- discard waypoints? Or at least find a nicer presentation
+- figure out if "routes" is relevant
+- check for more GPX-types (tested qstarz and mytracks)
+- prettify the upload-page
+- blank out fields on upload page for next upload
+- more inituitive layer-switcher
+- more maps (from where?)
+- consider flicker-integration
+- handle error with large GPX-files

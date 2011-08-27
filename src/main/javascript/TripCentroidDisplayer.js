@@ -50,10 +50,12 @@ TripOrganizer.TripCentroidDisplayer = OpenLayers.Class({
                 features.push(feature);
         }
         this.layer.addFeatures(features);
-        var mapExt =this.layer.map.getExtent();
-        if(!update){
-            if(!mapExt.containsBounds(bounds)){
-                this.layer.map.zoomToExtent(bounds);
+        if(features.length >0){
+            var mapExt =this.layer.map.getExtent();
+            if(!update){
+                if(!mapExt.containsBounds(bounds)){
+                    this.layer.map.zoomToExtent(bounds);
+                }
             }
         }
         this.select.activate();

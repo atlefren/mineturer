@@ -34,6 +34,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     if(!perma){
         tripDisplayer.setMap(map);
     }
+
     // create Google Mercator layers
     var gmap = new OpenLayers.Layer.Google(
         "Google Maps",
@@ -89,12 +90,17 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     if(!perma){
         tripFetcher.addLayer(featureLayer);
     }
-    map.addLayers([wms, gmap, mapnik,gsat,cLayer, featureLayer]);
 
-    //remove
-    map.setBaseLayer(gmap);
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
+    map.addLayers([wms, gmap, mapnik,gsat,cLayer, featureLayer]);
+      //map.addLayers([wms,mapnik,cLayer, featureLayer]);
+
+    //remove
+    /*
+    map.setBaseLayer(mapnik);
+    map.addControl(new OpenLayers.Control.LayerSwitcher());
+*/
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);
         for(var i =0;i<map.layers.length;i++){
@@ -113,7 +119,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     }
     else {
-        map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),10);
+        map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
         var centroidFetcher = new TripOrganizer.TripCentroidDisplayer(cLayer);
         centroidFetcher.displayCentroids(false);
 
@@ -125,15 +131,33 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
                     });
         tripFetcher.events.on({
             'tripadded':function(evt){
-                console.log("trip added");
                 centroidFetcher.displayCentroids(true);
             }
         });
 
     }
+    /*
 
+    var speedProfileDisplayer = new TripOrganizer.SpeedProfileDisplayer("ele");
 
+    $("#hoyde").click(function(){
+        if(!heightDisplayer.active){
+            speedProfileDisplayer.hideProfile();
+            $('#fart').removeClass("active").addClass("inactive");
+            heightDisplayer.displayProfileFortrack(tripFetcher.activeTrip);
+            $('#hoyde').removeClass("inactive").addClass("active");
+        }
+    });
 
+    $("#fart").click(function(){
+        if(!speedProfileDisplayer.active){
+            heightDisplayer.hideHeightProfile();
+            $('#hoyde').removeClass("active").addClass("inactive");
+            speedProfileDisplayer.displayProfileFortrack(tripFetcher.activeTrip);
+            $('#fart').removeClass("inactive").addClass("active");
+        }
+    });
+*/
 }
 TripOrganizer.TripFetcher = OpenLayers.Class({
 
@@ -446,7 +470,7 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         $uplDiv = $("<div id=\"uploadDiv\" class=\"uploadForm\"></div>");
 
 
-        var formString= "<form id=\"uploadForm\" action=\"/uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\">"+
+        var formString= "<form id=\"uploadForm\" action=\"uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\">"+
                         "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
                         "GPX-fil: <input type=\"file\" name=\"file\" /><br />"+
                         "Navn: <input type=\"text\" name=\"name\"><br />"+
@@ -497,6 +521,7 @@ TripOrganizer.HeightProfileDisplayer = OpenLayers.Class({
     divId: null,
     spinner: null,
     displayingFor: null,
+    active: false,
 
     initialize: function(divId){
         this.divId = divId;
@@ -505,26 +530,13 @@ TripOrganizer.HeightProfileDisplayer = OpenLayers.Class({
 
     hideHeightProfile: function(){
         $("#"+this.divId).html("");
+        this.active=false;
     },
 
     displayProfileFortrack: function(trackid){
+        this.active=true;
         //console.log("display height");
         $("#"+this.divId).html("");
-        /*
-        var opts = {
-            lines: 12, // The number of lines to draw
-            length: 7, // The length of each line
-            width: 5, // The line thickness
-            radius: 10, // The radius of the inner circle
-            color: '#000', // #rbg or #rrggbb
-            speed: 1, // Rounds per second
-            trail: 100, // Afterglow percentage
-            shadow: true // Whether to render a shadow
-        };
-        var target = document.getElementById(this.divId);
-        //console.log("starting spinner");
-        this.spinner = new Spinner(opts).spin(target);
-        */
         var that = this;
         //console.log("sending request");
         $.getJSON(
@@ -538,12 +550,52 @@ TripOrganizer.HeightProfileDisplayer = OpenLayers.Class({
     },
 
     showHeightProfile: function(data){
-        //this.spinner.stop();
-        //console.log("display!");
+
         $.plot($("#"+this.divId), [data]);
     },
 
     CLASS_NAME: "TripOrganizer.HeightProfileDisplayer"
+
+});
+TripOrganizer.SpeedProfileDisplayer = OpenLayers.Class({
+
+    divId: null,
+    spinner: null,
+    displayingFor: null,
+    active: false,
+
+    initialize: function(divId){
+        this.divId = divId;
+
+    },
+
+    hideProfile: function(){
+        $("#"+this.divId).html("");
+        this.active=false;
+    },
+
+    displayProfileFortrack: function(trackid){
+        this.active=true;
+        //console.log("display height");
+        $("#"+this.divId).html("");
+        var that = this;
+        //console.log("sending request");
+        $.getJSON(
+                        "getTripSpeeds",
+                        {id:trackid},
+                        function(data) {
+                            that.showProfile(data);
+                        }
+                );
+
+    },
+
+    showProfile: function(data){
+
+        $.plot($("#"+this.divId), [data]);
+    },
+
+    CLASS_NAME: "TripOrganizer.SpeedProfileDisplayer"
 
 });
 TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
@@ -717,10 +769,12 @@ TripOrganizer.TripCentroidDisplayer = OpenLayers.Class({
                 features.push(feature);
         }
         this.layer.addFeatures(features);
-        var mapExt =this.layer.map.getExtent();
-        if(!update){
-            if(!mapExt.containsBounds(bounds)){
-                this.layer.map.zoomToExtent(bounds);
+        if(features.length >0){
+            var mapExt =this.layer.map.getExtent();
+            if(!update){
+                if(!mapExt.containsBounds(bounds)){
+                    this.layer.map.zoomToExtent(bounds);
+                }
             }
         }
         this.select.activate();

@@ -1,4 +1,4 @@
-TripOrganizer.HeightProfileDisplayer = OpenLayers.Class({
+TripOrganizer.SpeedProfileDisplayer = OpenLayers.Class({
 
     divId: null,
     spinner: null,
@@ -10,7 +10,7 @@ TripOrganizer.HeightProfileDisplayer = OpenLayers.Class({
 
     },
 
-    hideHeightProfile: function(){
+    hideProfile: function(){
         $("#"+this.divId).html("");
         this.active=false;
     },
@@ -22,20 +22,20 @@ TripOrganizer.HeightProfileDisplayer = OpenLayers.Class({
         var that = this;
         //console.log("sending request");
         $.getJSON(
-                        "getTripHeights",
+                        "getTripSpeeds",
                         {id:trackid},
                         function(data) {
-                            that.showHeightProfile(data);
+                            that.showProfile(data);
                         }
                 );
 
     },
 
-    showHeightProfile: function(data){
+    showProfile: function(data){
 
         $.plot($("#"+this.divId), [data]);
     },
 
-    CLASS_NAME: "TripOrganizer.HeightProfileDisplayer"
+    CLASS_NAME: "TripOrganizer.SpeedProfileDisplayer"
 
 });

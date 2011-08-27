@@ -34,6 +34,13 @@ public class GpxPoint {
     public GpxPoint() {
     }
 
+    public GpxPoint(double lon, double lat, double ele, String time) {
+        this.lon = lon;
+        this.lat = lat;
+        this.ele = ele;
+        this.time = parseDate(time);
+    }
+
     public double getLon() {
         return lon;
     }

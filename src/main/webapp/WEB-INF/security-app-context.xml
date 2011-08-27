@@ -1,0 +1,31 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/security
+                    http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+    <http use-expressions="true">
+            <intercept-url pattern='/css/**' access="permitAll"/>
+            <intercept-url pattern='/gfx/**' access="permitAll"/>
+            <intercept-url pattern='/scripts/**' access="permitAll"/>
+            <intercept-url pattern="/login.jsp" access="permitAll" />
+            <intercept-url pattern="/showTrip"  access="permitAll" />
+            <intercept-url pattern="/**" access="hasRole('user')"/>
+            <form-login login-page='/login.jsp' default-target-url='/trips'
+                        always-use-default-target='true'
+                    authentication-failure-url="/login.jsp?login_error=1"/>
+            <logout />
+        </http>
+
+
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="atle" password="p" authorities="user" />
+                <user name="test" password="test" authorities="user" />
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+</beans:beans>
