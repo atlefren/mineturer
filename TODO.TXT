@@ -26,3 +26,5 @@ in no particular order:
 - more maps (from where?)
 - consider flicker-integration
 - handle error with large GPX-files
+- fix charset errors
+- should only return one centroid even in trip consists of several tracks
