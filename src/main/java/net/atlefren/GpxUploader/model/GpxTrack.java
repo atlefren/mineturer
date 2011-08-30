@@ -47,7 +47,24 @@ public class GpxTrack {
     }
 
     public ArrayList<ArrayList<GpxPoint>> getTrackSegments() {
-        return trackSegments;
+        ArrayList<ArrayList<GpxPoint>> ret = new ArrayList<ArrayList<GpxPoint>>();
+        for(ArrayList<GpxPoint> seg:trackSegments){
+            if(seg.size() >1){
+                ret.add(seg);
+            }
+        }
+
+        return ret;
+    }
+
+    public int getNumSegments(){
+        int count = 0;
+        for(ArrayList<GpxPoint> seg:trackSegments){
+            if(seg.size() >1){
+                count++;
+            }
+        }
+        return count;
     }
 
     public MultiLineString getTrackAsMultiLineString(String epsg){

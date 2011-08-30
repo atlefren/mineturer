@@ -60,5 +60,18 @@ public class GpxReader {
         xr.parse(new InputSource(gpxInputStream));
         return gpxhandler.getData();
     }
+
+
+    public GpxFileContents readGpxFile(String filename) throws SAXException, IOException {
+
+        XMLReader xr = XMLReaderFactory.createXMLReader();
+        GpxSaxHandler gpxhandler = new GpxSaxHandler();
+
+        // Set the ContentHandler...
+        xr.setContentHandler(gpxhandler);
+        xr.parse( new InputSource(new FileReader(filename)) );
+        return gpxhandler.getData();
+    }
+
 }
 

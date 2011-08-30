@@ -82,26 +82,7 @@ public class GpxFileContents {
             return stop;
         }
     }
-/*
-    private Date parseDate(String date){
-        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.S'Z'"); //2011-05-29T10:14:59.000Z
-        try{
-            return formatter.parse(date);
-        }
-        catch (ParseException e){
-            logger.warn("parse exeption, trying new format"+ e);
-            try{
-                DateFormat newformatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'"); //2011-05-29T10:14:59.000Z
-                return newformatter.parse(date);
-            }
-            catch (ParseException e2){
-                logger.warn("parse exeption, trying new format"+ e2);
-                return null;
-            }
 
-        }
-    }
-*/
     public String getName() {
         if(name != null){
             return name;
@@ -129,7 +110,13 @@ public class GpxFileContents {
     }
 
     public ArrayList<GpxTrack> getTracks() {
-        return tracks;
+        ArrayList<GpxTrack> ret = new ArrayList<GpxTrack>();
+        for(GpxTrack track:tracks){
+            if(track.getNumSegments() >0){
+                ret.add(track);
+            }
+        }
+        return ret;
     }
 
 
@@ -181,15 +168,18 @@ public class GpxFileContents {
 
     public ArrayList<String> getTracksAsWKT(){
         ArrayList<String> res = new ArrayList<String>();
-        for (GpxTrack track : tracks){
-            res.add(wktWriter.write(track.getTrackAsMultiLineString(SRS)));
+        for (GpxTrack track : getTracks()){
+            MultiLineString trackGeom = track.getTrackAsMultiLineString(SRS);
+            if(trackGeom != null){
+                res.add(wktWriter.write(trackGeom));
+            }
         }
         return res;
     }
 
     public ArrayList<String> getRoutesAsWKT(){
         ArrayList<String> res = new ArrayList<String>();
-        for (GpxRoute route : routes){
+        for (GpxRoute route : getRoutes()){
             res.add(wktWriter.write(route.getRouteAsLineString(SRS)));
         }
         return res;
@@ -199,7 +189,6 @@ public class GpxFileContents {
         ArrayList<String> res = new ArrayList<String>();
         for(GpxPoint point:waypoints){
             res.add(wktWriter.write(factory.createPoint(point.getPointAsCoord(SRS))));
-
         }
         return res;
     }

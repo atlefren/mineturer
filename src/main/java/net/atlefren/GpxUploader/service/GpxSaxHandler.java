@@ -104,8 +104,18 @@ public class GpxSaxHandler extends DefaultHandler {
         }
         else if(localName.equals("trkpt")){
             isTrkpoint = true;
-            currenttrkpt = createPoint(attr);
-            currenttrkseg.add(currenttrkpt);
+            GpxPoint newPoint = createPoint(attr);
+            if(currenttrkpt != null){
+                if(newPoint.getLat() != currenttrkpt.getLat() &&newPoint.getLon() != currenttrkpt.getLon()){
+                    currenttrkpt = newPoint;
+                    currenttrkseg.add(currenttrkpt);
+                }
+            }
+            else {
+                currenttrkpt = newPoint;
+                currenttrkseg.add(currenttrkpt);
+            }
+
         }
         else if(localName.equals("rtept")){
             isRtept = true;

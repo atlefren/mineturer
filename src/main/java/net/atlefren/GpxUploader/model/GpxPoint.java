@@ -106,18 +106,18 @@ public class GpxPoint {
     }
 
     private Date parseDate(String date){
-        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.S'Z'"); //2011-05-29T10:14:59.000Z
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'"); //2011-05-29T10:14:59.000Z
         try{
             return formatter.parse(date);
         }
         catch (ParseException e){
-            logger.warn("parse exeption, trying new format"+ e);
+            logger.warn("parse exeption, trying new format "+ e);
             try{
-                DateFormat newformatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'"); //2011-05-29T10:14:59.000Z
+                DateFormat newformatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); //2011-05-29T10:14:59.000Z
                 return newformatter.parse(date);
             }
             catch (ParseException e2){
-                logger.warn("parse exeption, trying new format"+ e2);
+                logger.warn("parse exeption2, trying new format "+ e2);
                 return null;
             }
 

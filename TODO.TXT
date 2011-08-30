@@ -19,7 +19,7 @@ in no particular order:
 - make it possible to change color for a trip
 - discard waypoints? Or at least find a nicer presentation
 - figure out if "routes" is relevant
-- check for more GPX-types (tested qstarz and mytracks)
+- check for more GPX-types (tested qstarz and mytracks, and garmin forerunner + some strange )
 - prettify the upload-page
 - blank out fields on upload page for next upload
 - more inituitive layer-switcher
@@ -28,3 +28,10 @@ in no particular order:
 - handle error with large GPX-files
 - fix charset errors
 - should only return one centroid even in trip consists of several tracks
+- some solution for bit.ly style permalinks
+- add more maps from SK
+OK handle case with tracksegments with one point (see gpx sent pr mail)
+OK - handle case where 12.16 is read as 0.16 (see gpx sent pr mail)
+- handle heartRate extention, make HR graph//
+- many of the features of http://utrack.crempa.net/
+OK- remove similar points.. Is this smart?
