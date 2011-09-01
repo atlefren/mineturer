@@ -39,7 +39,7 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         $uplDiv = $("<div id=\"uploadDiv\" class=\"uploadForm\"></div>");
 
 
-        var formString= "<form id=\"uploadForm\" action=\"uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\">"+
+        var formString= "<form id=\"uploadForm\" action=\"uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\"  accept-charset=\"UTF-8\">"+
                         "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
                         "GPX-fil: <input type=\"file\" name=\"file\" /><br />"+
                         "Navn: <input type=\"text\" name=\"name\"><br />"+
@@ -59,7 +59,7 @@ TripOrganizer.TripUploader = OpenLayers.Class({
             success: function(data) {
                 $('#uploadDiv').addClass("hidden");
                 $('#uploadLoader').addClass("hidden");
-                that.fetcher.addAndDisplayTrip(data);
+                that.getTrip(data.id);
             }
         });
 
@@ -75,6 +75,21 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
 
         return $uplDiv;
+    },
+
+    getTrip: function(id){
+        var that = this;
+        $.getJSON(
+            "getTripGeom",
+            {id:id},
+            function(trip) {
+                //console.log(trips);
+                //that.doDisplayTrip(trips);
+                that.fetcher.addAndDisplayTrip(trip);
+            }
+        );
+        //
+
     },
 
 

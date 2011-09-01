@@ -1,13 +1,13 @@
 in no particular order:
--handle different kinds of errors with gpx files
--find a solution for speed graph
+- handle different kinds of errors with gpx files
+- find a solution for speed graph
 - add labels to graph
 - clustering on trip points
 - change markers for trip points
 - find a faster server than kj0leskap
 - make it possible to delete trips
 - make it possible to edit trip info
-- consider displaying a simplified version of the geomerey
+- consider displaying a simplified version of the geometry
 - make a "merge trips" function
 - make a user register page
 - use a database-table for user management
@@ -26,7 +26,7 @@ in no particular order:
 - more maps (from where?)
 - consider flicker-integration
 - handle error with large GPX-files
-- fix charset errors
+OK - fix charset errors: Umm.. somehow moved them around a bit, correct in DB at least now- now fixed
 - should only return one centroid even in trip consists of several tracks
 - some solution for bit.ly style permalinks
 - add more maps from SK
@@ -34,4 +34,4 @@ OK handle case with tracksegments with one point (see gpx sent pr mail)
 OK - handle case where 12.16 is read as 0.16 (see gpx sent pr mail)
 - handle heartRate extention, make HR graph//
 - many of the features of http://utrack.crempa.net/
-OK- remove similar points.. Is this smart?
+OK- remove similar points.. Is this smart? Probably not.. But hey!

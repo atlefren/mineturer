@@ -59,9 +59,24 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     
     // create WMS layer
     var wms = new OpenLayers.Layer.WMS(
-        "Statens Kartverk, topo2",
+        "SK, Topografisk norgeskart",
         "http://opencache.statkart.no/gatekeeper/gk/gk.open?",
         {'layers': 'topo2', 'format':'image/png'},
+        {
+            //visibility: true,
+            visibility:false,
+            'isBaseLayer': true,
+            'wrapDateLine': true,
+             layerId: "topo2"
+        }
+    );
+
+    //wms.toporaster2
+
+    var wms2 = new OpenLayers.Layer.WMS(
+        "SK, Topografisk rasterkart",
+        "http://opencache.statkart.no/gatekeeper/gk/gk.open?",
+        {'layers': 'toporaster2', 'format':'image/png'},
         {
             //visibility: true,
             visibility:false,
@@ -93,7 +108,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
-    map.addLayers([wms, gmap, mapnik,gsat,cLayer, featureLayer]);
+    map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
       //map.addLayers([wms,mapnik,cLayer, featureLayer]);
 
     //remove

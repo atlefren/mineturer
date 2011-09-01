@@ -3,6 +3,7 @@ package net.atlefren.GpxUploader.controller;
 import com.google.gson.Gson;
 import net.atlefren.GpxUploader.dao.TripDao;
 import net.atlefren.GpxUploader.model.GpxFileContents;
+import net.atlefren.GpxUploader.model.ReturnObject;
 import net.atlefren.GpxUploader.model.Trip;
 import net.atlefren.GpxUploader.service.GpxReader;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +40,8 @@ public class FileUploadController {
                 //TODO check content typpe and size and well, everything that could fail..
                 GpxReader reader = new GpxReader(file.getInputStream());
 
+                System.out.println("name = " + name);
+
                 GpxFileContents contents= reader.readAndCreateGpx();
                 if(name!=null && !name.equals("")){
                     contents.setName(name);
@@ -47,13 +50,19 @@ public class FileUploadController {
                     contents.setDescription(desc);
                 }
                 int id = tripDao.saveTripToDb(contents,getUser());
-                Trip obj = tripDao.getTripGeom(getUser(), "900913", id);
+                //Trip obj = tripDao.getTripGeom(getUser(), "900913", id);
+                ReturnObject ro = new ReturnObject();
+                ro.setId(id);
+                ro.setStatus("OK");
                 Gson gson = new Gson();
-                return "<textarea>"+ gson.toJson(obj) +"</textarea>";
+                return "<textarea>"+ gson.toJson(ro) +"</textarea>";
             }
             catch (IOException e){
+                ReturnObject ro = new ReturnObject();
+                ro.setStatus("FAIL");
+                Gson gson = new Gson();
                 System.out.println("IOe = " + e);
-                return "<textarea>{\"error\":\""+e.getMessage()+"\"}</textarea>";
+                return "<textarea>"+gson.toJson(ro)+"</textarea>";
             }
             catch (SAXException e){
                 System.out.println("SAXe = " + e);
