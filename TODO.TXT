@@ -32,6 +32,9 @@ OK - fix charset errors: Umm.. somehow moved them around a bit, correct in DB at
 - add more maps from SK
 OK handle case with tracksegments with one point (see gpx sent pr mail)
 OK - handle case where 12.16 is read as 0.16 (see gpx sent pr mail)
-- handle heartRate extention, make HR graph//
+- handle heartRate extension, make HR graph//
 - many of the features of http://utrack.crempa.net/
 OK- remove similar points.. Is this smart? Probably not.. But hey!
+- export geom as KML/GeoJSON
+- store actual GPX file for later download
+- static link for height profile
