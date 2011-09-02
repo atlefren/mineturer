@@ -35,6 +35,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         tripDisplayer.setMap(map);
     }
 
+    /*
     // create Google Mercator layers
     var gmap = new OpenLayers.Layer.Google(
         "Google Maps",
@@ -44,10 +45,6 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         }
     );
 
-    // create OSM layer
-    var mapnik = new OpenLayers.Layer.OSM();
-    mapnik.layerId = "osm";
-
     var gsat = new OpenLayers.Layer.Google(
             "Google Satellite",
             {
@@ -56,7 +53,10 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
                 layerId: "gs"
             }
         );
-
+*/
+    // create OSM layer
+    var mapnik = new OpenLayers.Layer.OSM();
+    mapnik.layerId = "osm";
     
     // create WMS layer
     var wms = new OpenLayers.Layer.WMS(
@@ -83,7 +83,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
             visibility:false,
             'isBaseLayer': true,
             'wrapDateLine': true,
-             layerId: "topo2"
+             layerId: "raster2"
         }
     );
 
@@ -109,14 +109,9 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
-    map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
-      //map.addLayers([wms,mapnik,cLayer, featureLayer]);
+    //map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
+    map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
 
-    //remove
-    /*
-    map.setBaseLayer(mapnik);
-    map.addControl(new OpenLayers.Control.LayerSwitcher());
-*/
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);
         for(var i =0;i<map.layers.length;i++){

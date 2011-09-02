@@ -29,7 +29,7 @@ in no particular order:
 OK - fix charset errors: Umm.. somehow moved them around a bit, correct in DB at least now- now fixed
 - should only return one centroid even in trip consists of several tracks
 - some solution for bit.ly style permalinks
-- add more maps from SK
+OK - add more maps from SK
 OK handle case with tracksegments with one point (see gpx sent pr mail)
 OK - handle case where 12.16 is read as 0.16 (see gpx sent pr mail)
 - handle heartRate extension, make HR graph//
