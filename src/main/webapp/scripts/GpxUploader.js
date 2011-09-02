@@ -488,9 +488,9 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
         var formString= "<form id=\"uploadForm\" action=\"uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\"  accept-charset=\"UTF-8\">"+
                         "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
-                        "GPX-fil: <input type=\"file\" name=\"file\" /><br />"+
-                        "Navn: <input type=\"text\" name=\"name\"><br />"+
-                        "Beskrivelse: <br /><textarea name=\"desc\"></textarea><br />"+
+                        "GPX-fil: <input id=\"upload_file\" type=\"file\" name=\"file\" /><br />"+
+                        "Navn: <input id=\"upload_name\" type=\"text\" name=\"name\"><br />"+
+                        "Beskrivelse: <br /><textarea id=\"upload_desc\" name=\"desc\"></textarea><br />"+
                          "<input type=\"submit\" value=\"Last opp\" />"+
                         "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"
                         "</form>";
@@ -504,6 +504,9 @@ TripOrganizer.TripUploader = OpenLayers.Class({
                 $('#uploadLoader').removeClass("hidden");
             },
             success: function(data) {
+                $('#upload_file').val('');
+                $('#upload_name').val('');
+                $('#upload_desc').val('');
                 $('#uploadDiv').addClass("hidden");
                 $('#uploadLoader').addClass("hidden");
                 that.getTrip(data.id);
@@ -518,8 +521,6 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         });
         $uplDiv.append($form);
         $uplDiv.append($close);
-
-
 
         return $uplDiv;
     },
@@ -674,12 +675,12 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
                 var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
                     "<dl>"+
                     desc +
-                    "<dt><strong>Start:</strong></dt> <dd>" + trip.start+"</dd>"+
-                    "<dt><strong>Stopp:</strong></dt> <dd>" + trip.stop+"</dd>" +
-                    "<dt><strong>Total tid:</strong></dt> <dd>" + this.convertTime(trip.duration)  + "</dd>" +
-                    "<dt><strong>Lengde:</strong></dt> <dd>" + this.meterToKm(trip.distance)  + " km</dd>" +
-                    "<dt><strong>Gjennomsnittsfart:</strong></dt> <dd> " + speed + " km/t</dd>" +
-                    "<dt><strong>Permalenke:</strong><dt></dt><dd><a href='' target='blank' id='perma'>Permalink</a></dd>"+
+                    "<dt>Start:</dt> <dd>" + trip.start+"</dd>"+
+                    "<dt>Stopp:</dt> <dd>" + trip.stop+"</dd>" +
+                    "<dt>Total tid:</dt> <dd>" + this.convertTime(trip.duration)  + "</dd>" +
+                    "<dt>Lengde:</dt> <dd>" + this.meterToKm(trip.distance)  + " km</dd>" +
+                    "<dt>Gjennomsnittsfart:</dt> <dd> " + speed + " km/t</dd>" +
+                    "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
                     "</dl>"
                 );
         $("#"+this.divId).append("<h3>"+trip.name+"</h3>");

@@ -41,9 +41,9 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
         var formString= "<form id=\"uploadForm\" action=\"uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\"  accept-charset=\"UTF-8\">"+
                         "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
-                        "GPX-fil: <input type=\"file\" name=\"file\" /><br />"+
-                        "Navn: <input type=\"text\" name=\"name\"><br />"+
-                        "Beskrivelse: <br /><textarea name=\"desc\"></textarea><br />"+
+                        "GPX-fil: <input id=\"upload_file\" type=\"file\" name=\"file\" /><br />"+
+                        "Navn: <input id=\"upload_name\" type=\"text\" name=\"name\"><br />"+
+                        "Beskrivelse: <br /><textarea id=\"upload_desc\" name=\"desc\"></textarea><br />"+
                          "<input type=\"submit\" value=\"Last opp\" />"+
                         "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"
                         "</form>";
@@ -57,6 +57,9 @@ TripOrganizer.TripUploader = OpenLayers.Class({
                 $('#uploadLoader').removeClass("hidden");
             },
             success: function(data) {
+                $('#upload_file').val('');
+                $('#upload_name').val('');
+                $('#upload_desc').val('');
                 $('#uploadDiv').addClass("hidden");
                 $('#uploadLoader').addClass("hidden");
                 that.getTrip(data.id);
@@ -71,8 +74,6 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         });
         $uplDiv.append($form);
         $uplDiv.append($close);
-
-
 
         return $uplDiv;
     },

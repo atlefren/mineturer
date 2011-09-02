@@ -43,12 +43,12 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
                 var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
                     "<dl>"+
                     desc +
-                    "<dt><strong>Start:</strong></dt> <dd>" + trip.start+"</dd>"+
-                    "<dt><strong>Stopp:</strong></dt> <dd>" + trip.stop+"</dd>" +
-                    "<dt><strong>Total tid:</strong></dt> <dd>" + this.convertTime(trip.duration)  + "</dd>" +
-                    "<dt><strong>Lengde:</strong></dt> <dd>" + this.meterToKm(trip.distance)  + " km</dd>" +
-                    "<dt><strong>Gjennomsnittsfart:</strong></dt> <dd> " + speed + " km/t</dd>" +
-                    "<dt><strong>Permalenke:</strong><dt></dt><dd><a href='' target='blank' id='perma'>Permalink</a></dd>"+
+                    "<dt>Start:</dt> <dd>" + trip.start+"</dd>"+
+                    "<dt>Stopp:</dt> <dd>" + trip.stop+"</dd>" +
+                    "<dt>Total tid:</dt> <dd>" + this.convertTime(trip.duration)  + "</dd>" +
+                    "<dt>Lengde:</dt> <dd>" + this.meterToKm(trip.distance)  + " km</dd>" +
+                    "<dt>Gjennomsnittsfart:</dt> <dd> " + speed + " km/t</dd>" +
+                    "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
                     "</dl>"
                 );
         $("#"+this.divId).append("<h3>"+trip.name+"</h3>");
