@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.atlefren</groupId>
-    <artifactId>GpxUpload</artifactId>
+    <artifactId>MineTurer</artifactId>
     <version>0.01</version>
     <packaging>war</packaging>
     <name>GpxUpload</name>

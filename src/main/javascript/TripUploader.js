@@ -52,28 +52,46 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         var that = this;
         $form.ajaxForm({
             beforeSubmit: function(a,f,o) {
-
                 o.dataType = "json";
                 $('#uploadLoader').removeClass("hidden");
+                $('#uploadErr').addClass("hidden");
+                $('#uploadErr').html("");
             },
             success: function(data) {
-                $('#upload_file').val('');
-                $('#upload_name').val('');
-                $('#upload_desc').val('');
-                $('#uploadDiv').addClass("hidden");
-                $('#uploadLoader').addClass("hidden");
                 that.getTrip(data.id);
+                that.fetcher.tripDisplayer.showSpinner();
+                //console.log(data);
+                if(data.status == "OK"){
+                    $('#uploadErr').addClass("hidden");
+                    $('#uploadErr').html("");
+                    $('#upload_file').val('');
+                    $('#upload_name').val('');
+                    $('#upload_desc').val('');
+                    $('#uploadDiv').addClass("hidden");
+                    $('#uploadLoader').addClass("hidden");
+                }
+                else {
+                    $('#uploadLoader').addClass("hidden");
+                    $('#uploadErr').removeClass("hidden");
+                    $('#uploadErr').html("<h5>En feil oppsto</h5><p></p>"+data.errMsg+"</p>");
+                }
             }
         });
 
 
         var $close = $("<a class=\"link\">Lukk</a>");
         $close.click(function(){
-
+            $('#uploadErr').addClass("hidden");
+            $('#uploadErr').html("");
+            $('#upload_file').val('');
+            $('#upload_name').val('');
+            $('#upload_desc').val('');
             $('#uploadDiv').addClass("hidden");
         });
         $uplDiv.append($form);
+        $uplDiv.append($("<div id=\"uploadErr\" class=\"error hidden\">"));
         $uplDiv.append($close);
+
 
         return $uplDiv;
     },

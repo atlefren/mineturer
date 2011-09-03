@@ -81,7 +81,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
                 "getTripGeom",
                 {id:id},
                 function(trip) {
-                    //console.log(trips);
+                    //console.log(trip);
                     that.doDisplayTrip(trip);
                 }
             );

@@ -5,7 +5,9 @@ import net.atlefren.GpxUploader.dao.TripDao;
 import net.atlefren.GpxUploader.model.GpxFileContents;
 import net.atlefren.GpxUploader.model.ReturnObject;
 import net.atlefren.GpxUploader.model.Trip;
+import net.atlefren.GpxUploader.model.User;
 import net.atlefren.GpxUploader.service.GpxReader;
+import org.apache.log4j.Logger;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,7 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,18 +33,14 @@ public class FileUploadController {
     @Resource
     private TripDao tripDao;
 
+    private static Logger logger = Logger.getLogger(FileUploadController.class);
+
     @RequestMapping(value = "uploadGpx", method = RequestMethod.POST)
     @ResponseBody
     public String handleFormUpload(@RequestParam("file") MultipartFile file,@RequestParam("desc")String desc,@RequestParam("name")String name ) {
-
         if (!file.isEmpty()) {
             try{
-                String ct = file.getContentType();
-                //TODO check content typpe and size and well, everything that could fail..
                 GpxReader reader = new GpxReader(file.getInputStream());
-
-                System.out.println("name = " + name);
-
                 GpxFileContents contents= reader.readAndCreateGpx();
                 if(name!=null && !name.equals("")){
                     contents.setName(name);
@@ -58,23 +57,47 @@ public class FileUploadController {
                 return "<textarea>"+ gson.toJson(ro) +"</textarea>";
             }
             catch (IOException e){
+                logger.error("IOe = " + e);
                 ReturnObject ro = new ReturnObject();
                 ro.setStatus("FAIL");
+                ro.setErrMsg("Noe gikk galt ved lesing av GPX-fila. Lastet du opp en gyldig GPX-fil?");
+                Gson gson = new Gson();
+                return "<textarea>"+gson.toJson(ro)+"</textarea>";
+            }
+            catch (SAXException e){
+                logger.error("SAXe = " + e);
+                ReturnObject ro = new ReturnObject();
+                ro.setStatus("FAIL");
+                ro.setErrMsg("Noe gikk galt ved lesing av GPX-fila. Vennligst ta kontakt!");
                 Gson gson = new Gson();
                 System.out.println("IOe = " + e);
                 return "<textarea>"+gson.toJson(ro)+"</textarea>";
             }
-            catch (SAXException e){
-                System.out.println("SAXe = " + e);
-                return "<textarea>{\"error\":\""+e.getMessage()+"\"}</textarea>";
+            catch (Exception e){
+                logger.error("General error = " + e);
+                ReturnObject ro = new ReturnObject();
+                ro.setStatus("FAIL");
+                ro.setErrMsg("Noe gikk totalt galt ved lesing av GPX-fila. Vennligst ta kontakt!");
+                Gson gson = new Gson();
+                System.out.println("IOe = " + e);
+                return "<textarea>"+gson.toJson(ro)+"</textarea>";
             }
         } else {
-            return "<textarea>{\"error\":\"Ingen fil\"}</textarea>";
+                ReturnObject ro = new ReturnObject();
+                ro.setStatus("FAIL");
+                ro.setErrMsg("Ingen fil lastet opp! Velg en fil og pr&oslash;v p&aring; nytt..");
+                Gson gson = new Gson();
+                return "<textarea>"+gson.toJson(ro)+"</textarea>";
         }
     }
 
-    private String getUser(){
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+    private int getUser(){
+        User user= (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        /*
+        System.out.println("user.getId() = " + user.getId());
+        System.out.println("user.getEmail() = " + user.getEmail());
+          */
+        return user.getId();
     }
 }
 

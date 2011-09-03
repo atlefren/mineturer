@@ -92,4 +92,18 @@
         <servlet-name>GpxUploader</servlet-name>
         <url-pattern>/getCentroids</url-pattern>
     </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/newUser</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/checkUsername</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/registerUser</url-pattern>
+    </servlet-mapping>
 </web-app>

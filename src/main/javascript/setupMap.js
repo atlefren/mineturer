@@ -34,7 +34,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         tripDisplayer.setMap(map);
     }
 
-    /*
+
     // create Google Mercator layers
     var gmap = new OpenLayers.Layer.Google(
         "Google Maps",
@@ -52,7 +52,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
                 layerId: "gs"
             }
         );
-*/
+
     // create OSM layer
     var mapnik = new OpenLayers.Layer.OSM();
     mapnik.layerId = "osm";
@@ -108,8 +108,8 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
-    //map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
-    map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
+    map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
+    //map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
 
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);

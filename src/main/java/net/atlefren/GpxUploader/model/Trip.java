@@ -17,6 +17,7 @@ public class Trip {
     String description;
     String start;
     String stop;
+    String user;
     double duration;
     double distance;
     List<String> tracks;
@@ -88,7 +89,13 @@ public class Trip {
         this.stop = formatDate(stop);
     }
 
+    public String getUser() {
+        return user;
+    }
 
+    public void setUser(String user) {
+        this.user = user;
+    }
 
     public void setId(String id) {
         this.id = id;

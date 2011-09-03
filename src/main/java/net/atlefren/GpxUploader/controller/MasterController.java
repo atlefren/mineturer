@@ -2,6 +2,7 @@ package net.atlefren.GpxUploader.controller;
 
 import com.google.gson.Gson;
 import net.atlefren.GpxUploader.dao.TripDao;
+import net.atlefren.GpxUploader.model.Trip;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,6 +25,11 @@ public class MasterController {
         return new ModelAndView("index");
     }
 
+    @RequestMapping("/newUser")
+    public ModelAndView registerUser() {
+        return new ModelAndView("newuser");
+    }
+
     @RequestMapping("/showTrip")
     public ModelAndView permaRequest(HttpServletRequest request) {
         String lon = request.getParameter("lon");
@@ -39,6 +45,9 @@ public class MasterController {
         List<String> trip = tripDao.getTracksForTrip("900913", Integer.parseInt(tripId));
         Gson gson = new Gson();
         params.put("wkt",gson.toJson(trip));
+        Trip info = tripDao.getSimpleTripInfo(Integer.parseInt(tripId)).get(0);
+        params.put("title",info.getName());
+        params.put("user",info.getUser());
 
         return new ModelAndView("perma",params);
     }

@@ -7,6 +7,7 @@ import com.vividsolutions.jts.io.WKTWriter;
 import junit.framework.TestCase;
 import net.atlefren.GpxUploader.model.GpxPoint;
 import net.atlefren.GpxUploader.service.GpxReader;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.geotools.data.*;
 import org.geotools.data.postgis.PostgisNGDataStoreFactory;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -39,7 +40,8 @@ public class MyTest extends TestCase {
 
     public void testGetData() throws Exception {
 
-
+        String hash = DigestUtils.shaHex("p");
+        System.out.println("hash = " + hash);
             
 
     }

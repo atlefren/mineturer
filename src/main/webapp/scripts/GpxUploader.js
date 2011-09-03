@@ -35,7 +35,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         tripDisplayer.setMap(map);
     }
 
-    /*
+
     // create Google Mercator layers
     var gmap = new OpenLayers.Layer.Google(
         "Google Maps",
@@ -53,7 +53,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
                 layerId: "gs"
             }
         );
-*/
+
     // create OSM layer
     var mapnik = new OpenLayers.Layer.OSM();
     mapnik.layerId = "osm";
@@ -109,8 +109,8 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
-    //map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
-    map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
+    map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
+    //map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
 
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);
@@ -253,7 +253,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
                 "getTripGeom",
                 {id:id},
                 function(trip) {
-                    //console.log(trips);
+                    //console.log(trip);
                     that.doDisplayTrip(trip);
                 }
             );
@@ -494,28 +494,46 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         var that = this;
         $form.ajaxForm({
             beforeSubmit: function(a,f,o) {
-
                 o.dataType = "json";
                 $('#uploadLoader').removeClass("hidden");
+                $('#uploadErr').addClass("hidden");
+                $('#uploadErr').html("");
             },
             success: function(data) {
-                $('#upload_file').val('');
-                $('#upload_name').val('');
-                $('#upload_desc').val('');
-                $('#uploadDiv').addClass("hidden");
-                $('#uploadLoader').addClass("hidden");
                 that.getTrip(data.id);
+                that.fetcher.tripDisplayer.showSpinner();
+                //console.log(data);
+                if(data.status == "OK"){
+                    $('#uploadErr').addClass("hidden");
+                    $('#uploadErr').html("");
+                    $('#upload_file').val('');
+                    $('#upload_name').val('');
+                    $('#upload_desc').val('');
+                    $('#uploadDiv').addClass("hidden");
+                    $('#uploadLoader').addClass("hidden");
+                }
+                else {
+                    $('#uploadLoader').addClass("hidden");
+                    $('#uploadErr').removeClass("hidden");
+                    $('#uploadErr').html("<h5>En feil oppsto</h5><p></p>"+data.errMsg+"</p>");
+                }
             }
         });
 
 
         var $close = $("<a class=\"link\">Lukk</a>");
         $close.click(function(){
-
+            $('#uploadErr').addClass("hidden");
+            $('#uploadErr').html("");
+            $('#upload_file').val('');
+            $('#upload_name').val('');
+            $('#upload_desc').val('');
             $('#uploadDiv').addClass("hidden");
         });
         $uplDiv.append($form);
+        $uplDiv.append($("<div id=\"uploadErr\" class=\"error hidden\">"));
         $uplDiv.append($close);
+
 
         return $uplDiv;
     },

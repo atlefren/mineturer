@@ -12,7 +12,10 @@
             <intercept-url pattern='/scripts/**' access="permitAll"/>
             <intercept-url pattern="/login.jsp" access="permitAll" />
             <intercept-url pattern="/showTrip"  access="permitAll" />
-            <intercept-url pattern="/**" access="hasRole('user')"/>
+            <intercept-url pattern="/checkUsername" access="permitAll" />
+            <intercept-url pattern="/registerUser" access="permitAll" />
+            <intercept-url pattern="/newUser"  access="permitAll" />
+            <intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
             <form-login login-page='/login.jsp' default-target-url='/trips'
                         always-use-default-target='true'
                     authentication-failure-url="/login.jsp?login_error=1"/>
@@ -21,6 +24,12 @@
 
 
     <authentication-manager>
+        <authentication-provider user-service-ref="userAuthenticationService">
+            <password-encoder hash="sha" />
+        </authentication-provider>
+    </authentication-manager>
+<!--
+    <authentication-manager>
         <authentication-provider>
             <user-service>
                 <user name="atle" password="p" authorities="user" />
@@ -28,4 +37,5 @@
             </user-service>
         </authentication-provider>
     </authentication-manager>
+    -->
 </beans:beans>
