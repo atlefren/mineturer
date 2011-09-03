@@ -1,5 +1,4 @@
 in no particular order:
-
 OK - fix charset errors: Umm.. somehow moved them around a bit, correct in DB at least now- now fixed
 OK - add more maps from SK
 OK handle case with tracksegments with one point (see gpx sent pr mail)
@@ -15,10 +14,8 @@ OK - use a database-table for user management
 - prettier login-page - mail sent
 - some kind of logo? - mail sent
 - prettify the upload-page - mail sent
-
-- check for more GPX-types (tested qstarz and mytracks, and garmin forerunner + some strange )
+STARTED - check for more GPX-types (tested qstarz and mytracks, and garmin forerunner + some strange )
 STARTED - handle different kinds of errors with gpx files
-
 - find a solution for speed graph
 - add labels to graph
 - clustering on trip points
@@ -27,23 +24,18 @@ STARTED - handle different kinds of errors with gpx files
 - make it possible to edit trip info
 - consider displaying a simplified version of the geometry
 - make a "merge trips" function
-
-
 - write tests(!)
 - some kind of documentation?
 - make it possible to change color for a trip
 - discard waypoints? Or at least find a nicer presentation
 - figure out if "routes" is relevant
 - more inituitive layer-switcher
-
 - consider flicker-integration
 - handle error with large GPX-files
-
 - some solution for bit.ly style permalinks
 - handle heartRate extension, make HR graph//
 - many of the features of http://utrack.crempa.net/
 - export geom as KML/GeoJSON
 - store actual GPX file for later download
 - static link for height profile
-
 - more maps (from where?)
