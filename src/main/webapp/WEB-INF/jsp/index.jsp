@@ -33,8 +33,11 @@
         </div>
         <div id="eleContainer">
             <div id="graphHeader"></div>
+            <!--<div class="yAxisLabel"><p class="rot" id="ylabel"></p></div>-->
             <div id="ele">
+
             </div>
+            <!--<div class="xAxisLabel" id="xlabel"></div>-->
         </div>
     </div>
 </div>

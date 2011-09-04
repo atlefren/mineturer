@@ -63,8 +63,8 @@ body {
 }
 
 #ele{
-    width:790px;
-    height:300px;
+    width:770px;
+    height:280px;
     float:left;
     margin:5px;
 }
@@ -225,4 +225,24 @@ dl dt {
 .error h5 {
     padding: 0;
     margin: 0;
+}
+
+.yAxisLabel{
+    width:20px;
+    float:left;
+    height: 100%;
+}
+
+p.rot{
+    -moz-transform: rotate(270deg);
+  -moz-transform-origin: 50% 50%;
+  -webkit-transform: rotate(270deg);
+  -webkit-transform-origin: 50% 50%;
+
+}
+
+.xAxisLabel{
+    height:20px;
+    clear:both;
+    text-align:right;
 }

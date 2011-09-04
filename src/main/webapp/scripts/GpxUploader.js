@@ -847,11 +847,11 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
     active: false,
     initType:"height_dist",
     types: {
-        "height_dist":{name:"Høyde-Avstand"},
-        "height_time":{name:"Høyde-Tid"},
-        "speed_dist":{name:"Fart-Avstand"},
-        "speed_time":{name:"Fart-Tid"},
-        "dist_time":{name:"Avstand-Tid"}
+        "height_dist":{name:"Høyde-Avstand",fill:true,color:"#1E13FF",xlabel:"Distanse (Meter)",ylabel:"Høyde over havet (Meter)"},
+        "height_time":{name:"Høyde-Tid",fill:true,color:"#1E13FF",xlabel:"Tid (Timer)",ylabel:"Høyde over havet (Meter)"},
+        "speed_dist":{name:"Fart-Avstand",fill:false,color:"#008000",xlabel:"Distanse (Meter)",ylabel:"Fart (km/h)"},
+        "speed_time":{name:"Fart-Tid",fill:false,color:"#008000",xlabel:"Tid (Timer)",ylabel:"Fart (km/h)"},
+        "dist_time":{name:"Avstand-Tid",fill:false,color:"#C05800",xlabel:"Tid (Timer)",ylabel:"Distanse (Meter)"}
         },
 
     initialize: function(graphDivId,headerDivId,trackid,initType){
@@ -897,9 +897,7 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
             $li.click(function(){
 
                 var id = this.id.replace("li_for_","");
-                console.log("click!", id);
                 if(id!=that.initType){
-                    console.log("display instad " + id);
                     that.initType=id;
                     that.generateMenu();
                     that.display();
@@ -921,15 +919,19 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
 
     showGraph: function(data){
         $("#"+this.graphDivId).html("");
+     //   $("#xlabel").text(this.types[this.initType].xlabel);
+     //   $("#ylabel").text(this.types[this.initType].ylabel);
+
         $.plot(
             $("#"+this.graphDivId),
             [data],
             {
                 series: {
-                    color: "#1E13FF",
+                    color: this.types[this.initType].color,
                     lines: {
                         show: true,
-                        lineWidth: 1
+                        lineWidth: 1,
+                        fill: this.types[this.initType].fill
                     }
                 }
             }

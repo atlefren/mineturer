@@ -45,8 +45,7 @@ public class GpxReaderTest extends TestCase {
 
         contents.getTracks();
 
-//        System.out.println("contents.getStart() = " + contents.getStart());
-  //      System.out.println("contents.getStop() = " + contents.getStop());
+
         List<GpxPoint> list = new ArrayList<GpxPoint>();
         for(GpxTrack track:contents.getTracks()){
             System.out.println("new track");
@@ -60,9 +59,8 @@ public class GpxReaderTest extends TestCase {
             }
         }
 
-
-        SpeedProfileGenerator gen = new SpeedProfileGenerator();
-        gen.generateTimeSpeedProfile(list);
+        System.out.println("dur = " + Util.formatTime(GraphGenerator.calcActiveTime(list)));
+        
 
     }
 
