@@ -5,6 +5,7 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
     trip: null,
     map: null,
     displayTrip: false,
+    graphDisplayer: null,
 
     initialize: function(divId){
         this.divId = divId;
@@ -30,6 +31,8 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
         this.clear();
         this.displayTrip=true;
         this.trip=trip;
+        this.graphDisplayer = new TripOrganizer.GraphDisplayer("ele","graphHeader",trip.id,"");
+        this.graphDisplayer.display();
 
         //console.log("display trip info");
 
@@ -80,6 +83,9 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
 
     showSpinner: function(){
+        if(this.graphDisplayer){
+            this.graphDisplayer.showSpinner();
+        }
         this.clear();
         var img = document.createElement("img");
         img.setAttribute("src","gfx/ajax-loader.gif");

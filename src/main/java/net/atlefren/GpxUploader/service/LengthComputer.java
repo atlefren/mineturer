@@ -4,19 +4,16 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-import net.atlefren.GpxUploader.dao.TripDao;
-import net.atlefren.GpxUploader.util.GISUtils;
+import net.atlefren.GpxUploader.util.Util;
 import org.apache.log4j.Logger;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,7 +44,7 @@ public class LengthComputer {
                 Coordinate[] coords = track.getCoordinates();
                 for(Coordinate coord:coords){
                     if(last != null){
-                        totalVincDist += GISUtils.distVincentY(coord.y,coord.x,last.y,last.x);
+                        totalVincDist += Util.distVincentY(coord.y, coord.x, last.y, last.x);
                     }
                     last = coord;
                 }

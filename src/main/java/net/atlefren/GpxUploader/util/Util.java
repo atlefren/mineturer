@@ -8,7 +8,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date: 8/25/11
  * Time: 7:24 PM
  */
-public class GISUtils {
+public class Util {
 
 
     public static double distVincentY(double lon1, double lat1, double lon2, double lat2){
@@ -66,5 +66,12 @@ public class GISUtils {
 
     public static double toRad(double deg){
         return deg*(Math.PI/180);
+    }
+
+    public static String formatTime(double secounds){
+        double hours=Math.floor(secounds/3600);
+        double minutes=Math.floor(secounds/60)-(hours*60);
+        double seconds=secounds-(hours*3600)-(minutes*60);
+        return hours +"t " + minutes + "m " + seconds +"s";
     }
 }

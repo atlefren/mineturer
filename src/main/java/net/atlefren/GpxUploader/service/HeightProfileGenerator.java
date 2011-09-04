@@ -1,19 +1,7 @@
 package net.atlefren.GpxUploader.service;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import net.atlefren.GpxUploader.model.GpxPoint;
-import net.atlefren.GpxUploader.util.GISUtils;
-import org.apache.log4j.Logger;
-import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.GeodeticCalculator;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import net.atlefren.GpxUploader.util.Util;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -37,7 +25,7 @@ public class HeightProfileGenerator {
 
         for(GpxPoint point:points){
             if(last != null){
-                totalVincDist += GISUtils.distVincentY(point.getLon(), point.getLat(), last.getLon(), last.getLat());
+                totalVincDist += Util.distVincentY(point.getLon(), point.getLat(), last.getLon(), last.getLat());
             }
             List<Double> entry = new ArrayList<Double>();
             entry.add(Double.valueOf(df.format(totalVincDist)));

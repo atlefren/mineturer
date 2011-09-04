@@ -7,8 +7,10 @@ import com.vividsolutions.jts.io.WKTWriter;
 import net.atlefren.GpxUploader.dao.TripDao;
 import net.atlefren.GpxUploader.dao.UserDao;
 import net.atlefren.GpxUploader.model.CentroidPoint;
+import net.atlefren.GpxUploader.model.GpxPoint;
 import net.atlefren.GpxUploader.model.Trip;
 import net.atlefren.GpxUploader.model.User;
+import net.atlefren.GpxUploader.service.GraphGenerator;
 import net.atlefren.GpxUploader.service.HeightProfileGenerator;
 import net.atlefren.GpxUploader.service.SpeedProfileGenerator;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -74,6 +76,34 @@ public class GetController {
         HeightProfileGenerator profileGenerator = new HeightProfileGenerator();
         return profileGenerator.generateFlotSeries(tripDao.getPointsForTrip(id,getUser()));
     }
+
+
+    @RequestMapping(value = "getGraphSeries", method = RequestMethod.GET)
+    @ResponseBody
+    public List<List<Double>> getGraphSeries(@RequestParam("id") int id, @RequestParam("type") String type) {
+
+        List<GpxPoint> points = tripDao.getPointsForTrip(id, getUser());
+        if(type.equals("height_dist")){
+            return GraphGenerator.generateDistHeightProfile(points);
+        }
+        else if(type.equals("height_time")){
+            return GraphGenerator.generateTimeHeightProfile(points);
+        }
+        else if(type.equals("speed_dist")){
+            return GraphGenerator.generateDistSpeedProfile(points);
+        }
+        else if(type.equals("speed_time")){
+            return GraphGenerator.generateTimeSpeedProfile(points);
+        }
+        else if(type.equals("dist_time")){
+            return GraphGenerator.generateTimeDistanceProfile(points);
+        }
+        else {
+            return null;
+        }
+
+    }
+
 
     @RequestMapping(value = "getTripSpeeds", method = RequestMethod.GET)
     @ResponseBody

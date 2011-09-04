@@ -1,9 +1,9 @@
-package net.atlefren.GpxUploader.service;
+    package net.atlefren.GpxUploader.service;
 
 import net.atlefren.GpxUploader.model.GpxPoint;
-import net.atlefren.GpxUploader.util.GISUtils;
+import net.atlefren.GpxUploader.util.MovingAverage;
+import net.atlefren.GpxUploader.util.Util;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +15,85 @@ import java.util.List;
  * Time: 9:01 PM
  */
 public class SpeedProfileGenerator {
+
+
+
+    public List<List<Double>> generateDistSpeedProfile(List<GpxPoint> points){
+
+        GpxPoint last = null;
+
+        double totalDist = 0.0;
+        MovingAverage ma = new MovingAverage(20);
+        List<List<Double>> res = new ArrayList<List<Double>>();
+        for(GpxPoint point:points){
+            List<Double> entry = new ArrayList<Double>();
+            if(last != null){
+                double dist = Util.distVincentY(point.getLon(), point.getLat(), last.getLon(), last.getLat());
+                double time = (point.getTime().getTime()-last.getTime().getTime())/1000;
+                double speed = (dist/time)*3.6;
+                ma.newNum(speed);
+                totalDist+=dist;
+                //System.out.println("speed = " + speed + " ma " + ma.getAvg());
+                System.out.println(totalDist + "\t" + ma.getAvg() + "\t" + speed);
+                entry.add(round(totalDist,4));
+                entry.add(round(speed,4));
+                res.add(entry);
+            }
+            else {
+                ma.newNum(0.0);
+                System.out.println(totalDist + "\t" + ma.getAvg() + "\t" + 0.0);
+                entry.add(totalDist);
+                entry.add(0.0);
+                res.add(entry);
+            }
+            last = point;
+        }
+        return res;
+    }
+
+
+
+        public double generateTimeSpeedProfile(List<GpxPoint> points){
+
+        GpxPoint last = null;
+
+        double totaltime = 0.0;
+        MovingAverage ma = new MovingAverage(5);
+        List<List<Double>> res = new ArrayList<List<Double>>();
+        for(GpxPoint point:points){
+            List<Double> entry = new ArrayList<Double>();
+            if(last != null){
+                double dist = Util.distVincentY(point.getLon(), point.getLat(), last.getLon(), last.getLat());
+                double time = (point.getTime().getTime()-last.getTime().getTime())/1000;
+                double speed = (dist/time)*3.6;
+                ma.newNum(speed);
+                totaltime+=time;
+
+                System.out.println(totaltime/(60*60) + "\t" + ma.getAvg() + "\t" + speed);
+                entry.add(round(totaltime,4));
+                entry.add(round(speed,4));
+                res.add(entry);
+            }
+            else {
+                ma.newNum(0.0);
+
+                System.out.println(totaltime + "\t" + ma.getAvg() + "\t" + 0.0);
+
+                entry.add(totaltime);
+                entry.add(0.0);
+                res.add(entry);
+            }
+            last = point;
+        }
+        return 0.0;
+    }
+
+
+
+
+
+
+
 
 
     public List<List<Double>> generateFlotSeries(List<GpxPoint> points){
@@ -32,7 +111,7 @@ public class SpeedProfileGenerator {
             List<Double> entry = new ArrayList<Double>();
             if(last != null){
 
-                double dist = GISUtils.distVincentY(point.getLon(), point.getLat(), last.getLon(), last.getLat());
+                double dist = Util.distVincentY(point.getLon(), point.getLat(), last.getLon(), last.getLat());
                 double time = (point.getTime().getTime()-last.getTime().getTime())/1000;
 
 
@@ -124,6 +203,7 @@ public class SpeedProfileGenerator {
         double factor = Math.pow(10,d);
         return Math.round(n * factor) / factor;
     }
+    
 }
 
 

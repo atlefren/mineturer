@@ -13,6 +13,7 @@
           <include>SpeedProfileDisplayer.js</include>
           <include>TripInfoDisplayer.js</include>
           <include>TripCentroidDisplayer.js</include>
+          <include>GraphDisplayer.js</include>
       </includes>
     </script>
   </scripts>

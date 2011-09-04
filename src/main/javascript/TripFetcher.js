@@ -4,7 +4,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     tripLayer: null,
     trips: [],
     tripMapDisplayer: null,
-    heightDisplayer: null,
+    //heightDisplayer: null,
     tripDisplayer: null,
     events: null,
     EVENT_TYPES: ["tripadded"],
@@ -51,17 +51,17 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         uploader.addFetcher(this);
     },
 
-    addHeightDisplayer: function(heightDisplayer){
+  /*  addHeightDisplayer: function(heightDisplayer){
         this.heightDisplayer= heightDisplayer;
     },
-
+*/
     addAndDisplayTrip: function(trip){
         this.events.triggerEvent("tripadded");
         this.trips.push(trip);
         this.tripMapDisplayer.showTrip(trip);
         this.createItem(trip,false,true,this);
         this.tripDisplayer.displayTripInfo(trip);
-        this.heightDisplayer.displayProfileFortrack(trip.id);
+  //      this.heightDisplayer.displayProfileFortrack(trip.id);
         this.activeTrip=trip.id;
         //this.heightDisplayer.hideHeightProfile();
         this.redraw();
@@ -74,7 +74,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
             this.activeTrip=id;
             this.redraw();
             this.tripDisplayer.showSpinner();
-            this.heightDisplayer.hideHeightProfile();
+    //        this.heightDisplayer.hideHeightProfile();
             this.tripMapDisplayer.hideTrip();
             var that = this;
             $.getJSON(
@@ -89,7 +89,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     },
 
     doDisplayTrip: function(trip){
-        this.heightDisplayer.displayProfileFortrack(trip.id);
+      //  this.heightDisplayer.displayProfileFortrack(trip.id);
         this.tripDisplayer.displayTripInfo(trip);
         this.tripMapDisplayer.showTrip(trip);
     },
@@ -113,7 +113,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
             }
             else {
                 that.tripDisplayer.clear();
-                that.heightDisplayer.hideHeightProfile();
+        //        that.heightDisplayer.hideHeightProfile();
                 that.tripMapDisplayer.hideTrip();
                 that.activeTrip=null;
                 //$('#body_for_'+id).addClass("hidden");
@@ -157,7 +157,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         var that = this;
         $link.click(function(){
            var id = this.id.replace("height_link_for_","");
-            that.heightDisplayer.displayProfileFortrack(id);
+          //  that.heightDisplayer.displayProfileFortrack(id);
         });
         $body.append($link);
 

@@ -10,13 +10,16 @@ OK - blank out fields on upload page for next upload
 OK - should only return one centroid even if trip consists of several tracks
 OK - make a user register page
 OK - use a database-table for user management
+OK - find a solution for speed graph (Running average is your friend!)
+OK - graph chooser
+OK - add graphs with time
+OK - distance-time graph
 - some gui-improvements - mail sent
 - prettier login-page - mail sent
 - some kind of logo? - mail sent
 - prettify the upload-page - mail sent
 STARTED - check for more GPX-types (tested qstarz and mytracks, and garmin forerunner + some strange )
 STARTED - handle different kinds of errors with gpx files
-- find a solution for speed graph
 - add labels to graph
 - clustering on trip points
 - find a faster server than kj0leskap
@@ -33,8 +36,7 @@ STARTED - handle different kinds of errors with gpx files
 - consider flicker-integration
 - handle error with large GPX-files
 - some solution for bit.ly style permalinks
-- handle heartRate extension, make HR graph//
-- many of the features of http://utrack.crempa.net/
+- handle heartRate extension, make HR graph
 - export geom as KML/GeoJSON
 - store actual GPX file for later download
 - static link for height profile

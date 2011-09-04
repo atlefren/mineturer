@@ -4,7 +4,6 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
 
     if(!perma){
-        var heightDisplayer = new TripOrganizer.HeightProfileDisplayer("ele");
         var tripDisplayer = new TripOrganizer.TripInfoDisplayer("tripdetail");
         tripDisplayer.setText("Velg en tur i menyen!");
         var uploader = new TripOrganizer.TripUploader();
@@ -13,7 +12,6 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         tripFetcher.getTrips();
 
         tripFetcher.addUploadManager(uploader);
-        tripFetcher.addHeightDisplayer(heightDisplayer);
         uploader.createLink("upload");
     }
     var maxExtent = new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508),

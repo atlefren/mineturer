@@ -32,8 +32,8 @@
             <div id="upload"></div>
         </div>
         <div id="eleContainer">
-            <!--<div id="graphHeader"><h4  id="hoyde" class="active">Høydeprofil</h4><h4 id="fart" class="inactive">Fartsgraf</h4></div>-->
-            <div id="ele" style="width:490px;height:290px;float:left;margin:5px;">
+            <div id="graphHeader"></div>
+            <div id="ele">
             </div>
         </div>
     </div>
