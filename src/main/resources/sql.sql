@@ -86,3 +86,4 @@ SELECT addGeometryColumn('mineturer','points','geom',4326,'POINT',2);
 
 
 
+ALTER TABLE mineturer.points ADD COLUMN hr double precision;

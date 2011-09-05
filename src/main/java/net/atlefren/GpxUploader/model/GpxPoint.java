@@ -27,6 +27,7 @@ public class GpxPoint {
     private double lon;
     private double lat;
     private double ele;
+    private double hr=0.0;
     private Date time;
 
     private static Logger logger = Logger.getLogger(GpxPoint.class);
@@ -75,6 +76,14 @@ public class GpxPoint {
 
     public void setTime(String time) {
         this.time = parseDate(time);
+    }
+
+    public double getHr() {
+        return hr;
+    }
+
+    public void setHr(double hr) {
+        this.hr = hr;
     }
 
     public Coordinate getPointAsCoord(String epsg){

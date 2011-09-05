@@ -1,7 +1,10 @@
 package net.atlefren.GpxUploader.dao;
 
 import net.atlefren.GpxUploader.model.*;
+import net.atlefren.GpxUploader.service.GraphGenerator;
+import net.atlefren.GpxUploader.service.HeightComputer;
 import net.atlefren.GpxUploader.service.LengthComputer;
+import net.atlefren.GpxUploader.service.TimeComputer;
 import org.geotools.styling.Description;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -41,7 +44,6 @@ public class TripDao {
     private SimpleJdbcInsert insertAssignment;
 
     private String srid;
-    private LengthComputer lengthComputer = new LengthComputer();
 
     private static String schema = "mineturer";
 
@@ -84,7 +86,7 @@ public class TripDao {
     }
 
     public List<GpxPoint> getPointsForTrip(int id,int userid){
-        String sql = "SELECT st_x(geom) as lon, st_y(geom) as lat, ele, \"time\" FROM "+schema+".points WHERE tripid="+id;
+        String sql = "SELECT st_x(geom) as lon, st_y(geom) as lat, ele, \"time\",hr FROM "+schema+".points WHERE tripid="+id;
         Map<String, Object> map = new HashMap<String, Object>();
         return namedParameterJdbcTemplate.query(sql,map,pointRowMapper);
     }
@@ -126,7 +128,7 @@ public class TripDao {
         for(GpxTrack track:trip.getTracks()){
             for (List<GpxPoint> segment: track.getTrackSegments()){
                 for(GpxPoint point:segment){
-                    this.jdbcTemplate.update("INSERT INTO "+schema+".points (tripid,geom,ele,\"time\") VALUES (?,ST_SetSRID(ST_MakePoint(?, ?),4326) ,?,?)",tripId,point.getLon(),point.getLat(), point.getEle(),point.getTime());
+                    this.jdbcTemplate.update("INSERT INTO "+schema+".points (tripid,geom,ele,\"time\",hr) VALUES (?,ST_SetSRID(ST_MakePoint(?, ?),4326) ,?,?,?)",tripId,point.getLon(),point.getLat(), point.getEle(),point.getTime(),point.getHr());
                 }
             }
         }
@@ -179,6 +181,7 @@ public class TripDao {
 
     private final RowMapper<Trip> tripGeomRowMapper = new RowMapper<Trip>() {
      public Trip mapRow(ResultSet rs, int rowNum) throws SQLException {
+            List<GpxPoint> points = getPointsForTrip(rs.getInt("tripid"),-1);
             Trip trip = new Trip();
             trip.setId(Integer.toString(rs.getInt("tripid")));
             trip.setName(rs.getString("title"));
@@ -186,11 +189,11 @@ public class TripDao {
             trip.setStart(rs.getTimestamp("start"));
             trip.setStop(rs.getTimestamp("stop"));
             trip.setTracks(getTracks(rs.getInt("tripid")));
-            trip.setDistance(lengthComputer.generateLength(getTracks(rs.getInt("tripid"))));
+            trip.setLenghts(LengthComputer.generateLengthts(points));
+            trip.setTimes(TimeComputer.generateTimes(points));
+            trip.setHeights(HeightComputer.computeHeights(points));
             trip.setWaypoints(getWaypoints(rs.getInt("tripid")));
             trip.setRoutes(getRoutes(rs.getInt("tripid")));
-            double dur = (rs.getTimestamp("stop").getTime()-rs.getTimestamp("start").getTime())/1000;
-            trip.setDuration(dur);
             return trip;
         }
     };
@@ -202,6 +205,7 @@ public class TripDao {
             point.setLat(rs.getDouble("lat"));
             point.setEle(rs.getDouble("ele"));
             point.setTime(rs.getTimestamp("time"));
+            point.setHr(rs.getDouble("hr"));
             return point;
         }
     };

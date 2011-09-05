@@ -12,61 +12,25 @@ import java.util.List;
  * Time: 9:58 PM
  */
 public class Trip {
-    String id;
-    String  name;
-    String description;
-    String start;
-    String stop;
-    String user;
-    double duration;
-    double distance;
-    List<String> tracks;
-    List<String> routes;
-    List<String> waypoints;
+    private String id;
+    private String  name;
+    private String description;
+    private String start;
+    private String stop;
+    private String user;
+
+    private LengthHolder lenghts;
+    private TimeHolder times;
+    private HeightHolder heights;
+
+    private List<String> tracks;
+    private List<String> routes;
+    private List<String> waypoints;
 
 
     public Trip() {
     }
 
-    public Trip(String name, String description, ArrayList<String> tracks, ArrayList<String> routes, ArrayList<String> waypoints) {
-        this.name = name;
-        this.description = description;
-        this.tracks = tracks;
-        this.routes = routes;
-        this.waypoints = waypoints;
-    }
-
-    public Trip(String id, String name, String description, ArrayList<String> tracks, ArrayList<String> routes, ArrayList<String> waypoints) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.tracks = tracks;
-        this.routes = routes;
-        this.waypoints = waypoints;
-    }
-
-    public Trip(String id, String name, String description, Date start, Date stop, List<String> tracks, List<String> routes, List<String> waypoints) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.start = formatDate(start);
-        this.stop = formatDate(stop);
-        this.tracks = tracks;
-        this.routes = routes;
-        this.waypoints = waypoints;
-    }
-
-    public Trip(String id, String name, String description, Date start, Date stop, double duration, List<String> tracks, List<String> routes, List<String> waypoints) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.start = formatDate(start);
-        this.stop = formatDate(stop);
-        this.tracks = tracks;
-        this.routes = routes;
-        this.waypoints = waypoints;
-        this.duration = duration;
-    }
 
     public String getId() {
         return id;
@@ -145,19 +109,27 @@ public class Trip {
         return new SimpleDateFormat("dd.MM.yyyy', kl' H:mm").format(date);
     }
 
-    public double getDuration() {
-        return duration;
+    public LengthHolder getLenghts() {
+        return lenghts;
     }
 
-    public void setDuration(double duration) {
-        this.duration = duration;
+    public void setLenghts(LengthHolder lenghts) {
+        this.lenghts = lenghts;
     }
 
-    public double getDistance() {
-        return distance;
+    public TimeHolder getTimes() {
+        return times;
     }
 
-    public void setDistance(double distance) {
-        this.distance = distance;
+    public void setTimes(TimeHolder times) {
+        this.times = times;
+    }
+
+    public HeightHolder getHeights() {
+        return heights;
+    }
+
+    public void setHeights(HeightHolder heights) {
+        this.heights = heights;
     }
 }

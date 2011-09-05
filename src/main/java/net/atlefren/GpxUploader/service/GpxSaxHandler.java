@@ -188,6 +188,10 @@ public class GpxSaxHandler extends DefaultHandler {
             if ( localName.equals( "time" ) ) {
                 currenttrkpt.setTime(contents.toString());
             }
+            if(localName.equals("extensions")){
+                //TODO: Check for HR extension in a nicer way
+                currenttrkpt.setHr(Double.valueOf(contents.toString()));
+            }
         }
         else if(isRtept){
             if ( localName.equals( "ele" ) ) {

@@ -44,6 +44,13 @@
     <p>Ny bruker? Registrer en ny bruker <a href="newUser">her</a></p>
 </div>
 
+
+<div>
+    <h5>Siste nytt</h5>
+    <ul>
+        <li>05.09.2011: Fler grafer og mer statistikk</li>
+    </ul>
+</div>
 </body>
 </html>
 

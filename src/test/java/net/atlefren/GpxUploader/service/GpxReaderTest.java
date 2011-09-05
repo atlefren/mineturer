@@ -35,16 +35,15 @@ public class GpxReaderTest extends TestCase {
 
         GpxReader reader = new GpxReader();
 
-        GpxFileContents contents = reader.readGpxFile("/home/atle/privat/gpslogger/trollheimen-20110703.gpx");
+        //GpxFileContents contents = reader.readGpxFile("/home/atle/privat/gpslogger/trollheimen-20110703.gpx");
+        //GpxFileContents contents = reader.readGpxFile("/home/atle/privat/sporloggGarmin.gpx");
+
+        GpxFileContents contents = reader.readGpxFile("/home/atle/privat/gpslogger/innerdalen-20110521.gpx");
+
 
         double dur = (contents.getStop().getTime()-contents.getStart().getTime())/1000;
 
         System.out.println("dur = " + Util.formatTime(dur));
-
-
-
-        contents.getTracks();
-
 
         List<GpxPoint> list = new ArrayList<GpxPoint>();
         for(GpxTrack track:contents.getTracks()){
@@ -60,7 +59,9 @@ public class GpxReaderTest extends TestCase {
         }
 
         System.out.println("dur = " + Util.formatTime(GraphGenerator.calcActiveTime(list)));
-        
+
+
+        System.out.println("dur = " + Util.formatTime(GraphGenerator.generateTest(list)));
 
     }
 

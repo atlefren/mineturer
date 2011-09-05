@@ -41,19 +41,37 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
             desc = "<dd class='descr'>" + trip.description +"</dd>"
         }
 
-        var speed = this.round((trip.distance/trip.duration)*3.6,2);
+        var heightDiff = trip.heights.maxHeight-trip.heights.minHeight;
 
-                var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
-                    "<dl>"+
-                    desc +
-                    "<dt>Start:</dt> <dd>" + trip.start+"</dd>"+
-                    "<dt>Stopp:</dt> <dd>" + trip.stop+"</dd>" +
-                    "<dt>Total tid:</dt> <dd>" + this.convertTime(trip.duration)  + "</dd>" +
-                    "<dt>Lengde:</dt> <dd>" + this.meterToKm(trip.distance)  + " km</dd>" +
-                    "<dt>Gjennomsnittsfart:</dt> <dd> " + speed + " km/t</dd>" +
-                    "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
-                    "</dl>"
-                );
+        var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
+            "<dl>"+
+                desc +
+                "<dt>Start:</dt> <dd>" + trip.start+"</dd>"+
+                "<dt>Stopp:</dt> <dd>" + trip.stop+"</dd>" +
+                "<dt>Total tid:</dt> <dd>" + this.convertTime(trip.times.totalTime)  + "</dd>" +
+                "<dt>Aktiv tid:</dt> <dd>" + this.convertTime(trip.times.activeTime)  + "</dd>" +
+                "<dt>Lengde (2d):</dt> <dd>" + this.meterToKm(trip.lenghts.length2d)  + " km</dd>" +
+                "<dt>Lengde (3d):</dt> <dd>" + this.meterToKm(trip.lenghts.length3d)  + " km</dd>" +
+                "<dt>Gjennomsnittsfart:</dt> <dd> " + this.calcSpeed(trip.lenghts.length3d,trip.times.totalTime) + " km/t</dd>" +
+                "<dt>Gjennomsnittsfart uten pauser:</dt> <dd> " + this.calcSpeed(trip.lenghts.length3d,trip.times.activeTime) + " km/t</dd>" +
+                "<dt>Stigning opp:</dt> <dd>" + this.meterToKm(trip.lenghts.lengthAsc)  + " km, "+
+                        this.convertTime(trip.times.ascTime)  +", "+
+                        this.calcSpeed(trip.lenghts.lengthAsc,trip.times.ascTime)  + " km/t</dd>" +
+                "<dt>Stigning ned:</dt> <dd>" + this.meterToKm(trip.lenghts.lengthDesc)  + " km, " +
+                        this.convertTime(trip.times.descTime)  + ", " +
+                        this.calcSpeed(trip.lenghts.lengthDesc,trip.times.descTime)  + " km/t</dd>" +
+                "<dt>Flatt terreng:</dt> <dd>" + this.meterToKm(trip.lenghts.lengthFlat)  + " km, " +
+                    this.convertTime(trip.times.flatTime)  + ", "+
+                        this.calcSpeed(trip.lenghts.lengthFlat,trip.times.flatTime)  + " km/t</dd>" +
+                "<dt>Max høyde:</dt> <dd>" + this.round(trip.heights.maxHeight,2)  + " m.o.h.</dd>" +
+                "<dt>Min høyde:</dt> <dd>" + this.round(trip.heights.minHeight,2)  + " m.o.h.</dd>" +
+                "<dt>Total positiv stigning:</dt> <dd>" + this.round(trip.heights.totalAsc,2)  + " m.</dd>" +
+                "<dt>Total negativ stigning:</dt> <dd>" + this.round(Math.abs(trip.heights.totalDesc),2)  + " m</dd>" +
+                "<dt>Max høydeforskjell:</dt> <dd>" + this.round(heightDiff,2)  + " m</dd>" +
+                "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
+                "</dl>"
+
+        );
         $("#"+this.divId).append("<h3>"+trip.name+"</h3>");
         $("#"+this.divId).append($body);
         this.updateLink();
@@ -62,7 +80,7 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
     updateLink: function(){
         //console.log("updateLInk ", this.displayTrip);
         if(this.displayTrip){
-           // console.log("map moved! ", this.createParams());
+            // console.log("map moved! ", this.createParams());
             var perma = document.getElementById("perma");
             var paramstring = OpenLayers.Util.getParameterString(this.createParams());
             perma.innerHTML = "Link";
@@ -120,6 +138,10 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
     round: function(n,d){
         var factor = Math.pow(10,d);
         return Math.round(n * factor) / factor;
+    },
+
+    calcSpeed: function(dist,time){
+      return this.round((dist/time)*3.6,2)
     },
 
     CLASS_NAME: "TripOrganizer.TripInfoDisplayer"

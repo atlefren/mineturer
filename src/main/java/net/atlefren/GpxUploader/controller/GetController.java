@@ -1,9 +1,6 @@
 package net.atlefren.GpxUploader.controller;
 
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
+
 import net.atlefren.GpxUploader.dao.TripDao;
 import net.atlefren.GpxUploader.dao.UserDao;
 import net.atlefren.GpxUploader.model.CentroidPoint;
@@ -11,25 +8,17 @@ import net.atlefren.GpxUploader.model.GpxPoint;
 import net.atlefren.GpxUploader.model.Trip;
 import net.atlefren.GpxUploader.model.User;
 import net.atlefren.GpxUploader.service.GraphGenerator;
-import net.atlefren.GpxUploader.service.HeightProfileGenerator;
-import net.atlefren.GpxUploader.service.SpeedProfileGenerator;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
-import org.geotools.math.Statistics;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * Created by IntelliJ IDEA.
@@ -70,12 +59,7 @@ public class GetController {
 
     //TODO: rewrite to calculate from points
 
-    @RequestMapping(value = "getTripHeights", method = RequestMethod.GET)
-    @ResponseBody
-    public List<List<Double>> getTripHeights(@RequestParam("id") int id) {
-        HeightProfileGenerator profileGenerator = new HeightProfileGenerator();
-        return profileGenerator.generateFlotSeries(tripDao.getPointsForTrip(id,getUser()));
-    }
+
 
 
     @RequestMapping(value = "getGraphSeries", method = RequestMethod.GET)
@@ -98,18 +82,16 @@ public class GetController {
         else if(type.equals("dist_time")){
             return GraphGenerator.generateTimeDistanceProfile(points);
         }
+        else if(type.equals("hr_dist")){
+            return GraphGenerator.generateDistHrProfile(points);
+        }
+        else if(type.equals("hr_time")){
+            return GraphGenerator.generateTimeHrProfile(points);
+        }
         else {
             return null;
         }
 
-    }
-
-
-    @RequestMapping(value = "getTripSpeeds", method = RequestMethod.GET)
-    @ResponseBody
-    public List<List<Double>> getTripSpeeds(@RequestParam("id") int id) {
-        SpeedProfileGenerator profileGenerator = new SpeedProfileGenerator();
-        return profileGenerator.generateFlotSeries(tripDao.getPointsForTrip(id,getUser()));
     }
 
     private int getUser(){

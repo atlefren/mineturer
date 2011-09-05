@@ -33,16 +33,17 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     }
 
 
-    // create Google Mercator layers
-    var gmap = new OpenLayers.Layer.Google(
-        "Google Maps",
-        {
-            sphericalMercator: true,
-            layerId: "gm"
-        }
-    );
+    if(google){
+        // create Google Mercator layers
+        var gmap = new OpenLayers.Layer.Google(
+            "Google Maps",
+            {
+                sphericalMercator: true,
+                layerId: "gm"
+            }
+        );
 
-    var gsat = new OpenLayers.Layer.Google(
+        var gsat = new OpenLayers.Layer.Google(
             "Google Satellite",
             {
                 type: google.maps.MapTypeId.SATELLITE,
@@ -50,7 +51,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
                 layerId: "gs"
             }
         );
-
+    }
     // create OSM layer
     var mapnik = new OpenLayers.Layer.OSM();
     mapnik.layerId = "osm";
@@ -106,8 +107,13 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
-    map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
-    //map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
+    if(google){
+        map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
+    }
+    else {
+        map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
+    }
+
 
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);
