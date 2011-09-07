@@ -18,6 +18,7 @@ public class Trip {
     private String start;
     private String stop;
     private String user;
+    private String type;
 
     private LengthHolder lenghts;
     private TimeHolder times;
@@ -131,5 +132,13 @@ public class Trip {
 
     public void setHeights(HeightHolder heights) {
         this.heights = heights;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

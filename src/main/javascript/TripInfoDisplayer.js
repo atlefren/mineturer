@@ -43,9 +43,30 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
         var heightDiff = trip.heights.maxHeight-trip.heights.minHeight;
 
+        var types ={
+            "hiking":"Fjelltur",
+            "jogging":"Jogging",
+            "cycling":"Sykling",
+            "car":"Biltur",
+            "nordicski":"Skitur",
+            "swimming":"Svømming",
+            "rollerskate":"Rulleskøyter",
+            "snowshoeing":"Truger",
+            "motorbike":"Motorsykkel",
+            "atv":"ATV",
+            "snowmobiling":"Snøscooter",
+            "default":"Annet"
+        };
+
+        var type = "Annet";
+        if(trip.type){
+            type=types[trip.type];
+        }
+
         var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
             "<dl>"+
                 desc +
+                "<dt>Aktivitetstype:</dt> <dd>" + type+"</dd>"+
                 "<dt>Start:</dt> <dd>" + trip.start+"</dd>"+
                 "<dt>Stopp:</dt> <dd>" + trip.stop+"</dd>" +
                 "<dt>Total tid:</dt> <dd>" + this.convertTime(trip.times.totalTime)  + "</dd>" +

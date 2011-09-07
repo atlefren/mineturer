@@ -37,7 +37,8 @@ public class FileUploadController {
 
     @RequestMapping(value = "uploadGpx", method = RequestMethod.POST)
     @ResponseBody
-    public String handleFormUpload(@RequestParam("file") MultipartFile file,@RequestParam("desc")String desc,@RequestParam("name")String name ) {
+    public String handleFormUpload(@RequestParam("file") MultipartFile file,@RequestParam("desc")String desc,@RequestParam("name")String name, @RequestParam("type")String type) {
+        System.out.println("type = " + type);
         if (!file.isEmpty()) {
             try{
                 GpxReader reader = new GpxReader(file.getInputStream());
@@ -48,7 +49,7 @@ public class FileUploadController {
                 if(desc!=null && !desc.equals("")){
                     contents.setDescription(desc);
                 }
-                int id = tripDao.saveTripToDb(contents,getUser());
+                int id = tripDao.saveTripToDb(contents,type,getUser());
                 //Trip obj = tripDao.getTripGeom(getUser(), "900913", id);
                 ReturnObject ro = new ReturnObject();
                 ro.setId(id);

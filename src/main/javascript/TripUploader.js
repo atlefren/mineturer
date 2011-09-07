@@ -43,9 +43,23 @@ TripOrganizer.TripUploader = OpenLayers.Class({
                         "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
                         "GPX-fil: <input id=\"upload_file\" type=\"file\" name=\"file\" /><br />"+
                         "Navn: <input id=\"upload_name\" type=\"text\" name=\"name\"><br />"+
+                        "Aktivitetstype: <select name='type'>"+
+                            "<option value='hiking'>Fjelltur</option>"+
+                            "<option value='jogging'>Jogging</option>"+
+                            "<option value='cycling'>Sykling</option>"+
+                            "<option value='car'>Biltur</option>"+
+                            "<option value='nordicski'>Skitur</option>"+
+                            "<option value='swimming'>Svømming</option>"+
+                            "<option value='rollerskate'>Rulleskøyter</option>"+
+                            "<option value='snowshoeing'>Truger</option>"+
+                            "<option value='motorbike'>Motorsykkel</option>"+
+                            "<option value='atv'>ATV</option>"+
+                            "<option value='snowmobiling'>Snøscooter</option>"+
+                            "<option value='default'>Annet</option>"+
+                        "</select><br/>"+
                         "Beskrivelse: <br /><textarea id=\"upload_desc\" name=\"desc\"></textarea><br />"+
-                         "<input type=\"submit\" value=\"Last opp\" />"+
-                        "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"
+                        "<input type=\"submit\" value=\"Last opp\" />"+
+                        "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"+
                         "</form>";
 
         var $form = $(formString);

@@ -58,10 +58,7 @@ public class GpxReaderTest extends TestCase {
             }
         }
 
-        System.out.println("dur = " + Util.formatTime(GraphGenerator.calcActiveTime(list)));
 
-
-        System.out.println("dur = " + Util.formatTime(GraphGenerator.generateTest(list)));
 
     }
 

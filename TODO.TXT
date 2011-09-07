@@ -16,6 +16,10 @@ OK - add graphs with time
 OK - distance-time graph
 OK - handle heartRate extension, make HR graph (although it _should_ be handled a bit prettier)
 OK - more statistics
+OK - fix charset error on user registration
+OK - add icons and labels to trip points
+OK - add triptype field to trip
+OK - hover on trip points show tooltip
 - some gui-improvements - mail sent
 - prettier login-page - mail sent
 - some kind of logo? - mail sent
@@ -43,3 +47,9 @@ STARTED - handle different kinds of errors with gpx files
 - static link for height profile
 - more maps (from where?)
 - better presentation of statistics
+- use minified OpenLayers build
+- better hover on trip-point (highlight list?)
+- lost password function
+- check password in letter/number combo
+- better presentation of statistics
+- remove seroius outliers in graphs

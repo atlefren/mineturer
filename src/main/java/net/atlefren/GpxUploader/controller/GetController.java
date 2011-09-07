@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 
@@ -111,19 +113,33 @@ public class GetController {
 
     @RequestMapping(value = "registerUser", method = RequestMethod.GET)
     @ResponseBody
-    public boolean registerUser(@RequestParam("username") String username,@RequestParam("password") String password,@RequestParam("fullname") String fullname,@RequestParam("email") String email){
+    //public boolean registerUser(@RequestParam("username") String username,@RequestParam("password") String password,@RequestParam("fullname") String fullname,@RequestParam("email") String email){
+    public boolean registerUser(HttpServletRequest request){
+        try {
+            request.setCharacterEncoding("UTF-8");
+            String username = request.getParameter("username");
+            String email = request.getParameter("email");
+            String password = request.getParameter("password");
+            String fullname = request.getParameter("fullname");
+            
+            if(!userDao.userExists(username) && password.length()>7 && !email.equals("")){
+                User newUser = new User();
+                newUser.setUsername(username);
+                newUser.setPassword(DigestUtils.shaHex(password));
+                newUser.setFullname(fullname);
+                newUser.setEnabled(true);
+                newUser.setEmail(email);
+                return userDao.saveUser(newUser);
+            }
+            else {
+                return false;
+            }
 
-        if(!userDao.userExists(username) && password.length()>7 && !email.equals("")){
-            User newUser = new User();
-            newUser.setUsername(username);
-            newUser.setPassword(DigestUtils.shaHex(password));
-            newUser.setFullname(fullname);
-            newUser.setEnabled(true);
-            newUser.setEmail(email);
-            return userDao.saveUser(newUser);
         }
-        else {
+        catch(UnsupportedEncodingException e){
+            logger.error(e);
             return false;
         }
     }
+
 }

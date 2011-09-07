@@ -48,6 +48,7 @@
 <div>
     <h5>Siste nytt</h5>
     <ul>
+        <li>07.09.2011: Aktivitetstyper lagt til, endret ikoner + tegnsettfix</li>
         <li>05.09.2011: Fler grafer og mer statistikk</li>
     </ul>
 </div>

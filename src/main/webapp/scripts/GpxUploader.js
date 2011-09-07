@@ -489,9 +489,23 @@ TripOrganizer.TripUploader = OpenLayers.Class({
                         "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
                         "GPX-fil: <input id=\"upload_file\" type=\"file\" name=\"file\" /><br />"+
                         "Navn: <input id=\"upload_name\" type=\"text\" name=\"name\"><br />"+
+                        "Aktivitetstype: <select name='type'>"+
+                            "<option value='hiking'>Fjelltur</option>"+
+                            "<option value='jogging'>Jogging</option>"+
+                            "<option value='cycling'>Sykling</option>"+
+                            "<option value='car'>Biltur</option>"+
+                            "<option value='nordicski'>Skitur</option>"+
+                            "<option value='swimming'>Svømming</option>"+
+                            "<option value='rollerskate'>Rulleskøyter</option>"+
+                            "<option value='snowshoeing'>Truger</option>"+
+                            "<option value='motorbike'>Motorsykkel</option>"+
+                            "<option value='atv'>ATV</option>"+
+                            "<option value='snowmobiling'>Snøscooter</option>"+
+                            "<option value='default'>Annet</option>"+
+                        "</select><br/>"+
                         "Beskrivelse: <br /><textarea id=\"upload_desc\" name=\"desc\"></textarea><br />"+
-                         "<input type=\"submit\" value=\"Last opp\" />"+
-                        "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"
+                        "<input type=\"submit\" value=\"Last opp\" />"+
+                        "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"+
                         "</form>";
 
         var $form = $(formString);
@@ -692,9 +706,30 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
         var heightDiff = trip.heights.maxHeight-trip.heights.minHeight;
 
+        var types ={
+            "hiking":"Fjelltur",
+            "jogging":"Jogging",
+            "cycling":"Sykling",
+            "car":"Biltur",
+            "nordicski":"Skitur",
+            "swimming":"Svømming",
+            "rollerskate":"Rulleskøyter",
+            "snowshoeing":"Truger",
+            "motorbike":"Motorsykkel",
+            "atv":"ATV",
+            "snowmobiling":"Snøscooter",
+            "default":"Annet"
+        };
+
+        var type = "Annet";
+        if(trip.type){
+            type=types[trip.type];
+        }
+
         var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
             "<dl>"+
                 desc +
+                "<dt>Aktivitetstype:</dt> <dd>" + type+"</dd>"+
                 "<dt>Start:</dt> <dd>" + trip.start+"</dd>"+
                 "<dt>Stopp:</dt> <dd>" + trip.stop+"</dd>" +
                 "<dt>Total tid:</dt> <dd>" + this.convertTime(trip.times.totalTime)  + "</dd>" +
@@ -844,10 +879,16 @@ TripOrganizer.TripCentroidDisplayer = OpenLayers.Class({
         for(var i=0;i<centroids.length;i++){
             var feature =this.format.read(centroids[i].geom);
                 bounds.extend(feature.geometry.getBounds());
+                var icon ="gfx/icons/default.png";
+                if(centroids[i].type){
+                   icon = "gfx/icons/"+centroids[i].type + ".png";
+                }
                 feature.style = {
-                    externalGraphic:"gfx/marker.png",
-                    graphicWidth:21,
-                    graphicHeight:25
+                    externalGraphic:icon,
+                    graphicWidth:32,
+                    graphicHeight:37,
+                    cursor: "pointer",
+                    graphicTitle: centroids[i].title
                 };
                 feature.attributes.tripid=centroids[i].id;
                 features.push(feature);

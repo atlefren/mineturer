@@ -53,7 +53,7 @@ public class TripDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.insertAssignment = new SimpleJdbcInsert(dataSource).
                 withTableName(schema+".trips").
-                usingColumns("userid", "title", "description","start","stop").
+                usingColumns("userid", "title", "description","start","stop","triptype").
                 usingGeneratedKeyColumns("tripid");
     }
 
@@ -73,7 +73,8 @@ public class TripDao {
 
     public List<CentroidPoint> getCentroids(int userid,String srid){
         //String sql = "SELECT asText(ST_Centroid(st_transform(t.geom,"+srid+"))) as point, ts.tripid as tripid,ts.title as title FROM trips.tracks as t, trips.trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+user+"'";
-        String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),"+srid+"))) as point,tripid,title FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+userid+"') AS f GROUP BY tripid,title";
+        //String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),"+srid+"))) as point,tripid,title FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+userid+"') AS f GROUP BY tripid,title";
+        String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),"+srid+"))) as point,tripid,title,triptype FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+userid+"') AS f GROUP BY tripid,title,triptype";
         Map<String, Object> map = new HashMap<String, Object>();
         return namedParameterJdbcTemplate.query(sql,map,wktPointRowMapper);
     }
@@ -103,7 +104,7 @@ public class TripDao {
 
 
 
-    public int saveTripToDb(GpxFileContents trip,int userid){
+    public int saveTripToDb(GpxFileContents trip,String type,int userid){
         Map<String,Object> namedParameters = new HashMap<String,Object>();
 
         namedParameters.put("userid", userid);
@@ -111,6 +112,7 @@ public class TripDao {
         namedParameters.put("description", trip.getDescription());
         namedParameters.put("start", trip.getStart());
         namedParameters.put("stop", trip.getStop());
+        namedParameters.put("triptype", type);
 
         int tripId = insertAndGetKey(namedParameters);
         trip.setId(Integer.toString(tripId));
@@ -186,6 +188,7 @@ public class TripDao {
             trip.setId(Integer.toString(rs.getInt("tripid")));
             trip.setName(rs.getString("title"));
             trip.setDescription(rs.getString("description"));
+            trip.setType(rs.getString("triptype"));
             trip.setStart(rs.getTimestamp("start"));
             trip.setStop(rs.getTimestamp("stop"));
             trip.setTracks(getTracks(rs.getInt("tripid")));
@@ -242,6 +245,7 @@ public class TripDao {
             cp.setGeom(rs.getString("point"));
             cp.setId(rs.getInt("tripid"));
             cp.setTitle(rs.getString("title"));
+            cp.setType(rs.getString("triptype"));
             return cp;
         }
     };
