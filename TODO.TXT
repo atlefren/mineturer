@@ -24,7 +24,7 @@ OK - hover on trip points show tooltip
 - prettier login-page - mail sent
 - some kind of logo? - mail sent
 - prettify the upload-page - mail sent
-STARTED - check for more GPX-types (tested qstarz and mytracks, and garmin forerunner + some strange )
+STARTED - check for more GPX-types (tested qstarz(via bt747) and mytracks, and garmin forerunner + some strange )
 STARTED - handle different kinds of errors with gpx files
 - add labels to graph
 - clustering on trip points
@@ -38,7 +38,7 @@ STARTED - handle different kinds of errors with gpx files
 - make it possible to change color for a trip
 - discard waypoints? Or at least find a nicer presentation
 - figure out if "routes" is relevant
-- more inituitive layer-switcher
+- more intuitive layer-switcher
 - consider flicker-integration
 - handle error with large GPX-files
 - some solution for bit.ly style permalinks
@@ -53,3 +53,10 @@ STARTED - handle different kinds of errors with gpx files
 - check password in letter/number combo
 - better presentation of statistics
 - remove seroius outliers in graphs
+- embed function
+- place trip marker on start of trip instead of "center"?
+- use coocies for "remember me?"-function
+- admin page
+- bing aerial map
+- "zoom to all routes" button
+- buttons above map
