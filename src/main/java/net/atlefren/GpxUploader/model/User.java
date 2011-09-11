@@ -19,6 +19,7 @@ public class User implements UserDetails {
     private String password;
     private String email;
     private String fullname;
+    private String flickrId;
     private boolean enabled;
     private Collection<GrantedAuthority> authorities;
 
@@ -133,6 +134,14 @@ public class User implements UserDetails {
 
     public void setFullname(String fullname) {
         this.fullname = fullname;
+    }
+
+    public String getFlickrId() {
+        return flickrId;
+    }
+
+    public void setFlickrId(String flickrId) {
+        this.flickrId = flickrId;
     }
 }
 

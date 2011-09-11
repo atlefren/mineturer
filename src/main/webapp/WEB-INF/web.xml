@@ -65,6 +65,11 @@
     
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/updateTrack</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
         <url-pattern>/getTrips</url-pattern>
     </servlet-mapping>
 
@@ -109,5 +114,9 @@
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
         <url-pattern>/getGraphSeries</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/getGeoRSS</url-pattern>
     </servlet-mapping>
 </web-app>

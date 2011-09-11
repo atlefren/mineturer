@@ -1,12 +1,12 @@
 TripOrganizer.TripUploader = OpenLayers.Class({
 
     uploadForm: null,
-    callback: null,
+    update: null,
 
-    initialize: function(callback,options){
+    initialize: function(update,options){
         OpenLayers.Util.extend(this, options);
+        this.update = update;
 
-        this.callback = callback;
     },
 
     createLink: function(div){
@@ -23,71 +23,100 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
 
     showUploadForm: function(div){
+        //if(!this.uploadForm){
+            this.uploadForm = this.createUploadForm();
+            $("#"+div).append(this.uploadForm);
 
-        if(!this.uploadForm){
 
-            $("#"+div).append(this.createUploadForm());
-            this.uploadForm = $uplDiv;
-        }
+    /*}
         else {
             this.uploadForm.removeClass("hidden");
         }
+        */
+    },
 
+    hideUploadForm: function(){
+     this.uploadForm.remove();
     },
 
     createUploadForm: function(){
+        var target="uploadGpx";
+        var text="Last opp";
+        var name ="";
+        var desc ="";
+        var type="hiking";
+        var tags="";
+        if(this.update){
+            target="updateTrack";
+            text="Oppdater";
+            name = this.trip.name;
+            desc=this.trip.description;
+            if(this.trip.tags){
+                tags=this.trip.tags;
+            }
+            if(this.trip.description){
+                desc=this.trip.description;
+            }
+            type=this.trip.type;
+        }
         $uplDiv = $("<div id=\"uploadDiv\" class=\"uploadForm\"></div>");
 
 
-        var formString= "<form id=\"uploadForm\" action=\"uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\"  accept-charset=\"UTF-8\">"+
-                        "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
-                        "GPX-fil: <input id=\"upload_file\" type=\"file\" name=\"file\" /><br />"+
-                        "Navn: <input id=\"upload_name\" type=\"text\" name=\"name\"><br />"+
-                        "Aktivitetstype: <select name='type'>"+
-                            "<option value='hiking'>Fjelltur</option>"+
-                            "<option value='jogging'>Jogging</option>"+
-                            "<option value='cycling'>Sykling</option>"+
-                            "<option value='car'>Biltur</option>"+
-                            "<option value='nordicski'>Skitur</option>"+
-                            "<option value='swimming'>Svømming</option>"+
-                            "<option value='rollerskate'>Rulleskøyter</option>"+
-                            "<option value='snowshoeing'>Truger</option>"+
-                            "<option value='motorbike'>Motorsykkel</option>"+
-                            "<option value='atv'>ATV</option>"+
-                            "<option value='snowmobiling'>Snøscooter</option>"+
-                            "<option value='default'>Annet</option>"+
-                        "</select><br/>"+
-                        "Beskrivelse: <br /><textarea id=\"upload_desc\" name=\"desc\"></textarea><br />"+
-                        "<input type=\"submit\" value=\"Last opp\" />"+
-                        "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"+
-                        "</form>";
+        var formString;
+        if(!this.update){
+            formString= "<form id='uploadForm' action='"+target+"' method=\"POST\" enctype=\"multipart/form-data\"  accept-charset=\"UTF-8\">";
+            formString+= "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
+                "GPX-fil: <input id=\"upload_file\" type=\"file\" name=\"file\" /><br />";
+        }
+        else {
+            formString= "<form id='uploadForm' action='"+target+"' method=\"POST\" accept-charset=\"UTF-8\">";
+            formString+= "<input type='hidden' name='tripid' value='"+ this.trip.id+"' />";
+        }
+        formString+="Navn: <input id=\"upload_name\" type=\"text\" name=\"name\" value='"+name+"'><br />"+
+        "Flickr-tags: <input id=\"upload_flickr\" type=\"text\" name=\"tags\" value='"+tags+"'><br />"+
+            "Aktivitetstype: <select name='type'>";
+        for(var key in TripOrganizer.types){
+            if(key == type){
+                formString+="<option value='"+key+"' selected='true'>"+ TripOrganizer.types[key]+"</option>";
+            }
+            else {
+                formString+="<option value='"+key+"'>"+ TripOrganizer.types[key]+"</option>";
+            }
+
+        }
+        formString+="</select><br/>"+
+            "Beskrivelse: <br /><textarea id=\"upload_desc\" name=\"desc\">"+ desc+ "</textarea><br />"+
+            "<input type=\"submit\" value='"+text+"' />"+
+            "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"+
+            "</form>";
 
         var $form = $(formString);
         var that = this;
         $form.ajaxForm({
             beforeSubmit: function(a,f,o) {
+                console.log("SUBMIT!!!");
                 o.dataType = "json";
                 $('#uploadLoader').removeClass("hidden");
                 $('#uploadErr').addClass("hidden");
                 $('#uploadErr').html("");
             },
             success: function(data) {
-                that.getTrip(data.id);
-                that.fetcher.tripDisplayer.showSpinner();
                 //console.log(data);
-                if(data.status == "OK"){
-                    $('#uploadErr').addClass("hidden");
-                    $('#uploadErr').html("");
-                    $('#upload_file').val('');
-                    $('#upload_name').val('');
-                    $('#upload_desc').val('');
-                    $('#uploadDiv').addClass("hidden");
-                    $('#uploadLoader').addClass("hidden");
+                if(that.update){
+                    that.hideUploadForm();
+                    //todo: call trip displayer with updated data..
                 }
                 else {
-                    $('#uploadLoader').addClass("hidden");
-                    $('#uploadErr').removeClass("hidden");
-                    $('#uploadErr').html("<h5>En feil oppsto</h5><p></p>"+data.errMsg+"</p>");
+                    if(data.status == "OK"){
+                        that.hideUploadForm();
+                        that.getTrip(data.id);
+                        that.fetcher.tripDisplayer.showSpinner();
+                    }
+                    else {
+                        $('#uploadLoader').addClass("hidden");
+                        $('#uploadErr').removeClass("hidden");
+                        $('#uploadErr').html("<h5>En feil oppsto</h5><p></p>"+data.errMsg+"</p>");
+                    }
                 }
             }
         });
@@ -95,12 +124,8 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
         var $close = $("<a class=\"link\">Lukk</a>");
         $close.click(function(){
-            $('#uploadErr').addClass("hidden");
-            $('#uploadErr').html("");
-            $('#upload_file').val('');
-            $('#upload_name').val('');
-            $('#upload_desc').val('');
-            $('#uploadDiv').addClass("hidden");
+            console.log("close");
+            that.hideUploadForm();
         });
         $uplDiv.append($form);
         $uplDiv.append($("<div id=\"uploadErr\" class=\"error hidden\">"));

@@ -7,10 +7,12 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="stylesheet" href="css/style.css"/>
+    <link rel="stylesheet" href="css/fancybox/jquery.fancybox-1.3.4.css"/>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
     <script type="text/javascript" src="scripts/jquery.form.js"></script>
     <script type="text/javascript" src="scripts/jquery.flot.js"></script>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="scripts/jquery.fancybox-1.3.4.pack.js"></script>
     <script type="text/javascript" src="scripts/OpenLayers-2.11-rc1/OpenLayers.js"></script>
     <script type="text/javascript" src="scripts/GpxUploader.js"></script>
     <script type="text/javascript" src="scripts/spin.js"></script>

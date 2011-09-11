@@ -103,6 +103,17 @@ public class TripDao {
     }
 
 
+    public String getFlickrTagsForTrip(int userid,int tripid){
+        String sql = "SELECT flickrtags from mineturer.trips WHERE tripid=? AND userid=?";
+        Object[] parameters = new Object[]{tripid,userid};
+        List<String> tags = jdbcTemplate.query(sql,parameters,tagsRowMapper);
+        if(tags.size()>0){
+            return tags.get(0);
+        }
+        else {
+            return null;
+        }
+    }
 
     public int saveTripToDb(GpxFileContents trip,String type,int userid){
         Map<String,Object> namedParameters = new HashMap<String,Object>();
@@ -236,6 +247,12 @@ public class TripDao {
     private final RowMapper<String> geomRowMapper = new RowMapper<String>() {
         public  String mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getString("ewkt");
+        }
+    };
+
+    private final RowMapper<String> tagsRowMapper = new RowMapper<String>() {
+        public  String mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getString("flickrtags");
         }
     };
 

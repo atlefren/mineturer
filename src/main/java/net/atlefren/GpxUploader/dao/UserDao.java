@@ -48,7 +48,7 @@ public class UserDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.insertUser = new SimpleJdbcInsert(dataSource).
                 withTableName(schema+".users").
-                usingColumns("username", "password", "enabled","email","fullname").
+                usingColumns("username", "password", "enabled","email","fullname","flickrid").
                 usingGeneratedKeyColumns("userid");
     }
 
@@ -72,6 +72,7 @@ public class UserDao {
         namedParameters.put("fullname",user.getFullname());
         namedParameters.put("enabled",user.isEnabled());
         namedParameters.put("password",user.getPassword());
+        namedParameters.put("flickrid",user.getFlickrId());
         int userId = insertAndGetKey(namedParameters);
 
         this.jdbcTemplate.update("INSERT INTO "+schema+".\"userRoles\" (userid,authority) VALUES (?,?)",userId,"ROLE_USER");
@@ -103,6 +104,7 @@ public class UserDao {
             user.setEnabled(rs.getBoolean("enabled"));
             user.setId(rs.getInt("userid"));
             user.setEmail(rs.getString("email"));
+            user.setFlickrId(rs.getString("flickrid"));
             user.setAuthorities(getRolesForUser(rs.getInt("userid")));
             return user;
         }

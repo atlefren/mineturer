@@ -14,6 +14,7 @@
           <include>TripInfoDisplayer.js</include>
           <include>TripCentroidDisplayer.js</include>
           <include>GraphDisplayer.js</include>
+          <include>FlickrLoader.js</include>
       </includes>
     </script>
   </scripts>

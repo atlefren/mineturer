@@ -37,7 +37,7 @@ public class FileUploadController {
 
     @RequestMapping(value = "uploadGpx", method = RequestMethod.POST)
     @ResponseBody
-    public String handleFormUpload(@RequestParam("file") MultipartFile file,@RequestParam("desc")String desc,@RequestParam("name")String name, @RequestParam("type")String type) {
+    public String handleFormUpload(@RequestParam("file") MultipartFile file,@RequestParam("desc")String desc,@RequestParam("name")String name, @RequestParam("type")String type,@RequestParam("tags")String tags) {
         System.out.println("type = " + type);
         if (!file.isEmpty()) {
             try{
@@ -90,6 +90,22 @@ public class FileUploadController {
                 Gson gson = new Gson();
                 return "<textarea>"+gson.toJson(ro)+"</textarea>";
         }
+    }
+
+    @RequestMapping(value = "updateTrack", method = RequestMethod.POST)
+    @ResponseBody
+    public Boolean handleFormUpdate(@RequestParam("tripid")String tripid,@RequestParam("desc")String desc,@RequestParam("name")String name, @RequestParam("type")String type,@RequestParam("tags")String tags) {
+        System.out.println("type = " + type);
+
+            System.out.println("getUser() = " + getUser());
+            System.out.println("tripid = " + tripid);
+            System.out.println("name = " + name);
+            System.out.println("desc = " + desc);
+            System.out.println("tags = " + tags);
+            System.out.println("type = " + type);
+
+                return true;
+
     }
 
     private int getUser(){

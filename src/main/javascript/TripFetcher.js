@@ -4,6 +4,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     tripLayer: null,
     trips: [],
     tripMapDisplayer: null,
+    imgloader: null,
     //heightDisplayer: null,
     tripDisplayer: null,
     events: null,
@@ -51,6 +52,10 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         uploader.addFetcher(this);
     },
 
+    addImageLoader: function(imgloader){
+        this.imgloader = imgloader;
+    },
+
   /*  addHeightDisplayer: function(heightDisplayer){
         this.heightDisplayer= heightDisplayer;
     },
@@ -59,6 +64,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         this.events.triggerEvent("tripadded");
         this.trips.push(trip);
         this.tripMapDisplayer.showTrip(trip);
+        this.imgloader.load(trip.id);
         this.createItem(trip,false,true,this);
         this.tripDisplayer.displayTripInfo(trip);
   //      this.heightDisplayer.displayProfileFortrack(trip.id);
@@ -89,9 +95,10 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     },
 
     doDisplayTrip: function(trip){
-      //  this.heightDisplayer.displayProfileFortrack(trip.id);
         this.tripDisplayer.displayTripInfo(trip);
         this.tripMapDisplayer.showTrip(trip);
+        console.log("load img for",trip.id);
+        this.imgloader.load(trip.id);
     },
 
     createItem: function(trip,append,open,that){

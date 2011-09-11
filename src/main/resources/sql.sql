@@ -88,3 +88,4 @@ SELECT addGeometryColumn('mineturer','points','geom',4326,'POINT',2);
 
 ALTER TABLE mineturer.points ADD COLUMN hr double precision;
 ALTER TABLE mineturer.trips ADD COLUMN triptype varchar(50);
+ALTER TABLE mineturer.trips ADD COLUMN flickrtags varchar(255);

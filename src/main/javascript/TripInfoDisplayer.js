@@ -43,24 +43,9 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
         var heightDiff = trip.heights.maxHeight-trip.heights.minHeight;
 
-        var types ={
-            "hiking":"Fjelltur",
-            "jogging":"Jogging",
-            "cycling":"Sykling",
-            "car":"Biltur",
-            "nordicski":"Skitur",
-            "swimming":"Svømming",
-            "rollerskate":"Rulleskøyter",
-            "snowshoeing":"Truger",
-            "motorbike":"Motorsykkel",
-            "atv":"ATV",
-            "snowmobiling":"Snøscooter",
-            "default":"Annet"
-        };
-
         var type = "Annet";
         if(trip.type){
-            type=types[trip.type];
+            type=TripOrganizer.types[trip.type];
         }
 
         var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
@@ -90,12 +75,24 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
                 "<dt>Total negativ stigning:</dt> <dd>" + this.round(Math.abs(trip.heights.totalDesc),2)  + " m</dd>" +
                 "<dt>Max høydeforskjell:</dt> <dd>" + this.round(heightDiff,2)  + " m</dd>" +
                 "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
+                "<dt>Operasjoner:</dt><dd> <a href='#'  id='edit'>Rediger</a> <a href='#' id='del'>Slett</a></dd>"+
                 "</dl>"
-
         );
+        var that = this;
+
+        var updater = new TripOrganizer.TripUploader(true,{trip:trip});
         $("#"+this.divId).append("<h3>"+trip.name+"</h3>");
         $("#"+this.divId).append($body);
         this.updateLink();
+        $("#del").click(function(){
+
+            var ok = confirm("Vil du virkelig slette denne turen?");
+            console.log("delete "+ that.trip.id + " " + ok);
+        });
+        $("#edit").click(function(){
+                console.log("edit"+ that.trip.id);
+                updater.showUploadForm("upload");
+        });
     },
 
     updateLink: function(){

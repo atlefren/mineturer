@@ -18,7 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.List;
 
 
@@ -44,31 +49,27 @@ public class GetController {
     @RequestMapping(value = "getCentroids", method = RequestMethod.GET)
     @ResponseBody
     public List<CentroidPoint> getTripCentroids(){
-        return tripDao.getCentroids(getUser(),"900913");
+        return tripDao.getCentroids(getUserId(),"900913");
     }
 
     @RequestMapping(value = "getTrips", method = RequestMethod.GET)
     @ResponseBody
     public List<Trip> getTrips() {
-        return  tripDao.getTrips(getUser());
+        return  tripDao.getTrips(getUserId());
     }
 
     @RequestMapping(value = "getTripGeom", method = RequestMethod.GET)
     @ResponseBody
     public Trip getTripGeom(@RequestParam("id") int id) {
-        return tripDao.getTripGeom(getUser(), "900913", id);
+        return tripDao.getTripGeom(getUserId(), "900913", id);
     }
-
-    //TODO: rewrite to calculate from points
-
-
 
 
     @RequestMapping(value = "getGraphSeries", method = RequestMethod.GET)
     @ResponseBody
     public List<List<Double>> getGraphSeries(@RequestParam("id") int id, @RequestParam("type") String type) {
 
-        List<GpxPoint> points = tripDao.getPointsForTrip(id, getUser());
+        List<GpxPoint> points = tripDao.getPointsForTrip(id, getUserId());
         if(type.equals("height_dist")){
             return GraphGenerator.generateDistHeightProfile(points);
         }
@@ -96,7 +97,37 @@ public class GetController {
 
     }
 
-    private int getUser(){
+
+    @RequestMapping("getGeoRSS")
+    public void getGeoRSS(HttpServletRequest request, HttpServletResponse httpResponse) {
+        int tripid = Integer.valueOf(request.getParameter("tripid"));
+        //TODO get tags for tripid
+        String tags = tripDao.getFlickrTagsForTrip(getUserId(),tripid);
+        if(tags != null && !tags.equals("")){
+            String url = "http://api.flickr.com/services/feeds/photos_public.gne?id="+getFlickrId()+"&tags="+tags+"&georss=1";
+            try {
+                OutputStream stream = httpResponse.getOutputStream();
+                URL proxyUrl = new URL(url);
+                InputStream is = proxyUrl.openStream();
+                int nextChar;
+                while ((nextChar = is.read()) != -1) {
+                    stream.write(nextChar);
+                }
+                stream.flush();
+            } catch (IOException e) {
+                logger.error("Error streaming proxy url", e);
+            }
+        }
+
+    }
+
+
+    private String getFlickrId(){
+        User user= (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return user.getFlickrId();
+    }
+
+    private int getUserId(){
         User user= (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         /*
         System.out.println("user.getId() = " + user.getId());

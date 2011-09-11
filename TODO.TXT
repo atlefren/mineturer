@@ -60,3 +60,6 @@ STARTED - handle different kinds of errors with gpx files
 - bing aerial map
 - "zoom to all routes" button
 - buttons above map
+
+http://api.flickr.com/services/feeds/photos_public.gne?id=35362064@N08&tags=test&georss=1
+http://support.statsmix.com/kb/faq/how-do-i-find-my-flickr-id

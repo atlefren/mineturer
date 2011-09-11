@@ -1,13 +1,26 @@
 window.TripOrganizer = {};
+
+        TripOrganizer.types ={
+            "hiking":"Fjelltur",
+            "jogging":"Jogging",
+            "cycling":"Sykling",
+            "car":"Biltur",
+            "nordicski":"Skitur",
+            "swimming":"Svømming",
+            "rollerskate":"Rulleskøyter",
+            "snowshoeing":"Truger",
+            "motorbike":"Motorsykkel",
+            "atv":"ATV",
+            "snowmobiling":"Snøscooter",
+            "default":"Annet"
+        };
 function setupMap(perma,lon,lat,zoom,layerId,wkt) {
-
-
 
 
     if(!perma){
         var tripDisplayer = new TripOrganizer.TripInfoDisplayer("tripdetail");
         tripDisplayer.setText("Velg en tur i menyen!");
-        var uploader = new TripOrganizer.TripUploader();
+        var uploader = new TripOrganizer.TripUploader(false);
         var tripFetcher = new TripOrganizer.TripFetcher("trips");
         tripFetcher.addTripDisplayer(tripDisplayer);
         tripFetcher.getTrips();
@@ -34,7 +47,8 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     }
 
 
-    if(google){
+
+    if(typeof(google) != "undefined"){
         // create Google Mercator layers
         var gmap = new OpenLayers.Layer.Google(
             "Google Maps",
@@ -108,12 +122,18 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
-    if(google){
+    if(typeof(google) != "undefined"){
         map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
     }
     else {
         map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
     }
+
+
+
+
+    var flickr = new TripOrganizer.FlickrLoader(map);
+    tripFetcher.addImageLoader(flickr);
 
 
     if(perma){
@@ -151,28 +171,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         });
 
     }
-    /*
 
-    var speedProfileDisplayer = new TripOrganizer.SpeedProfileDisplayer("ele");
-
-    $("#hoyde").click(function(){
-        if(!heightDisplayer.active){
-            speedProfileDisplayer.hideProfile();
-            $('#fart').removeClass("active").addClass("inactive");
-            heightDisplayer.displayProfileFortrack(tripFetcher.activeTrip);
-            $('#hoyde').removeClass("inactive").addClass("active");
-        }
-    });
-
-    $("#fart").click(function(){
-        if(!speedProfileDisplayer.active){
-            heightDisplayer.hideHeightProfile();
-            $('#hoyde').removeClass("active").addClass("inactive");
-            speedProfileDisplayer.displayProfileFortrack(tripFetcher.activeTrip);
-            $('#fart').removeClass("inactive").addClass("active");
-        }
-    });
-*/
 }
 TripOrganizer.TripFetcher = OpenLayers.Class({
 
@@ -180,6 +179,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     tripLayer: null,
     trips: [],
     tripMapDisplayer: null,
+    imgloader: null,
     //heightDisplayer: null,
     tripDisplayer: null,
     events: null,
@@ -227,6 +227,10 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         uploader.addFetcher(this);
     },
 
+    addImageLoader: function(imgloader){
+        this.imgloader = imgloader;
+    },
+
   /*  addHeightDisplayer: function(heightDisplayer){
         this.heightDisplayer= heightDisplayer;
     },
@@ -235,6 +239,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         this.events.triggerEvent("tripadded");
         this.trips.push(trip);
         this.tripMapDisplayer.showTrip(trip);
+        this.imgloader.load(trip.id);
         this.createItem(trip,false,true,this);
         this.tripDisplayer.displayTripInfo(trip);
   //      this.heightDisplayer.displayProfileFortrack(trip.id);
@@ -265,9 +270,10 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     },
 
     doDisplayTrip: function(trip){
-      //  this.heightDisplayer.displayProfileFortrack(trip.id);
         this.tripDisplayer.displayTripInfo(trip);
         this.tripMapDisplayer.showTrip(trip);
+        console.log("load img for",trip.id);
+        this.imgloader.load(trip.id);
     },
 
     createItem: function(trip,append,open,that){
@@ -447,12 +453,12 @@ TripOrganizer.TripMapDisplayer = OpenLayers.Class({
 TripOrganizer.TripUploader = OpenLayers.Class({
 
     uploadForm: null,
-    callback: null,
+    update: null,
 
-    initialize: function(callback,options){
+    initialize: function(update,options){
         OpenLayers.Util.extend(this, options);
+        this.update = update;
 
-        this.callback = callback;
     },
 
     createLink: function(div){
@@ -469,59 +475,95 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
 
     showUploadForm: function(div){
+        //if(!this.uploadForm){
+            this.uploadForm = this.createUploadForm();
+            $("#"+div).append(this.uploadForm);
 
-        if(!this.uploadForm){
 
-            $("#"+div).append(this.createUploadForm());
-            this.uploadForm = $uplDiv;
-        }
+    /*}
         else {
             this.uploadForm.removeClass("hidden");
         }
+        */
+    },
 
+    hideUploadForm: function(){
+     this.uploadForm.remove();
     },
 
     createUploadForm: function(){
+        var target="uploadGpx";
+        var text="Last opp";
+        var name ="";
+        var desc ="";
+        var type="hiking";
+        var tags="";
+        if(this.update){
+            target="updateTrack";
+            text="Oppdater";
+            name = this.trip.name;
+            desc=this.trip.description;
+            if(this.trip.tags){
+                tags=this.trip.tags;
+            }
+            if(this.trip.description){
+                desc=this.trip.description;
+            }
+            type=this.trip.type;
+        }
         $uplDiv = $("<div id=\"uploadDiv\" class=\"uploadForm\"></div>");
 
 
-        var formString= "<form id=\"uploadForm\" action=\"uploadGpx\" method=\"POST\" enctype=\"multipart/form-data\"  accept-charset=\"UTF-8\">"+
-                        "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
-                        "GPX-fil: <input id=\"upload_file\" type=\"file\" name=\"file\" /><br />"+
-                        "Navn: <input id=\"upload_name\" type=\"text\" name=\"name\"><br />"+
-                        "Aktivitetstype: <select name='type'>"+
-                            "<option value='hiking'>Fjelltur</option>"+
-                            "<option value='jogging'>Jogging</option>"+
-                            "<option value='cycling'>Sykling</option>"+
-                            "<option value='car'>Biltur</option>"+
-                            "<option value='nordicski'>Skitur</option>"+
-                            "<option value='swimming'>Svømming</option>"+
-                            "<option value='rollerskate'>Rulleskøyter</option>"+
-                            "<option value='snowshoeing'>Truger</option>"+
-                            "<option value='motorbike'>Motorsykkel</option>"+
-                            "<option value='atv'>ATV</option>"+
-                            "<option value='snowmobiling'>Snøscooter</option>"+
-                            "<option value='default'>Annet</option>"+
-                        "</select><br/>"+
-                        "Beskrivelse: <br /><textarea id=\"upload_desc\" name=\"desc\"></textarea><br />"+
-                        "<input type=\"submit\" value=\"Last opp\" />"+
-                        "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"+
-                        "</form>";
+        var formString;
+        if(!this.update){
+            formString= "<form id='uploadForm' action='"+target+"' method=\"POST\" enctype=\"multipart/form-data\"  accept-charset=\"UTF-8\">";
+            formString+= "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
+                "GPX-fil: <input id=\"upload_file\" type=\"file\" name=\"file\" /><br />";
+        }
+        else {
+            formString= "<form id='uploadForm' action='"+target+"' method=\"POST\" accept-charset=\"UTF-8\">";
+            formString+= "<input type='hidden' name='tripid' value='"+ this.trip.id+"' />";
+        }
+        formString+="Navn: <input id=\"upload_name\" type=\"text\" name=\"name\" value='"+name+"'><br />"+
+        "Flickr-tags: <input id=\"upload_flickr\" type=\"text\" name=\"tags\" value='"+tags+"'><br />"+
+            "Aktivitetstype: <select name='type'>";
+        for(var key in TripOrganizer.types){
+            if(key == type){
+                formString+="<option value='"+key+"' selected='true'>"+ TripOrganizer.types[key]+"</option>";
+            }
+            else {
+                formString+="<option value='"+key+"'>"+ TripOrganizer.types[key]+"</option>";
+            }
+
+        }
+        formString+="</select><br/>"+
+            "Beskrivelse: <br /><textarea id=\"upload_desc\" name=\"desc\">"+ desc+ "</textarea><br />"+
+            "<input type=\"submit\" value='"+text+"' />"+
+            "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"+
+            "</form>";
 
         var $form = $(formString);
         var that = this;
         $form.ajaxForm({
             beforeSubmit: function(a,f,o) {
+                console.log("SUBMIT!!!");
                 o.dataType = "json";
                 $('#uploadLoader').removeClass("hidden");
                 $('#uploadErr').addClass("hidden");
                 $('#uploadErr').html("");
             },
             success: function(data) {
-                that.getTrip(data.id);
-                that.fetcher.tripDisplayer.showSpinner();
+                if(!that.update){
+                    that.getTrip(data.id);
+                    that.fetcher.tripDisplayer.showSpinner();
+                }
+                else {
+                    console.log("updated!");
+                }
                 //console.log(data);
                 if(data.status == "OK"){
+                  that.hideUploadForm();
+                    /*
                     $('#uploadErr').addClass("hidden");
                     $('#uploadErr').html("");
                     $('#upload_file').val('');
@@ -529,6 +571,7 @@ TripOrganizer.TripUploader = OpenLayers.Class({
                     $('#upload_desc').val('');
                     $('#uploadDiv').addClass("hidden");
                     $('#uploadLoader').addClass("hidden");
+                    */
                 }
                 else {
                     $('#uploadLoader').addClass("hidden");
@@ -541,12 +584,16 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
         var $close = $("<a class=\"link\">Lukk</a>");
         $close.click(function(){
+            console.log("close");
+            that.hideUploadForm();
+            /*
             $('#uploadErr').addClass("hidden");
             $('#uploadErr').html("");
             $('#upload_file').val('');
             $('#upload_name').val('');
             $('#upload_desc').val('');
             $('#uploadDiv').addClass("hidden");
+            */
         });
         $uplDiv.append($form);
         $uplDiv.append($("<div id=\"uploadErr\" class=\"error hidden\">"));
@@ -706,24 +753,9 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
         var heightDiff = trip.heights.maxHeight-trip.heights.minHeight;
 
-        var types ={
-            "hiking":"Fjelltur",
-            "jogging":"Jogging",
-            "cycling":"Sykling",
-            "car":"Biltur",
-            "nordicski":"Skitur",
-            "swimming":"Svømming",
-            "rollerskate":"Rulleskøyter",
-            "snowshoeing":"Truger",
-            "motorbike":"Motorsykkel",
-            "atv":"ATV",
-            "snowmobiling":"Snøscooter",
-            "default":"Annet"
-        };
-
         var type = "Annet";
         if(trip.type){
-            type=types[trip.type];
+            type=TripOrganizer.types[trip.type];
         }
 
         var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
@@ -753,12 +785,24 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
                 "<dt>Total negativ stigning:</dt> <dd>" + this.round(Math.abs(trip.heights.totalDesc),2)  + " m</dd>" +
                 "<dt>Max høydeforskjell:</dt> <dd>" + this.round(heightDiff,2)  + " m</dd>" +
                 "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
+                "<dt>Operasjoner:</dt><dd> <a href='#'  id='edit'>Rediger</a> <a href='#' id='del'>Slett</a></dd>"+
                 "</dl>"
-
         );
+        var that = this;
+
+        var updater = new TripOrganizer.TripUploader(true,{trip:trip});
         $("#"+this.divId).append("<h3>"+trip.name+"</h3>");
         $("#"+this.divId).append($body);
         this.updateLink();
+        $("#del").click(function(){
+
+            var ok = confirm("Vil du virkelig slette denne turen?");
+            console.log("delete "+ that.trip.id + " " + ok);
+        });
+        $("#edit").click(function(){
+                console.log("edit"+ that.trip.id);
+                updater.showUploadForm("upload");
+        });
     },
 
     updateLink: function(){
@@ -1011,3 +1055,116 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
 
     CLASS_NAME: ""
 });
+TripOrganizer.FlickrLoader = OpenLayers.Class({
+
+
+    url: null,
+    layer:null,
+    selectCtrl: null,
+    map:null,
+    initialize: function(map){
+        this.map=map;
+        var style = {
+            externalGraphic:"gfx/photo.png",
+            graphicHeight: 16,
+            graphicWidth:16
+        };
+        this.layer = new OpenLayers.Layer.Vector("Images", {style:style});
+        map.addLayer(this.layer);
+        this.selectCtrl = new OpenLayers.Control.SelectFeature(this.layer,{onSelect: this.onFeatureSelect});
+        map.addControl(this.selectCtrl);
+        //this.selectCtrl.activate();
+        this.clear();
+    },
+
+    clear: function(){
+        this.selectCtrl.deactivate();
+        this.layer.destroyFeatures();
+        if(this.layer.map){
+            this.map.removeLayer(this.layer);
+        }
+
+    },
+    
+    load: function(tripid){
+        console.log("load! ", tripid)
+        this.clear();
+        var that = this;
+        console.log("load");
+
+        $.ajax({
+            type: "GET",
+            url: "getGeoRSS?tripid="+tripid,
+            dataType: "xml",
+            success: function(xml) {
+                console.log("!!!!", xml);
+                that.parseData(xml);
+            }
+        });
+    },
+
+    parseData: function(doc) {
+        console.log("loaded", doc);
+        if (!doc || !doc.documentElement) {
+            doc = OpenLayers.Format.XML.prototype.read(ajaxRequest.responseText);
+        }
+
+        var options ={
+            externalProjection: new OpenLayers.Projection("EPSG:4326"),
+            internalProjection:new OpenLayers.Projection("EPSG:900913"),
+            createFeatureFromItem: function(item) {
+                        var feature = OpenLayers.Format.GeoRSS.prototype.createFeatureFromItem.apply(this, arguments);
+                        var links =this.getElementsByTagNameNS(item, "*", "link");
+                        for(var i=0;i<links.length;i++){
+                            var isImage = false;
+                            for(var j=0;j<links[i].attributes.length;j++){
+                                if(links[i].attributes[j].localName=="rel" && links[i].attributes[j].nodeValue=="enclosure"){
+                                    isImage=true;
+                                }
+                                if(links[i].attributes[j].localName=="href" && isImage){
+                                    feature.attributes.imageUrl =links[i].attributes[j].nodeValue;
+                                }
+                            }
+                        }
+                        return feature;
+                    }
+        };
+
+        var format = new OpenLayers.Format.GeoRSS(options);
+        var features = format.read(doc);
+        if(features.length >0){
+            this.map.addLayer(this.layer);
+            this.layer.addFeatures(features);
+            this.selectCtrl.activate();
+        }
+    },
+
+     onFeatureSelect: function(feature) {
+
+        console.log("Selected ", feature);
+         console.log("this:", this);
+        $.fancybox.showActivity();
+         var img = new Image();
+         img.onload = function() {
+             $.fancybox.hideActivity();
+             $.fancybox({
+                 content: "<div><img src='"+feature.attributes.imageUrl+"' ></div>",
+                 width: this.width,
+                 height: this.height
+             });
+             
+             console.log("this, ", this);
+         };
+         img.src = feature.attributes.imageUrl;
+
+
+         this.unselect(feature);
+     },
+
+    CLASS_NAME: "TripOrganizer.FlickrLoader"
+
+});
+
+
+
+

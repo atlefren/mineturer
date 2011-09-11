@@ -1,12 +1,10 @@
 function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
 
-
-
     if(!perma){
         var tripDisplayer = new TripOrganizer.TripInfoDisplayer("tripdetail");
         tripDisplayer.setText("Velg en tur i menyen!");
-        var uploader = new TripOrganizer.TripUploader();
+        var uploader = new TripOrganizer.TripUploader(false);
         var tripFetcher = new TripOrganizer.TripFetcher("trips");
         tripFetcher.addTripDisplayer(tripDisplayer);
         tripFetcher.getTrips();
@@ -33,7 +31,8 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     }
 
 
-    if(google){
+
+    if(typeof(google) != "undefined"){
         // create Google Mercator layers
         var gmap = new OpenLayers.Layer.Google(
             "Google Maps",
@@ -107,12 +106,18 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
-    if(google){
+    if(typeof(google) != "undefined"){
         map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
     }
     else {
         map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
     }
+
+
+
+
+    var flickr = new TripOrganizer.FlickrLoader(map);
+    tripFetcher.addImageLoader(flickr);
 
 
     if(perma){
@@ -150,26 +155,5 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         });
 
     }
-    /*
 
-    var speedProfileDisplayer = new TripOrganizer.SpeedProfileDisplayer("ele");
-
-    $("#hoyde").click(function(){
-        if(!heightDisplayer.active){
-            speedProfileDisplayer.hideProfile();
-            $('#fart').removeClass("active").addClass("inactive");
-            heightDisplayer.displayProfileFortrack(tripFetcher.activeTrip);
-            $('#hoyde').removeClass("inactive").addClass("active");
-        }
-    });
-
-    $("#fart").click(function(){
-        if(!speedProfileDisplayer.active){
-            heightDisplayer.hideHeightProfile();
-            $('#hoyde').removeClass("active").addClass("inactive");
-            speedProfileDisplayer.displayProfileFortrack(tripFetcher.activeTrip);
-            $('#fart').removeClass("inactive").addClass("active");
-        }
-    });
-*/
 }

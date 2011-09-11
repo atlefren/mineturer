@@ -103,14 +103,14 @@ body {
 }
 
 #triplist {
-    width:200px;
+    width:250px;
     height: 400px;
     float: left;
     background: none repeat scroll 0 0 #EEEEEE;
 }
 
 #tripdetail{
-    width:589px;
+    width:539px;
     height: 400px;
     float: left;
     padding: 5px;
