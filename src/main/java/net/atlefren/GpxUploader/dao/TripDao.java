@@ -1,30 +1,19 @@
 package net.atlefren.GpxUploader.dao;
 
 import net.atlefren.GpxUploader.model.*;
-import net.atlefren.GpxUploader.service.GraphGenerator;
 import net.atlefren.GpxUploader.service.HeightComputer;
 import net.atlefren.GpxUploader.service.LengthComputer;
 import net.atlefren.GpxUploader.service.TimeComputer;
-import org.geotools.styling.Description;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 
-import javax.lang.model.SourceVersion;
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +42,7 @@ public class TripDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.insertAssignment = new SimpleJdbcInsert(dataSource).
                 withTableName(schema+".trips").
-                usingColumns("userid", "title", "description","start","stop","triptype").
+                usingColumns("userid", "title", "description","start","stop","triptype","flickrtags").
                 usingGeneratedKeyColumns("tripid");
     }
 
@@ -61,7 +50,14 @@ public class TripDao {
     public List<Trip> getTrips(int userid){
         String sql = "SELECT * FROM "+schema+".trips WHERE userid='"+userid+"'";
         Map<String, Object> map = new HashMap<String, Object>();
-        return namedParameterJdbcTemplate.query(sql, map, tripRowMapper);
+        return namedParameterJdbcTemplate.query(sql, map, simpleTripRowMapper);
+    }
+
+    public void updateTrip(Trip updated,int userid){
+        jdbcTemplate.update(
+                "update "+schema+".trips set title = ?, description=?, triptype=?, flickrtags=? where tripid = ? AND userid=?",
+                updated.getName(),updated.getDescription(),updated.getType(),updated.getTags(), Integer.parseInt(updated.getId()),userid);
+
     }
 
     public List<Trip> getSimpleTripInfo(int tripId){
@@ -69,6 +65,10 @@ public class TripDao {
         String sql = "SELECT t.tripid as tripid, t.title as title, u.username as username FROM "+schema+".trips t, "+schema+".users u WHERE t.tripid='"+tripId+"' AND t.userid=t.userid";
         Map<String, Object> map = new HashMap<String, Object>();
         return namedParameterJdbcTemplate.query(sql, map, tripRowMapperWithUser);
+    }
+
+    public void deleteTrip(int userid, int tripId){
+        jdbcTemplate.update("DELETE FROM "+schema+".trips WHERE userid="+userid+" AND tripid= "+tripId);
     }
 
     public List<CentroidPoint> getCentroids(int userid,String srid){
@@ -79,12 +79,19 @@ public class TripDao {
         return namedParameterJdbcTemplate.query(sql,map,wktPointRowMapper);
     }
 
-    public Trip getTripGeom(int userid,String srid,int id){
+    public Trip getTripDetails(int userid, String srid, int id,boolean includeGeom){
         this.srid = srid;
         String sql = "SELECT * FROM "+schema+".trips WHERE userid='"+userid+"' AND tripid="+id;
         Map<String, Object> map = new HashMap<String, Object>();
-        return namedParameterJdbcTemplate.query(sql, map, tripGeomRowMapper).get(0);
+        if(includeGeom){
+            return namedParameterJdbcTemplate.query(sql, map, tripGeomRowMapper).get(0);
+        }
+        else {
+            return namedParameterJdbcTemplate.query(sql, map, tripRowMapper).get(0);
+        }
     }
+
+
 
     public List<GpxPoint> getPointsForTrip(int id,int userid){
         String sql = "SELECT st_x(geom) as lon, st_y(geom) as lat, ele, \"time\",hr FROM "+schema+".points WHERE tripid="+id;
@@ -115,8 +122,9 @@ public class TripDao {
         }
     }
 
-    public int saveTripToDb(GpxFileContents trip,String type,int userid){
+    public int saveTripToDb(GpxFileContents trip,int userid,String type,String tags){
         Map<String,Object> namedParameters = new HashMap<String,Object>();
+
 
         namedParameters.put("userid", userid);
         namedParameters.put("title", trip.getName());
@@ -124,6 +132,8 @@ public class TripDao {
         namedParameters.put("start", trip.getStart());
         namedParameters.put("stop", trip.getStop());
         namedParameters.put("triptype", type);
+        namedParameters.put("flickrtags", tags);
+
 
         int tripId = insertAndGetKey(namedParameters);
         trip.setId(Integer.toString(tripId));
@@ -202,12 +212,31 @@ public class TripDao {
             trip.setType(rs.getString("triptype"));
             trip.setStart(rs.getTimestamp("start"));
             trip.setStop(rs.getTimestamp("stop"));
+            trip.setTags(rs.getString("flickrtags"));
             trip.setTracks(getTracks(rs.getInt("tripid")));
             trip.setLenghts(LengthComputer.generateLengthts(points));
             trip.setTimes(TimeComputer.generateTimes(points));
             trip.setHeights(HeightComputer.computeHeights(points));
             trip.setWaypoints(getWaypoints(rs.getInt("tripid")));
             trip.setRoutes(getRoutes(rs.getInt("tripid")));
+            return trip;
+        }
+    };
+
+    private final RowMapper<Trip> tripRowMapper = new RowMapper<Trip>() {
+     public Trip mapRow(ResultSet rs, int rowNum) throws SQLException {
+            List<GpxPoint> points = getPointsForTrip(rs.getInt("tripid"),-1);
+            Trip trip = new Trip();
+            trip.setId(Integer.toString(rs.getInt("tripid")));
+            trip.setName(rs.getString("title"));
+            trip.setDescription(rs.getString("description"));
+            trip.setType(rs.getString("triptype"));
+            trip.setStart(rs.getTimestamp("start"));
+            trip.setStop(rs.getTimestamp("stop"));
+            trip.setTags(rs.getString("flickrtags"));
+            trip.setLenghts(LengthComputer.generateLengthts(points));
+            trip.setTimes(TimeComputer.generateTimes(points));
+            trip.setHeights(HeightComputer.computeHeights(points));
             return trip;
         }
     };
@@ -224,7 +253,7 @@ public class TripDao {
         }
     };
 
-    private final RowMapper<Trip> tripRowMapper = new RowMapper<Trip>() {
+    private final RowMapper<Trip> simpleTripRowMapper = new RowMapper<Trip>() {
         public Trip mapRow(ResultSet rs, int rowNum) throws SQLException {
             Trip trip = new Trip();
             trip.setId(Integer.toString(rs.getInt("tripid")));

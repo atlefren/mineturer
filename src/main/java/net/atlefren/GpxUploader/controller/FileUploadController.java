@@ -38,7 +38,7 @@ public class FileUploadController {
     @RequestMapping(value = "uploadGpx", method = RequestMethod.POST)
     @ResponseBody
     public String handleFormUpload(@RequestParam("file") MultipartFile file,@RequestParam("desc")String desc,@RequestParam("name")String name, @RequestParam("type")String type,@RequestParam("tags")String tags) {
-        System.out.println("type = " + type);
+
         if (!file.isEmpty()) {
             try{
                 GpxReader reader = new GpxReader(file.getInputStream());
@@ -49,8 +49,8 @@ public class FileUploadController {
                 if(desc!=null && !desc.equals("")){
                     contents.setDescription(desc);
                 }
-                int id = tripDao.saveTripToDb(contents,type,getUser());
-                //Trip obj = tripDao.getTripGeom(getUser(), "900913", id);
+                int id = tripDao.saveTripToDb(contents,getUser(),type,tags);
+                //Trip obj = tripDao.getTripDetails(getUser(), "900913", id);
                 ReturnObject ro = new ReturnObject();
                 ro.setId(id);
                 ro.setStatus("OK");
@@ -95,17 +95,16 @@ public class FileUploadController {
     @RequestMapping(value = "updateTrack", method = RequestMethod.POST)
     @ResponseBody
     public Boolean handleFormUpdate(@RequestParam("tripid")String tripid,@RequestParam("desc")String desc,@RequestParam("name")String name, @RequestParam("type")String type,@RequestParam("tags")String tags) {
-        System.out.println("type = " + type);
 
-            System.out.println("getUser() = " + getUser());
-            System.out.println("tripid = " + tripid);
-            System.out.println("name = " + name);
-            System.out.println("desc = " + desc);
-            System.out.println("tags = " + tags);
-            System.out.println("type = " + type);
+        Trip edited = new Trip();
+        edited.setType(type);
+        edited.setName(name);
+        edited.setDescription(desc);
+        edited.setTags(tags);
+        edited.setId(tripid);
 
-                return true;
-
+        tripDao.updateTrip(edited,getUser());
+        return true;
     }
 
     private int getUser(){

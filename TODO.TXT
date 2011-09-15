@@ -29,8 +29,8 @@ STARTED - handle different kinds of errors with gpx files
 - add labels to graph
 - clustering on trip points
 - find a faster server than kj0leskap
-- make it possible to delete trips
-- make it possible to edit trip info
+OK - make it possible to delete trips
+OK - make it possible to edit trip info
 - consider displaying a simplified version of the geometry
 - make a "merge trips" function
 - write tests(!)
@@ -39,7 +39,7 @@ STARTED - handle different kinds of errors with gpx files
 - discard waypoints? Or at least find a nicer presentation
 - figure out if "routes" is relevant
 - more intuitive layer-switcher
-- consider flicker-integration
+OK - consider flicker-integration
 - handle error with large GPX-files
 - some solution for bit.ly style permalinks
 - export geom as KML/GeoJSON

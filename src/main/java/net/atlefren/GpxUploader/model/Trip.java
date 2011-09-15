@@ -19,6 +19,7 @@ public class Trip {
     private String stop;
     private String user;
     private String type;
+    private String tags;
 
     private LengthHolder lenghts;
     private TimeHolder times;
@@ -140,5 +141,13 @@ public class Trip {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }

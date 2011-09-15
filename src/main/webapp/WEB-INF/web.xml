@@ -75,7 +75,12 @@
 
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
-        <url-pattern>/getTripGeom</url-pattern>
+        <url-pattern>/getTrip</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/deleteTrip</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
@@ -86,6 +91,16 @@
     <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
         <url-pattern>/getTripSpeeds</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/getUserInfo</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/updateUser</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>

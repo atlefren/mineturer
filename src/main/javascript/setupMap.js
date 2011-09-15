@@ -115,10 +115,10 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
 
 
-
-    var flickr = new TripOrganizer.FlickrLoader(map);
-    tripFetcher.addImageLoader(flickr);
-
+    if(!perma){
+        var flickr = new TripOrganizer.FlickrLoader(map);
+        tripFetcher.addImageLoader(flickr);
+    }
 
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);
@@ -153,6 +153,17 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
                 centroidFetcher.displayCentroids(true);
             }
         });
+        tripFetcher.events.on({
+            'tripdeleted':function(evt){
+                centroidFetcher.displayCentroids(false);
+            }
+        });
+        tripFetcher.events.on({
+            'tripupdated':function(evt){
+                centroidFetcher.displayCentroids(true);
+            }
+        });
+
 
     }
 

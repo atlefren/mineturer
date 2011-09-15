@@ -4,11 +4,10 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     tripLayer: null,
     trips: [],
     tripMapDisplayer: null,
-    imgloader: null,
-    //heightDisplayer: null,
     tripDisplayer: null,
     events: null,
-    EVENT_TYPES: ["tripadded"],
+    map: null,
+    EVENT_TYPES: ["tripadded","tripdeleted","tripupdated"],
 
 
     initialize: function(div,options){
@@ -17,8 +16,12 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         this.div=div;
     },
 
+    setMap: function(map){
+      this.map=map;
+    },
+
     addLayer:function(layer){
-        this.tripMapDisplayer = new TripOrganizer.TripMapDisplayer(layer);
+        this.tripMapDisplayer = new TripOrganizer.TripMapDisplayer(layer,{parent:this});
     },
 
     getTrips: function(){
@@ -45,6 +48,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     },
 
     addTripDisplayer: function(displayer){
+        displayer.parent = this;
       this.tripDisplayer = displayer;
     },
 
@@ -53,7 +57,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     },
 
     addImageLoader: function(imgloader){
-        this.imgloader = imgloader;
+        this.tripDisplayer.addImageLoader(imgloader);
     },
 
   /*  addHeightDisplayer: function(heightDisplayer){
@@ -64,7 +68,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         this.events.triggerEvent("tripadded");
         this.trips.push(trip);
         this.tripMapDisplayer.showTrip(trip);
-        this.imgloader.load(trip.id);
+
         this.createItem(trip,false,true,this);
         this.tripDisplayer.displayTripInfo(trip);
   //      this.heightDisplayer.displayProfileFortrack(trip.id);
@@ -84,8 +88,11 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
             this.tripMapDisplayer.hideTrip();
             var that = this;
             $.getJSON(
-                "getTripGeom",
-                {id:id},
+                "getTrip",
+                {
+                    id:id,
+                    geom: true
+                },
                 function(trip) {
                     //console.log(trip);
                     that.doDisplayTrip(trip);
@@ -97,8 +104,6 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     doDisplayTrip: function(trip){
         this.tripDisplayer.displayTripInfo(trip);
         this.tripMapDisplayer.showTrip(trip);
-        console.log("load img for",trip.id);
-        this.imgloader.load(trip.id);
     },
 
     createItem: function(trip,append,open,that){
@@ -171,6 +176,24 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
 
         return $body;
 
+    },
+
+    deleteTrip: function(id){
+        this.activeTrip=null;
+        for(var idx in this.trips){
+            if(this.trips.hasOwnProperty(idx)){
+                if(this.trips[idx].id == id){
+                    delete this.trips[idx];
+                }
+            }
+        }
+        $("#head_for_"+id).remove();
+
+        this.tripMapDisplayer.hideTrip();
+        this.tripDisplayer.clear();
+        this.events.triggerEvent("tripdeleted");
+        this.tripDisplayer.setText("Velg en tur i menyen!");
+        this.redraw();
     },
 
     CLASS_NAME: "TripOrganizer.TripFetcher"

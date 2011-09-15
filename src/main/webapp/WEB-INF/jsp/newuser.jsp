@@ -33,6 +33,10 @@
             <td>Fullt navn:</td>
             <td> <input id="fullname" type="text" name="fullname" /></td>
         </tr>
+            <tr>
+            <td>Flickr ID:</td>
+            <td> <input id="flickrid" type="text" name="flickrid" /><a href='http://support.statsmix.com/kb/faq/how-do-i-find-my-flickr-id' target='_blank'>Huh?</a></a></td>
+        </tr>
         <tr>
             <td>E-Post:</td>
             <td><input id="email" type="text" name="email" />*</td>
@@ -53,13 +57,15 @@
         var pwd2 = $("#password2").val();
         var fullname = $("#fullname").val();
         var email = $("#email").val();
+        var flickerid = $("#flickrid").val();
 
 
         var params= {
             username: username,
             password: pwd1,
             fullname: fullname,
-            email: email
+            email: email,
+            flickerid: flickerid
         };
         var errors = [];
 

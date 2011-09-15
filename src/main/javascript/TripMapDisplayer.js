@@ -9,22 +9,6 @@ TripOrganizer.TripMapDisplayer = OpenLayers.Class({
 
     },
 
-    /*
-    setTrips: function(trips){
-        this.trips = trips;
-    },
-    */
-    /*
-    addTrip: function(trip){
-        if(this.trips){
-            this.trips.push(trip);
-        }
-        else {
-            this.trips = [trip];
-        }
-    },
-    */
-
     showTrip: function(trip){
 
         this.doDisplayTrip(trip);
@@ -73,8 +57,11 @@ TripOrganizer.TripMapDisplayer = OpenLayers.Class({
             var that = this;
             //console.log("no features, fetch them!");
             $.getJSON(
-                        "getTripGeom",
-                        {id:trip.id},
+                        "getTrip",
+                        {
+                            id:trip.id,
+                            geom:true
+                        },
                         function(trips) {
                             //console.log(trips);
                             that.replaceTrip(trips);

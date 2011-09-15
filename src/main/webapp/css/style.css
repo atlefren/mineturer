@@ -4,7 +4,7 @@ body {
 
 #head {
     margin:  2px;
-    width: 1210px;
+    width: 1510px;
 }
 
 #head h1 {
@@ -12,7 +12,7 @@ body {
     display: inline;
 }
 
-#head a {
+#head span {
     float: right;
     margin-top: 10px;
 }
@@ -245,4 +245,10 @@ p.rot{
     height:20px;
     clear:both;
     text-align:right;
+}
+
+a {
+    text-decoration: underline;
+    color: blue;
+    cursor: pointer;
 }

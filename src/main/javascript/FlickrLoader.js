@@ -16,7 +16,6 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
         map.addLayer(this.layer);
         this.selectCtrl = new OpenLayers.Control.SelectFeature(this.layer,{onSelect: this.onFeatureSelect});
         map.addControl(this.selectCtrl);
-        //this.selectCtrl.activate();
         this.clear();
     },
 
@@ -26,28 +25,22 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
         if(this.layer.map){
             this.map.removeLayer(this.layer);
         }
-
     },
     
     load: function(tripid){
-        console.log("load! ", tripid)
         this.clear();
         var that = this;
-        console.log("load");
-
         $.ajax({
             type: "GET",
             url: "getGeoRSS?tripid="+tripid,
             dataType: "xml",
             success: function(xml) {
-                console.log("!!!!", xml);
                 that.parseData(xml);
             }
         });
     },
 
     parseData: function(doc) {
-        console.log("loaded", doc);
         if (!doc || !doc.documentElement) {
             doc = OpenLayers.Format.XML.prototype.read(ajaxRequest.responseText);
         }
@@ -83,9 +76,6 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
     },
 
      onFeatureSelect: function(feature) {
-
-        console.log("Selected ", feature);
-         console.log("this:", this);
         $.fancybox.showActivity();
          var img = new Image();
          img.onload = function() {
@@ -95,8 +85,6 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
                  width: this.width,
                  height: this.height
              });
-             
-             console.log("this, ", this);
          };
          img.src = feature.attributes.imageUrl;
 

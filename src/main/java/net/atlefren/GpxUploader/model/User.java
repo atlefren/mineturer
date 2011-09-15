@@ -128,6 +128,7 @@ public class User implements UserDetails {
         this.authorities = authorities;
     }
 
+
     public String getFullname() {
         return fullname;
     }

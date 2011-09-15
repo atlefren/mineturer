@@ -6,9 +6,15 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
     map: null,
     displayTrip: false,
     graphDisplayer: null,
+    imgloader: null,
 
     initialize: function(divId){
         this.divId = divId;
+    },
+
+    addImageLoader: function(imgloader){
+        this.imgloader = imgloader;
+
     },
 
     setMap: function(map){
@@ -23,16 +29,29 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
     clear: function(){
         this.displayTrip= false;
+        if(this.graphDisplayer){
+
+            this.graphDisplayer.clear();
+        }
+        if(this.imgloader){
+            this.imgloader.clear();
+        }
         $("#"+this.divId).html("");
         this.trip=null;
     },
 
-    displayTripInfo: function(trip){
+    displayTripInfo: function(trip,update){
         this.clear();
         this.displayTrip=true;
         this.trip=trip;
-        this.graphDisplayer = new TripOrganizer.GraphDisplayer("ele","graphHeader",trip.id,"");
-        this.graphDisplayer.display();
+        if(!update){
+            this.graphDisplayer = new TripOrganizer.GraphDisplayer("ele","graphHeader",trip.id,"");
+            this.graphDisplayer.display();
+        }
+        else {
+            this.parent.events.triggerEvent("tripupdated");
+        }
+        this.imgloader.load(trip.id);
 
         //console.log("display trip info");
 
@@ -75,22 +94,34 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
                 "<dt>Total negativ stigning:</dt> <dd>" + this.round(Math.abs(trip.heights.totalDesc),2)  + " m</dd>" +
                 "<dt>Max høydeforskjell:</dt> <dd>" + this.round(heightDiff,2)  + " m</dd>" +
                 "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
-                "<dt>Operasjoner:</dt><dd> <a href='#'  id='edit'>Rediger</a> <a href='#' id='del'>Slett</a></dd>"+
+                "<dt>Operasjoner:</dt><dd> <a id='edit'>Rediger</a> <a id='del'>Slett</a></dd>"+
                 "</dl>"
         );
         var that = this;
 
-        var updater = new TripOrganizer.TripUploader(true,{trip:trip});
+        var updater = new TripOrganizer.TripUploader(true,{trip:trip,parent:this});
         $("#"+this.divId).append("<h3>"+trip.name+"</h3>");
         $("#"+this.divId).append($body);
         this.updateLink();
         $("#del").click(function(){
 
             var ok = confirm("Vil du virkelig slette denne turen?");
-            console.log("delete "+ that.trip.id + " " + ok);
+            if(ok){
+                $.getJSON(
+                "deleteTrip",
+                {
+                    id:that.trip.id
+                },
+                function(ok) {
+                    if(ok){
+                        that.parent.deleteTrip(that.trip.id);
+                    }
+
+                }
+            );
+            }
         });
         $("#edit").click(function(){
-                console.log("edit"+ that.trip.id);
                 updater.showUploadForm("upload");
         });
     },
@@ -141,6 +172,8 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
         return params;
     },
 
+
+    //TODO: move to util class
     convertTime: function(a){
         var hours=Math.floor(a/3600);
         var minutes=Math.floor(a/60)-(hours*60);

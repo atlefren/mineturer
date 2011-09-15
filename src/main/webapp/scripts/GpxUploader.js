@@ -131,10 +131,10 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
 
 
-
-    var flickr = new TripOrganizer.FlickrLoader(map);
-    tripFetcher.addImageLoader(flickr);
-
+    if(!perma){
+        var flickr = new TripOrganizer.FlickrLoader(map);
+        tripFetcher.addImageLoader(flickr);
+    }
 
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);
@@ -169,6 +169,17 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
                 centroidFetcher.displayCentroids(true);
             }
         });
+        tripFetcher.events.on({
+            'tripdeleted':function(evt){
+                centroidFetcher.displayCentroids(false);
+            }
+        });
+        tripFetcher.events.on({
+            'tripupdated':function(evt){
+                centroidFetcher.displayCentroids(true);
+            }
+        });
+
 
     }
 
@@ -179,11 +190,10 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     tripLayer: null,
     trips: [],
     tripMapDisplayer: null,
-    imgloader: null,
-    //heightDisplayer: null,
     tripDisplayer: null,
     events: null,
-    EVENT_TYPES: ["tripadded"],
+    map: null,
+    EVENT_TYPES: ["tripadded","tripdeleted","tripupdated"],
 
 
     initialize: function(div,options){
@@ -192,8 +202,12 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         this.div=div;
     },
 
+    setMap: function(map){
+      this.map=map;
+    },
+
     addLayer:function(layer){
-        this.tripMapDisplayer = new TripOrganizer.TripMapDisplayer(layer);
+        this.tripMapDisplayer = new TripOrganizer.TripMapDisplayer(layer,{parent:this});
     },
 
     getTrips: function(){
@@ -220,6 +234,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     },
 
     addTripDisplayer: function(displayer){
+        displayer.parent = this;
       this.tripDisplayer = displayer;
     },
 
@@ -228,7 +243,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     },
 
     addImageLoader: function(imgloader){
-        this.imgloader = imgloader;
+        this.tripDisplayer.addImageLoader(imgloader);
     },
 
   /*  addHeightDisplayer: function(heightDisplayer){
@@ -239,7 +254,7 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
         this.events.triggerEvent("tripadded");
         this.trips.push(trip);
         this.tripMapDisplayer.showTrip(trip);
-        this.imgloader.load(trip.id);
+
         this.createItem(trip,false,true,this);
         this.tripDisplayer.displayTripInfo(trip);
   //      this.heightDisplayer.displayProfileFortrack(trip.id);
@@ -259,8 +274,11 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
             this.tripMapDisplayer.hideTrip();
             var that = this;
             $.getJSON(
-                "getTripGeom",
-                {id:id},
+                "getTrip",
+                {
+                    id:id,
+                    geom: true
+                },
                 function(trip) {
                     //console.log(trip);
                     that.doDisplayTrip(trip);
@@ -272,8 +290,6 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
     doDisplayTrip: function(trip){
         this.tripDisplayer.displayTripInfo(trip);
         this.tripMapDisplayer.showTrip(trip);
-        console.log("load img for",trip.id);
-        this.imgloader.load(trip.id);
     },
 
     createItem: function(trip,append,open,that){
@@ -348,6 +364,29 @@ TripOrganizer.TripFetcher = OpenLayers.Class({
 
     },
 
+    deleteTrip: function(id){
+        this.activeTrip=null;
+        console.log("delete "+ id);
+        console.log(this.trips);
+        for(var idx in this.trips){
+            if(this.trips.hasOwnProperty(idx)){
+                console.log(this.trips[idx].id);
+                if(this.trips[idx].id == id){
+                    console.log("del!");
+                    delete this.trips[idx];
+                }
+            }
+        }
+        console.log(this.trips);
+        $("#head_for_"+id).remove();
+
+        this.tripMapDisplayer.hideTrip();
+        this.tripDisplayer.clear();
+        this.events.triggerEvent("tripdeleted");
+        this.tripDisplayer.setText("Velg en tur i menyen!");
+        this.redraw();
+    },
+
     CLASS_NAME: "TripOrganizer.TripFetcher"
 
 });
@@ -361,22 +400,6 @@ TripOrganizer.TripMapDisplayer = OpenLayers.Class({
         this.layer= layer;
 
     },
-
-    /*
-    setTrips: function(trips){
-        this.trips = trips;
-    },
-    */
-    /*
-    addTrip: function(trip){
-        if(this.trips){
-            this.trips.push(trip);
-        }
-        else {
-            this.trips = [trip];
-        }
-    },
-    */
 
     showTrip: function(trip){
 
@@ -426,8 +449,11 @@ TripOrganizer.TripMapDisplayer = OpenLayers.Class({
             var that = this;
             //console.log("no features, fetch them!");
             $.getJSON(
-                        "getTripGeom",
-                        {id:trip.id},
+                        "getTrip",
+                        {
+                            id:trip.id,
+                            geom:true
+                        },
                         function(trips) {
                             //console.log(trips);
                             that.replaceTrip(trips);
@@ -475,20 +501,12 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
 
     showUploadForm: function(div){
-        //if(!this.uploadForm){
-            this.uploadForm = this.createUploadForm();
-            $("#"+div).append(this.uploadForm);
-
-
-    /*}
-        else {
-            this.uploadForm.removeClass("hidden");
-        }
-        */
+        this.uploadForm = this.createUploadForm();
+        $("#"+div).append(this.uploadForm);
     },
 
     hideUploadForm: function(){
-     this.uploadForm.remove();
+        this.uploadForm.remove();
     },
 
     createUploadForm: function(){
@@ -502,7 +520,6 @@ TripOrganizer.TripUploader = OpenLayers.Class({
             target="updateTrack";
             text="Oppdater";
             name = this.trip.name;
-            desc=this.trip.description;
             if(this.trip.tags){
                 tags=this.trip.tags;
             }
@@ -553,30 +570,35 @@ TripOrganizer.TripUploader = OpenLayers.Class({
                 $('#uploadErr').html("");
             },
             success: function(data) {
-                if(!that.update){
-                    that.getTrip(data.id);
-                    that.fetcher.tripDisplayer.showSpinner();
-                }
-                else {
-                    console.log("updated!");
-                }
                 //console.log(data);
-                if(data.status == "OK"){
-                  that.hideUploadForm();
-                    /*
-                    $('#uploadErr').addClass("hidden");
-                    $('#uploadErr').html("");
-                    $('#upload_file').val('');
-                    $('#upload_name').val('');
-                    $('#upload_desc').val('');
-                    $('#uploadDiv').addClass("hidden");
-                    $('#uploadLoader').addClass("hidden");
-                    */
+                if(that.update){
+                    that.hideUploadForm();
+
+                    $.getJSON(
+                        "getTrip",
+                        {
+                            id:that.trip.id,
+                            geom: false
+                        },
+                        function(trip) {
+                            //console.log(trips);
+                            //that.doDisplayTrip(trips);
+                            that.updateTrip(trip);
+                        }
+                    );
+                    //todo: call trip displayer with updated data..
                 }
                 else {
-                    $('#uploadLoader').addClass("hidden");
-                    $('#uploadErr').removeClass("hidden");
-                    $('#uploadErr').html("<h5>En feil oppsto</h5><p></p>"+data.errMsg+"</p>");
+                    if(data.status == "OK"){
+                        that.hideUploadForm();
+                        that.getTrip(data.id);
+                        that.fetcher.tripDisplayer.showSpinner();
+                    }
+                    else {
+                        $('#uploadLoader').addClass("hidden");
+                        $('#uploadErr').removeClass("hidden");
+                        $('#uploadErr').html("<h5>En feil oppsto</h5><p></p>"+data.errMsg+"</p>");
+                    }
                 }
             }
         });
@@ -586,14 +608,6 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         $close.click(function(){
             console.log("close");
             that.hideUploadForm();
-            /*
-            $('#uploadErr').addClass("hidden");
-            $('#uploadErr').html("");
-            $('#upload_file').val('');
-            $('#upload_name').val('');
-            $('#upload_desc').val('');
-            $('#uploadDiv').addClass("hidden");
-            */
         });
         $uplDiv.append($form);
         $uplDiv.append($("<div id=\"uploadErr\" class=\"error hidden\">"));
@@ -603,11 +617,19 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         return $uplDiv;
     },
 
+    updateTrip: function(trip){
+        $("#head_for_"+trip.id).html("<h4>"+ trip.name+"</h4>");
+        this.parent.displayTripInfo(trip,true);
+    },
+
     getTrip: function(id){
         var that = this;
         $.getJSON(
-            "getTripGeom",
-            {id:id},
+            "getTrip",
+            {
+                id:id,
+                geom: true
+            },
             function(trip) {
                 //console.log(trips);
                 //that.doDisplayTrip(trips);
@@ -716,9 +738,15 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
     map: null,
     displayTrip: false,
     graphDisplayer: null,
+    imgloader: null,
 
     initialize: function(divId){
         this.divId = divId;
+    },
+
+    addImageLoader: function(imgloader){
+        this.imgloader = imgloader;
+
     },
 
     setMap: function(map){
@@ -733,16 +761,30 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
     clear: function(){
         this.displayTrip= false;
+        console.log(this.graphDisplayer);
+        if(this.graphDisplayer){
+
+            this.graphDisplayer.clear();
+        }
+        if(this.imgloader){
+            this.imgloader.clear();
+        }
         $("#"+this.divId).html("");
         this.trip=null;
     },
 
-    displayTripInfo: function(trip){
+    displayTripInfo: function(trip,update){
         this.clear();
         this.displayTrip=true;
         this.trip=trip;
-        this.graphDisplayer = new TripOrganizer.GraphDisplayer("ele","graphHeader",trip.id,"");
-        this.graphDisplayer.display();
+        if(!update){
+            this.graphDisplayer = new TripOrganizer.GraphDisplayer("ele","graphHeader",trip.id,"");
+            this.graphDisplayer.display();
+        }
+        else {
+            this.parent.events.triggerEvent("tripupdated");
+        }
+        this.imgloader.load(trip.id);
 
         //console.log("display trip info");
 
@@ -785,12 +827,12 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
                 "<dt>Total negativ stigning:</dt> <dd>" + this.round(Math.abs(trip.heights.totalDesc),2)  + " m</dd>" +
                 "<dt>Max høydeforskjell:</dt> <dd>" + this.round(heightDiff,2)  + " m</dd>" +
                 "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
-                "<dt>Operasjoner:</dt><dd> <a href='#'  id='edit'>Rediger</a> <a href='#' id='del'>Slett</a></dd>"+
+                "<dt>Operasjoner:</dt><dd> <a id='edit'>Rediger</a> <a id='del'>Slett</a></dd>"+
                 "</dl>"
         );
         var that = this;
 
-        var updater = new TripOrganizer.TripUploader(true,{trip:trip});
+        var updater = new TripOrganizer.TripUploader(true,{trip:trip,parent:this});
         $("#"+this.divId).append("<h3>"+trip.name+"</h3>");
         $("#"+this.divId).append($body);
         this.updateLink();
@@ -798,6 +840,20 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
 
             var ok = confirm("Vil du virkelig slette denne turen?");
             console.log("delete "+ that.trip.id + " " + ok);
+            if(ok){
+                $.getJSON(
+                "deleteTrip",
+                {
+                    id:that.trip.id
+                },
+                function(ok) {
+                    if(ok){
+                        that.parent.deleteTrip(that.trip.id);
+                    }
+
+                }
+            );
+            }
         });
         $("#edit").click(function(){
                 console.log("edit"+ that.trip.id);
@@ -851,6 +907,8 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
         return params;
     },
 
+
+    //TODO: move to util class
     convertTime: function(a){
         var hours=Math.floor(a/3600);
         var minutes=Math.floor(a/60)-(hours*60);
@@ -975,8 +1033,14 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
         this.trackid = trackid;
     },
 
+    clear: function(){
+        this.hideGraph();
+        $("#"+this.headerDivId).html("");
+    },
+
     hideGraph: function(){
-        $("#"+this.divId).html("");
+        console.log("Hide");
+        $("#"+this.graphDivId).html("");
         this.active=false;
     },
 
@@ -1034,9 +1098,6 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
 
     showGraph: function(data){
         $("#"+this.graphDivId).html("");
-     //   $("#xlabel").text(this.types[this.initType].xlabel);
-     //   $("#ylabel").text(this.types[this.initType].ylabel);
-
         $.plot(
             $("#"+this.graphDivId),
             [data],
@@ -1073,7 +1134,6 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
         map.addLayer(this.layer);
         this.selectCtrl = new OpenLayers.Control.SelectFeature(this.layer,{onSelect: this.onFeatureSelect});
         map.addControl(this.selectCtrl);
-        //this.selectCtrl.activate();
         this.clear();
     },
 
@@ -1083,15 +1143,11 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
         if(this.layer.map){
             this.map.removeLayer(this.layer);
         }
-
     },
     
     load: function(tripid){
-        console.log("load! ", tripid)
         this.clear();
         var that = this;
-        console.log("load");
-
         $.ajax({
             type: "GET",
             url: "getGeoRSS?tripid="+tripid,
@@ -1140,9 +1196,6 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
     },
 
      onFeatureSelect: function(feature) {
-
-        console.log("Selected ", feature);
-         console.log("this:", this);
         $.fancybox.showActivity();
          var img = new Image();
          img.onload = function() {
@@ -1162,6 +1215,89 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
      },
 
     CLASS_NAME: "TripOrganizer.FlickrLoader"
+
+});
+
+
+
+
+TripOrganizer.ProfileEditor = OpenLayers.Class({
+
+
+
+    initialize: function(){
+
+    },
+
+    editProfile: function(){
+        $.fancybox.showActivity();
+        var that = this;
+        $.getJSON(
+                "getUserInfo",
+                {
+                },
+                function(user) {
+                    //console.log(trip);
+                    that.showEditForm(user);
+                }
+            );
+    },
+
+    showEditForm: function(user){
+        $.fancybox.hideActivity();
+
+        var string ="<table><tr>"+
+            "<td>Fullt navn:</td>"+
+            "<td> <input id='fullname' type='text' name='fullname' value='"+user.fullname+"' /></td>"+
+        "</tr>"+
+            "<tr>"+
+            "<td>Flickr ID:</td>"+
+            "<td> <input id='flickrid' type='text' name='flickrid'  value='"+user.flickrId+"'/> <a href='http://support.statsmix.com/kb/faq/how-do-i-find-my-flickr-id' target='_blank'>Huh?</a></td>"+
+        "</tr>"+
+        "<tr>"+
+            "<td>E-Post:</td>"+
+            "<td><input id='email' type='text' name='email' value='"+user.email+"'/></td>"+
+        "</tr>"+
+        "<tr>"+
+            "<td colspan='2'><input type='submit' value='Oppdater' id='updateUser'/></td>"+
+        "</tr>"+
+    "</table>";
+
+
+
+        $.fancybox({
+            content: string
+        });
+
+        $("#updateUser").click(function(){
+
+            var name = document.getElementById("fullname").value;
+            var flickrid = document.getElementById("flickrid").value;
+            var email = document.getElementById("email").value;
+
+            console.log(name + " " + flickrid + " " + email);
+
+            $.getJSON(
+                "updateUser",
+                {
+                    name:name,
+                    flickrid:flickrid,
+                    email:email
+
+                },
+                function(response) {
+                    $.fancybox.close();
+                }
+            );
+
+        });
+
+    },
+
+
+
+
+    CLASS_NAME: "TripOrganizer.ProfileEditor"
 
 });
 

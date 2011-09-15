@@ -22,8 +22,13 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
         this.trackid = trackid;
     },
 
+    clear: function(){
+        this.hideGraph();
+        $("#"+this.headerDivId).html("");
+    },
+
     hideGraph: function(){
-        $("#"+this.divId).html("");
+        $("#"+this.graphDivId).html("");
         this.active=false;
     },
 
@@ -81,9 +86,6 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
 
     showGraph: function(data){
         $("#"+this.graphDivId).html("");
-     //   $("#xlabel").text(this.types[this.initType].xlabel);
-     //   $("#ylabel").text(this.types[this.initType].ylabel);
-
         $.plot(
             $("#"+this.graphDivId),
             [data],

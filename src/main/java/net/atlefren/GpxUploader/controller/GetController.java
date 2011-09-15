@@ -52,18 +52,37 @@ public class GetController {
         return tripDao.getCentroids(getUserId(),"900913");
     }
 
+
+
+    @RequestMapping(value = "getUserInfo", method = RequestMethod.GET)
+    @ResponseBody
+    public User getUserInfo() {
+        User user= (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User newUser = new User();
+        newUser.setFullname(user.getFullname());
+        newUser.setEmail(user.getEmail());
+        newUser.setFlickrId(user.getFlickrId());
+        return newUser;
+    }
+
     @RequestMapping(value = "getTrips", method = RequestMethod.GET)
     @ResponseBody
     public List<Trip> getTrips() {
         return  tripDao.getTrips(getUserId());
     }
 
-    @RequestMapping(value = "getTripGeom", method = RequestMethod.GET)
+    @RequestMapping(value = "getTrip", method = RequestMethod.GET)
     @ResponseBody
-    public Trip getTripGeom(@RequestParam("id") int id) {
-        return tripDao.getTripGeom(getUserId(), "900913", id);
+    public Trip getTrip(@RequestParam("id") int id,@RequestParam("geom") boolean includeGeom) {
+        return tripDao.getTripDetails(getUserId(), "900913", id,includeGeom);
     }
 
+    @RequestMapping(value = "deleteTrip", method = RequestMethod.GET)
+    @ResponseBody
+    public boolean deleteTrip(@RequestParam("id") int id) {
+        tripDao.deleteTrip(getUserId(),id);
+        return true;
+    }
 
     @RequestMapping(value = "getGraphSeries", method = RequestMethod.GET)
     @ResponseBody
@@ -152,6 +171,7 @@ public class GetController {
             String email = request.getParameter("email");
             String password = request.getParameter("password");
             String fullname = request.getParameter("fullname");
+            String flickerid = request.getParameter("flickerid");
             
             if(!userDao.userExists(username) && password.length()>7 && !email.equals("")){
                 User newUser = new User();
@@ -159,6 +179,7 @@ public class GetController {
                 newUser.setPassword(DigestUtils.shaHex(password));
                 newUser.setFullname(fullname);
                 newUser.setEnabled(true);
+                newUser.setFlickrId(flickerid);
                 newUser.setEmail(email);
                 return userDao.saveUser(newUser);
             }
@@ -173,4 +194,36 @@ public class GetController {
         }
     }
 
+
+    @RequestMapping(value = "updateUser", method = RequestMethod.GET)
+    @ResponseBody
+    //public boolean registerUser(@RequestParam("username") String username,@RequestParam("password") String password,@RequestParam("fullname") String fullname,@RequestParam("email") String email){
+    public boolean updateUser(HttpServletRequest request){
+        try {
+            request.setCharacterEncoding("UTF-8");
+
+            String email = request.getParameter("email");
+            String fullname = request.getParameter("name");
+            String flickerid = request.getParameter("flickrid");
+
+
+            User newUser = new User();
+            newUser.setId(getUserId());
+            newUser.setFullname(fullname);
+            newUser.setFlickrId(flickerid);
+            newUser.setEmail(email);
+
+            userDao.updateUser(newUser);
+            User extuser= (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            extuser.setFlickrId(flickerid);
+            extuser.setEmail(email);
+            extuser.setFullname(fullname);
+
+            return true;
+        }
+        catch(UnsupportedEncodingException e){
+            logger.error(e);
+            return false;
+        }
+    }
 }

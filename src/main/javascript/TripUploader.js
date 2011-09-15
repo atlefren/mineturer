@@ -23,20 +23,12 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
 
     showUploadForm: function(div){
-        //if(!this.uploadForm){
-            this.uploadForm = this.createUploadForm();
-            $("#"+div).append(this.uploadForm);
-
-
-    /*}
-        else {
-            this.uploadForm.removeClass("hidden");
-        }
-        */
+        this.uploadForm = this.createUploadForm();
+        $("#"+div).append(this.uploadForm);
     },
 
     hideUploadForm: function(){
-     this.uploadForm.remove();
+        this.uploadForm.remove();
     },
 
     createUploadForm: function(){
@@ -50,7 +42,6 @@ TripOrganizer.TripUploader = OpenLayers.Class({
             target="updateTrack";
             text="Oppdater";
             name = this.trip.name;
-            desc=this.trip.description;
             if(this.trip.tags){
                 tags=this.trip.tags;
             }
@@ -94,7 +85,6 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         var that = this;
         $form.ajaxForm({
             beforeSubmit: function(a,f,o) {
-                console.log("SUBMIT!!!");
                 o.dataType = "json";
                 $('#uploadLoader').removeClass("hidden");
                 $('#uploadErr').addClass("hidden");
@@ -104,6 +94,19 @@ TripOrganizer.TripUploader = OpenLayers.Class({
                 //console.log(data);
                 if(that.update){
                     that.hideUploadForm();
+
+                    $.getJSON(
+                        "getTrip",
+                        {
+                            id:that.trip.id,
+                            geom: false
+                        },
+                        function(trip) {
+                            //console.log(trips);
+                            //that.doDisplayTrip(trips);
+                            that.updateTrip(trip);
+                        }
+                    );
                     //todo: call trip displayer with updated data..
                 }
                 else {
@@ -124,7 +127,6 @@ TripOrganizer.TripUploader = OpenLayers.Class({
 
         var $close = $("<a class=\"link\">Lukk</a>");
         $close.click(function(){
-            console.log("close");
             that.hideUploadForm();
         });
         $uplDiv.append($form);
@@ -135,11 +137,19 @@ TripOrganizer.TripUploader = OpenLayers.Class({
         return $uplDiv;
     },
 
+    updateTrip: function(trip){
+        $("#head_for_"+trip.id).html("<h4>"+ trip.name+"</h4>");
+        this.parent.displayTripInfo(trip,true);
+    },
+
     getTrip: function(id){
         var that = this;
         $.getJSON(
-            "getTripGeom",
-            {id:id},
+            "getTrip",
+            {
+                id:id,
+                geom: true
+            },
             function(trip) {
                 //console.log(trips);
                 //that.doDisplayTrip(trips);

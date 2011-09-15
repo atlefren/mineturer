@@ -96,12 +96,20 @@ public class UserDao {
 
     }
 
+    public void updateUser(User user){
+        jdbcTemplate.update(
+                "update "+schema+".users set fullname = ?, flickrid=?, email=? where userid = ?",
+                user.getFullname(),user.getFlickrId(),user.getEmail(),user.getId());
+
+    }
+
     private final RowMapper<User> userRowMapper = new RowMapper<User>() {
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {
             User user = new User();
             user.setUsername(rs.getString("username"));
             user.setPassword(rs.getString("password"));
             user.setEnabled(rs.getBoolean("enabled"));
+            user.setFullname(rs.getString("fullname"));
             user.setId(rs.getInt("userid"));
             user.setEmail(rs.getString("email"));
             user.setFlickrId(rs.getString("flickrid"));

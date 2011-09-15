@@ -22,7 +22,10 @@
 <body>
 <div id="head">
     <h1>MineTurer Beta</h1>
-    <a href="<spring:url value="/j_spring_security_logout" htmlEscape="true" />">Logg ut</a>
+    <span>
+        <a id="editprofile">rediger profil</a>
+        <a href="<spring:url value="/j_spring_security_logout" htmlEscape="true" />">Logg ut</a>
+    </span>
 </div>
 <div id="wrapper">
     <div id="map"></div>
@@ -47,6 +50,13 @@
 <script type="text/javascript">
 
     setupMap(false);
+
+    var profileEditor = new TripOrganizer.ProfileEditor();
+    $("#editprofile").click(function(){
+        console.log("edit profile!");
+        profileEditor.editProfile();
+
+    });
 /*
     $(document).ajaxError(function(ev,xhr,o,err) {
         alert(err);
