@@ -1,4 +1,4 @@
-TripOrganizer.FlickrLoader = OpenLayers.Class({
+TripOrganizer.ImageLoader = OpenLayers.Class({
 
 
     url: null,
@@ -10,7 +10,8 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
         var style = {
             externalGraphic:"gfx/photo.png",
             graphicHeight: 16,
-            graphicWidth:16
+            graphicWidth:16,
+            cursor:"pointer"
         };
         this.layer = new OpenLayers.Layer.Vector("Images", {style:style});
         map.addLayer(this.layer);
@@ -26,7 +27,7 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
             this.map.removeLayer(this.layer);
         }
     },
-    
+
     load: function(tripid){
         this.clear();
         var that = this;
@@ -92,7 +93,7 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
          this.unselect(feature);
      },
 
-    CLASS_NAME: "TripOrganizer.FlickrLoader"
+    CLASS_NAME: "TripOrganizer.ImageLoader"
 
 });
 

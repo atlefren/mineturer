@@ -30,6 +30,11 @@ public class MasterController {
         return new ModelAndView("newuser");
     }
 
+    @RequestMapping("/about")
+    public ModelAndView about() {
+        return new ModelAndView("about");
+    }
+
     @RequestMapping("/showTrip")
     public ModelAndView permaRequest(HttpServletRequest request) {
         String lon = request.getParameter("lon");

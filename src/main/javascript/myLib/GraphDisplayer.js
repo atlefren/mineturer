@@ -1,7 +1,7 @@
 TripOrganizer.GraphDisplayer = OpenLayers.Class({
 
-    graphDivId: null,
-    headerDivId: null,
+
+
     spinner: null,
     trackid: null,
     active: false,
@@ -16,19 +16,25 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
         "hr_time":{name:"HR - Tid",fill:false,color:"#C05800",xlabel:"Tid (Timer)",ylabel:"Hr"}
         },
 
-    initialize: function(graphDivId,headerDivId,trackid,initType){
-        this.graphDivId = graphDivId;
-        this.headerDivId=headerDivId;
-        this.trackid = trackid;
+    initialize: function(){
+
+    },
+
+    setTrackId: function(id){
+        this.trackid=id;
+        this.display();
     },
 
     clear: function(){
         this.hideGraph();
-        $("#"+this.headerDivId).html("");
+        $("#graph").html("");
+        $("#graphHeader").html("");
+        this.trackid=null;
+        this.initType="height_dist";
     },
 
     hideGraph: function(){
-        $("#"+this.graphDivId).html("");
+        $("#graph").html("");
         this.active=false;
     },
 
@@ -36,21 +42,19 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
         this.showSpinner();
         this.generateMenu();
         this.active=true;
-        //console.log("display height");
         $("#"+this.divId).html("");
         var that = this;
-        //console.log("sending request");
-        $.getJSON(
-                        "getGraphSeries",
-                        {
-                            id:this.trackid,
-                            type:this.initType
-                        },
-                        function(data) {
-                            that.showGraph(data);
-                        }
-                );
 
+        $.getJSON(
+            "getGraphSeries",
+            {
+                id:this.trackid,
+                type:this.initType
+            },
+            function(data) {
+                that.showGraph(data);
+            }
+        );
     },
 
     generateMenu: function(){
@@ -62,7 +66,6 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
                 $li.addClass("selectedLi");
             }
             $li.click(function(){
-
                 var id = this.id.replace("li_for_","");
                 if(id!=that.initType){
                     that.initType=id;
@@ -73,21 +76,21 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
             });
             $ul.append($li);
         }
-        $("#"+this.headerDivId).html($ul);
+        $("#graphHeader").html($ul);
     },
 
     showSpinner: function(){
-        $("#"+this.graphDivId).html("");
+        $("#graph").html("");
         var img = document.createElement("img");
         img.setAttribute("src","gfx/ajax-loader.gif");
         img.className = "spinner";
-        document.getElementById(this.graphDivId).appendChild(img);
+        document.getElementById("graph").appendChild(img);
     },
 
     showGraph: function(data){
-        $("#"+this.graphDivId).html("");
+        $("#graph").html("");
         $.plot(
-            $("#"+this.graphDivId),
+            $("#graph"),
             [data],
             {
                 series: {
@@ -102,5 +105,5 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
         );
     },
 
-    CLASS_NAME: ""
+    CLASS_NAME: "TripOrganizer.GraphDisplayer"
 });

@@ -1,17 +1,7 @@
 function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
 
-    if(!perma){
-        var tripDisplayer = new TripOrganizer.TripInfoDisplayer("tripdetail");
-        tripDisplayer.setText("Velg en tur i menyen!");
-        var uploader = new TripOrganizer.TripUploader(false);
-        var tripFetcher = new TripOrganizer.TripFetcher("trips");
-        tripFetcher.addTripDisplayer(tripDisplayer);
-        tripFetcher.getTrips();
 
-        tripFetcher.addUploadManager(uploader);
-        uploader.createLink("upload");
-    }
     var maxExtent = new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508),
         restrictedExtent = maxExtent.clone(),
         maxResolution = 156543.0339;
@@ -26,11 +16,6 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         restrictedExtent: restrictedExtent
     };
     var map = new OpenLayers.Map('map', options);
-    if(!perma){
-        tripDisplayer.setMap(map);
-    }
-
-
 
     if(typeof(google) != "undefined"){
         // create Google Mercator layers
@@ -100,9 +85,6 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     var featureLayer = new OpenLayers.Layer.Vector("test",{displayInLayerSwitcher:false,styleMap: styleMap});
     var cLayer = new OpenLayers.Layer.Vector("Turpunkter",{displayInLayerSwitcher:true,styleMap: centroidStyleMap});
-    if(!perma){
-        tripFetcher.addLayer(featureLayer);
-    }
 
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
@@ -115,10 +97,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
 
 
-    if(!perma){
-        var flickr = new TripOrganizer.FlickrLoader(map);
-        tripFetcher.addImageLoader(flickr);
-    }
+
 
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);
@@ -138,32 +117,19 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     }
     else {
+
+
+
+        var list = new TripOrganizer.TripList("trips",map,featureLayer,cLayer);
+        list.listTrips();
+
+        var uploader = new TripOrganizer.TripUploader(list);
+        $("#uploadfile").click(function(){
+            uploader.showUploadForm();
+        });
+
+
         map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
-        var centroidFetcher = new TripOrganizer.TripCentroidDisplayer(cLayer);
-        centroidFetcher.displayCentroids(false);
-
-        cLayer.events.on({
-                        'featureselected': function(evt) {
-                            var id = evt.feature.attributes.tripid;
-                            tripFetcher.displayTrip(id);
-                        }
-                    });
-        tripFetcher.events.on({
-            'tripadded':function(evt){
-                centroidFetcher.displayCentroids(true);
-            }
-        });
-        tripFetcher.events.on({
-            'tripdeleted':function(evt){
-                centroidFetcher.displayCentroids(false);
-            }
-        });
-        tripFetcher.events.on({
-            'tripupdated':function(evt){
-                centroidFetcher.displayCentroids(true);
-            }
-        });
-
 
     }
 

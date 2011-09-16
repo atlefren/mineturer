@@ -55,14 +55,14 @@ body {
     width: 1510px;
 }
 
-#eleContainer{
+#graphContainer{
     width: 800px;
     height: 330px;
     clear: both;
     border-top: 1px solid gray;
 }
 
-#ele{
+#graph{
     width:770px;
     height:280px;
     float:left;

@@ -13,9 +13,9 @@
     <script type="text/javascript" src="scripts/jquery.flot.js"></script>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript" src="scripts/jquery.fancybox-1.3.4.pack.js"></script>
-    <script type="text/javascript" src="scripts/OpenLayers-2.11-rc1/OpenLayers.js"></script>
+    <script type="text/javascript" src="scripts/OpenLayers-2.11/OpenLayers.js"></script>
     <script type="text/javascript" src="scripts/GpxUploader.js"></script>
-    <script type="text/javascript" src="scripts/spin.js"></script>
+
 
     <title>MineTurer</title>
 </head>
@@ -34,12 +34,14 @@
         <div id="triplist">
             <div class="sidebarhead"><h3>Mine Turer</h3></div>
             <div id="trips"></div>
-            <div id="upload"></div>
+            <div id="upload">
+                <a class="link" id="uploadfile">Last opp .gpx</a>
+            </div>
         </div>
-        <div id="eleContainer">
+        <div id="graphContainer">
             <div id="graphHeader"></div>
             <!--<div class="yAxisLabel"><p class="rot" id="ylabel"></p></div>-->
-            <div id="ele">
+            <div id="graph">
 
             </div>
             <!--<div class="xAxisLabel" id="xlabel"></div>-->
@@ -53,10 +55,11 @@
 
     var profileEditor = new TripOrganizer.ProfileEditor();
     $("#editprofile").click(function(){
-        console.log("edit profile!");
         profileEditor.editProfile();
 
     });
+
+
 /*
     $(document).ajaxError(function(ev,xhr,o,err) {
         alert(err);

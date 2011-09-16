@@ -48,10 +48,14 @@
 <div>
     <h5>Siste nytt</h5>
     <ul>
+        <li>16.09.2011: Mye bak-kulissene-omskrivinger. Ting burde generelt funke bedre!</li>
+        <li>15.09.2011: Mulighet for å redigere bruker, redigere og slette tur, samt flickr-integrasjon</li>
         <li>07.09.2011: Aktivitetstyper lagt til, endret ikoner + tegnsettfix</li>
         <li>05.09.2011: Fler grafer og mer statistikk</li>
     </ul>
 </div>
+
+<p>Les mer om MineTurer <a href="about">her</a></p>
 </body>
 </html>
 

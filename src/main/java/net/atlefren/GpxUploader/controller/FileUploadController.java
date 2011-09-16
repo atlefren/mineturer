@@ -39,6 +39,7 @@ public class FileUploadController {
     @ResponseBody
     public String handleFormUpload(@RequestParam("file") MultipartFile file,@RequestParam("desc")String desc,@RequestParam("name")String name, @RequestParam("type")String type,@RequestParam("tags")String tags) {
 
+
         if (!file.isEmpty()) {
             try{
                 GpxReader reader = new GpxReader(file.getInputStream());
@@ -90,6 +91,7 @@ public class FileUploadController {
                 Gson gson = new Gson();
                 return "<textarea>"+gson.toJson(ro)+"</textarea>";
         }
+
     }
 
     @RequestMapping(value = "updateTrack", method = RequestMethod.POST)

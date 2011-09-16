@@ -52,6 +52,11 @@ public class GetController {
         return tripDao.getCentroids(getUserId(),"900913");
     }
 
+    @RequestMapping(value = "getCentroid", method = RequestMethod.GET)
+    @ResponseBody
+    public CentroidPoint getTripCentroid(@RequestParam("id") int id){
+        return tripDao.getCentroid(id,getUserId(),"900913");
+    }
 
 
     @RequestMapping(value = "getUserInfo", method = RequestMethod.GET)

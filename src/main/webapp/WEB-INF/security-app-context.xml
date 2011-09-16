@@ -11,6 +11,7 @@
             <intercept-url pattern='/gfx/**' access="permitAll"/>
             <intercept-url pattern='/scripts/**' access="permitAll"/>
             <intercept-url pattern="/login.jsp" access="permitAll" />
+            <intercept-url pattern="/about"  access="permitAll" />
             <intercept-url pattern="/showTrip"  access="permitAll" />
             <intercept-url pattern="/checkUsername" access="permitAll" />
             <intercept-url pattern="/registerUser" access="permitAll" />

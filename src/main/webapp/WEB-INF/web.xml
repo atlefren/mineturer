@@ -134,4 +134,14 @@
         <servlet-name>GpxUploader</servlet-name>
         <url-pattern>/getGeoRSS</url-pattern>
     </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/getCentroid</url-pattern>
+    </servlet-mapping>
+    
+        <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/about</url-pattern>
+    </servlet-mapping>
 </web-app>

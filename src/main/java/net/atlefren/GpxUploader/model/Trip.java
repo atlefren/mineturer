@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Trip {
     private String id;
-    private String  name;
+    private String name;
     private String description;
     private String start;
     private String stop;

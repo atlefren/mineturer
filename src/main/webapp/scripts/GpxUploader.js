@@ -3,9 +3,10 @@ window.TripOrganizer = {};
         TripOrganizer.types ={
             "hiking":"Fjelltur",
             "jogging":"Jogging",
+            "walking":"Gåtur",
             "cycling":"Sykling",
-            "car":"Biltur",
             "nordicski":"Skitur",
+            "car":"Biltur",
             "swimming":"Svømming",
             "rollerskate":"Rulleskøyter",
             "snowshoeing":"Truger",
@@ -14,20 +15,75 @@ window.TripOrganizer = {};
             "snowmobiling":"Snøscooter",
             "default":"Annet"
         };
+
+TripOrganizer.Util = {};
+TripOrganizer.Util.convertTime= function(a){
+    var hours=Math.floor(a/3600);
+    var minutes=Math.floor(a/60)-(hours*60);
+    var seconds=a-(hours*3600)-(minutes*60);
+    return hours +"t " + minutes + "m " + seconds +"s";
+};
+
+TripOrganizer.Util.meterToKm= function(meter){
+    var km = meter/1000;
+    return this.round(km,2);
+};
+
+TripOrganizer.Util.round=function(n,d){
+    var factor = Math.pow(10,d);
+    return Math.round(n * factor) / factor;
+};
+
+TripOrganizer.Util.calcSpeed= function(dist,time){
+    return this.round((dist/time)*3.6,2)
+};
+
+TripOrganizer.Util.getMapParams = function(map){
+
+        var center = map.getCenter();
+        var params = {};
+        params.zoom = map.getZoom();
+        params.lat = center.lat;
+        params.lon = center.lon;
+
+        params.layerId = map.baseLayer.layerId;
+
+        return params;
+
+};
+
+TripOrganizer.Util.createFeatures = function(tripDetails){
+    var format = new OpenLayers.Format.WKT();
+    var features = [];
+
+    if(tripDetails.tracks){
+        for(var i=0;i<tripDetails.tracks.length;i++){
+            var feature = format.read(tripDetails.tracks[i]);
+            feature.attributes.trip = tripDetails.id;
+            features = features.concat(feature);
+        }
+    }
+    if(tripDetails.routes){
+        for(var j=0;j<tripDetails.routes.length;j++){
+            var routefeature = format.read(tripDetails.routes[j]);
+            routefeature.attributes.trip = tripDetails.id;
+            features = features.concat(routefeature);
+        }
+    }
+    if(tripDetails.waypoints){
+        for(var k=0;k<tripDetails.waypoints.length;k++){
+            var wpfeature = format.read(tripDetails.waypoints[k]);
+            wpfeature.attributes.trip = tripDetails.id;
+            features = features.concat(wpfeature);
+        }
+    }
+
+    return features
+};
 function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
 
-    if(!perma){
-        var tripDisplayer = new TripOrganizer.TripInfoDisplayer("tripdetail");
-        tripDisplayer.setText("Velg en tur i menyen!");
-        var uploader = new TripOrganizer.TripUploader(false);
-        var tripFetcher = new TripOrganizer.TripFetcher("trips");
-        tripFetcher.addTripDisplayer(tripDisplayer);
-        tripFetcher.getTrips();
 
-        tripFetcher.addUploadManager(uploader);
-        uploader.createLink("upload");
-    }
     var maxExtent = new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508),
         restrictedExtent = maxExtent.clone(),
         maxResolution = 156543.0339;
@@ -42,11 +98,6 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         restrictedExtent: restrictedExtent
     };
     var map = new OpenLayers.Map('map', options);
-    if(!perma){
-        tripDisplayer.setMap(map);
-    }
-
-
 
     if(typeof(google) != "undefined"){
         // create Google Mercator layers
@@ -116,9 +167,6 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     var featureLayer = new OpenLayers.Layer.Vector("test",{displayInLayerSwitcher:false,styleMap: styleMap});
     var cLayer = new OpenLayers.Layer.Vector("Turpunkter",{displayInLayerSwitcher:true,styleMap: centroidStyleMap});
-    if(!perma){
-        tripFetcher.addLayer(featureLayer);
-    }
 
     map.addControl(new OpenLayers.Control.LayerSwitcher());
 
@@ -131,10 +179,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
 
 
-    if(!perma){
-        var flickr = new TripOrganizer.FlickrLoader(map);
-        tripFetcher.addImageLoader(flickr);
-    }
+
 
     if(perma){
         map.setCenter(new OpenLayers.LonLat(lon,lat),zoom);
@@ -154,6 +199,40 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
     }
     else {
+
+
+
+        var list = new TripOrganizer.TripList("trips",map,featureLayer,cLayer);
+        list.listTrips();
+
+        var uploader = new TripOrganizer.TripUploader(list);
+        $("#uploadfile").click(function(){
+            uploader.showUploadForm();
+        });
+
+
+        map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
+
+        /*
+        var flickr = new TripOrganizer.FlickrLoader(map);
+
+
+        var tripDisplayer = new TripOrganizer.TripInfoDisplayer("tripdetail");
+        tripDisplayer.setMap(map);
+        tripDisplayer.setText("Velg en tur i menyen!");
+        var uploader = new TripOrganizer.TripUploader(false);
+        var tripFetcher = new TripOrganizer.TripFetcher("trips");
+        tripFetcher.addLayer(featureLayer);
+        tripFetcher.addTripDisplayer(tripDisplayer);
+        tripFetcher.addImageLoader(flickr);
+        tripFetcher.getTrips();
+
+
+        tripFetcher.addUploadManager(uploader);
+        uploader.createLink("upload");
+
+
+
         map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
         var centroidFetcher = new TripOrganizer.TripCentroidDisplayer(cLayer);
         centroidFetcher.displayCentroids(false);
@@ -180,578 +259,166 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
             }
         });
 
-
+*/
     }
 
 }
-TripOrganizer.TripFetcher = OpenLayers.Class({
+TripOrganizer.TripList = OpenLayers.Class({
 
     div: null,
-    tripLayer: null,
-    trips: [],
-    tripMapDisplayer: null,
-    tripDisplayer: null,
-    events: null,
-    map: null,
-    EVENT_TYPES: ["tripadded","tripdeleted","tripupdated"],
+    map:null,
+    tripLayer:null,
+    trips: null,
+    centroidDisplayer: null,
+    imageLoader: null,
 
-
-    initialize: function(div,options){
+    initialize: function(div,map,tripLayer,clayer,options){
         OpenLayers.Util.extend(this, options);
         this.events = new OpenLayers.Events(this, null, this.EVENT_TYPES);
         this.div=div;
-    },
-
-    setMap: function(map){
-      this.map=map;
-    },
-
-    addLayer:function(layer){
-        this.tripMapDisplayer = new TripOrganizer.TripMapDisplayer(layer,{parent:this});
-    },
-
-    getTrips: function(){
+        this.map=map;
+        this.tripLayer=tripLayer;
+        this.centroidDisplayer = new TripOrganizer.CentroidDisplayer(clayer);
+        this.imageLoader = new TripOrganizer.ImageLoader(map);
+        this.graphDisplayer = new TripOrganizer.GraphDisplayer();
         var that = this;
-        $.getJSON(
-                        "getTrips",
-                        {},
-                        function(trips) {
-                            //console.log(trips);
-                            that.showTrips(trips);
-                        }
-                );
-    },
-
-    showTrips: function(trips){
-        var that = this;
-        this.trips = trips;
-        //this.tripMapDisplayer.setTrips(trips);
-        $('#'+that.div).html("");
-        $.each(trips, function(index, trip) {
-            that.createItem(trip,true,false,that);
-            //console.log(trip);
+        clayer.events.on({
+            'featureselected': function(evt) {
+                var id = evt.feature.attributes.tripid;
+                that.showTrip(id);
+            }
         });
     },
 
-    addTripDisplayer: function(displayer){
-        displayer.parent = this;
-      this.tripDisplayer = displayer;
+    listTrips:function(){
+        var that = this;
+        $.getJSON(
+            "getCentroids",
+            {},
+            function(trips) {
+                that.trips=that.createTrips(trips);
+                that.centroidDisplayer.displayCentroids(trips,false);
+                that.redraw();
+            }
+        );
     },
 
-    addUploadManager: function(uploader){
-        uploader.addFetcher(this);
-    },
-
-    addImageLoader: function(imgloader){
-        this.tripDisplayer.addImageLoader(imgloader);
-    },
-
-  /*  addHeightDisplayer: function(heightDisplayer){
-        this.heightDisplayer= heightDisplayer;
-    },
-*/
-    addAndDisplayTrip: function(trip){
-        this.events.triggerEvent("tripadded");
-        this.trips.push(trip);
-        this.tripMapDisplayer.showTrip(trip);
-
-        this.createItem(trip,false,true,this);
-        this.tripDisplayer.displayTripInfo(trip);
-  //      this.heightDisplayer.displayProfileFortrack(trip.id);
-        this.activeTrip=trip.id;
-        //this.heightDisplayer.hideHeightProfile();
-        this.redraw();
-    },
-
-
-    displayTrip: function(id){
-        if(id!=this.activeTrip){
-            $('#head_for_'+id).removeClass("closed").addClass("open");
-            this.activeTrip=id;
-            this.redraw();
-            this.tripDisplayer.showSpinner();
-    //        this.heightDisplayer.hideHeightProfile();
-            this.tripMapDisplayer.hideTrip();
-            var that = this;
-            $.getJSON(
-                "getTrip",
-                {
-                    id:id,
-                    geom: true
-                },
-                function(trip) {
-                    //console.log(trip);
-                    that.doDisplayTrip(trip);
-                }
-            );
+    createTrips: function(trips){
+        var tripObjects = [];
+        for(var i=0;i<trips.length;i++){
+            var trip = new TripOrganizer.Trip(trips[i].id,trips[i].title,trips[i].type,trips[i].geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
+            tripObjects.push(trip);
         }
+        return tripObjects;
     },
 
-    doDisplayTrip: function(trip){
-        this.tripDisplayer.displayTripInfo(trip);
-        this.tripMapDisplayer.showTrip(trip);
-    },
-
-    createItem: function(trip,append,open,that){
-        var $head;
-        if(open){
-            $head = $("<div class=\"triphead open\" id=\"head_for_"+ trip.id +"\">").html("<h4>"+trip.name+"</h4>");
-        }else {
-            $head = $("<div class=\"triphead closed\" id=\"head_for_"+ trip.id +"\">").html("<h4>"+trip.name+"</h4>");
-        }
+    redraw: function(){
+        var that = this;
+        $('#'+this.div).html("");
+        var active = false;
+        for(var i=0;i<this.trips.length;i++){
+            var trip = this.trips[i];
+            var $head;
+            if(trip.isActive()){
+                $head = $("<div class='triphead open' id='head_for_"+ trip.id +"'>").html("<h4>"+trip.title+"</h4>");
+                active=true;
+            }
+            else {
+                $head = $("<div class='triphead closed' id='head_for_"+ trip.id +"'>").html("<h4>"+trip.title+"</h4>");
+            }
 
         $head.click(function(){
             var id = this.id.replace("head_for_","");
-            if($('#'+this.id).hasClass("closed")){
-                //$('#body_for_'+id).removeClass("hidden");
+            that.toggle(id);
+        });
+            $('#'+this.div).append($head);
+        }
 
-                that.displayTrip(id);
+        if(!active){
+            $('#tripdetail').html($("<div class='vertContainer'><p class='customtext'>Velg en tur i menyen eller kartet</p></div>"));
+            this.tripLayer.map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
+        }
+    },
 
-
+    showTrip: function(id){
+        for(var i=0;i<this.trips.length;i++){
+            if(this.trips[i].id == id){
+                this.trips[i].showTrip();
             }
             else {
-                that.tripDisplayer.clear();
-        //        that.heightDisplayer.hideHeightProfile();
-                that.tripMapDisplayer.hideTrip();
-                that.activeTrip=null;
-                //$('#body_for_'+id).addClass("hidden");
-                $('#'+this.id).removeClass("open").addClass("closed");
-
-            }
-            that.redraw();
-
-        });
-
-        if(append){
-            $('#'+that.div).append($head);
-        }
-        else {
-            $('#'+that.div).prepend($head);
-        }
-
-    },
-
-
-    redraw: function(){
-        var trips = document.getElementsByClassName("triphead");
-            for(var j=0;j<trips.length;j++){
-                if (trips[j].id !="head_for_"+this.activeTrip){
-                    $('#'+trips[j].id).removeClass("open").addClass("closed");
-                }
-            }
-    },
-
-    createBody: function(trip,hidden){
-        var bodyclass = "tripbody";
-        if(hidden){
-            bodyclass = "tripbody hidden";
-        }
-        var $body = $("<div class=\"" + bodyclass + "\" id=\"body_for_"+ trip.id +"\">").html(
-                    "<p><b>Beskrivelse: </b></a>" + trip.description+"</p>"+
-                    "<p><b>Start: </b></a>" + trip.start+"</p>"+
-                    "<p><b>Stopp: </b></a>" + trip.stop+"</p>"
-                );
-        var $link = $("<a class=\"link\" id=\"height_link_for_"+ trip.id +"\">Høydeprofil</a>");
-        var that = this;
-        $link.click(function(){
-           var id = this.id.replace("height_link_for_","");
-          //  that.heightDisplayer.displayProfileFortrack(id);
-        });
-        $body.append($link);
-
-
-        return $body;
-
-    },
-
-    deleteTrip: function(id){
-        this.activeTrip=null;
-        console.log("delete "+ id);
-        console.log(this.trips);
-        for(var idx in this.trips){
-            if(this.trips.hasOwnProperty(idx)){
-                console.log(this.trips[idx].id);
-                if(this.trips[idx].id == id){
-                    console.log("del!");
-                    delete this.trips[idx];
-                }
+                this.trips[i].hideTrip();
             }
         }
-        console.log(this.trips);
-        $("#head_for_"+id).remove();
-
-        this.tripMapDisplayer.hideTrip();
-        this.tripDisplayer.clear();
-        this.events.triggerEvent("tripdeleted");
-        this.tripDisplayer.setText("Velg en tur i menyen!");
         this.redraw();
     },
 
-    CLASS_NAME: "TripOrganizer.TripFetcher"
-
-});
-TripOrganizer.TripMapDisplayer = OpenLayers.Class({
-    layer: null,
-    trips: null,
-    format: new OpenLayers.Format.WKT(),
-
-    initialize: function(layer,options){
-        OpenLayers.Util.extend(this, options);
-        this.layer= layer;
-
-    },
-
-    showTrip: function(trip){
-
-        this.doDisplayTrip(trip);
-
-    },
-
-    doDisplayTrip: function(trip){
-        //console.log("display", trip);
-
-        var features = [];
-
-        var bounds =  new OpenLayers.Bounds();
-        if(trip.tracks){
-            for(var i=0;i<trip.tracks.length;i++){
-                var feature =this.format.read(trip.tracks[i]);
-                bounds.extend(feature.geometry.getBounds());
-                feature.attributes.trip=trip.id;
-                features = features.concat(feature);
-            }
-        }
-        if(trip.routes){
-            for(var j=0;j<trip.routes.length;j++){
-                var routefeature =this.format.read(trip.routes[j]);
-                bounds.extend(routefeature.geometry.getBounds());
-                routefeature.attributes.trip=trip.id;
-                features = features.concat(routefeature);
-            }
-        }
-        if(trip.waypoints){
-            for(var k=0;k<trip.waypoints.length;k++){
-                var wpfeature =this.format.read(trip.waypoints[k]);
-                bounds.extend(wpfeature.geometry.getBounds());
-                wpfeature.attributes.trip=trip.id;
-                features = features.concat(wpfeature);
-            }
-        }
-
-        if(features.length >0){
-            //console.log("ft ", features);
-            //featureLayer.destroyFeatures();
-            this.layer.addFeatures(features);
-            this.layer.map.zoomToExtent(bounds);
-            //console.log(this.layer.features);
-        }
-        else {
-            var that = this;
-            //console.log("no features, fetch them!");
-            $.getJSON(
-                        "getTrip",
-                        {
-                            id:trip.id,
-                            geom:true
-                        },
-                        function(trips) {
-                            //console.log(trips);
-                            that.replaceTrip(trips);
-                        }
-                );
-        }
-    },
-
-    hideTrip: function(){
-        //console.log("hide trip ", id);
-        var rem = [];
-        for(var i=0;i<this.layer.features.length;i++){
-
-                rem.push(this.layer.features[i]);
-
-        }
-        this.layer.destroyFeatures(rem);
-    },
-
-    CLASS_NAME: "TripOrganizer.TripMapDisplayer"
-
-});
-TripOrganizer.TripUploader = OpenLayers.Class({
-
-    uploadForm: null,
-    update: null,
-
-    initialize: function(update,options){
-        OpenLayers.Util.extend(this, options);
-        this.update = update;
-
-    },
-
-    createLink: function(div){
-
-        var $link = $("<a class=\"link\">Last opp .gpx</a>");
-        var that = this;
-        $link.click(function(){
-           //console.log("display upload form!");
-            that.showUploadForm(div);
-        });
-        $("#"+div).append($link);
-
-    },
-
-
-    showUploadForm: function(div){
-        this.uploadForm = this.createUploadForm();
-        $("#"+div).append(this.uploadForm);
-    },
-
-    hideUploadForm: function(){
-        this.uploadForm.remove();
-    },
-
-    createUploadForm: function(){
-        var target="uploadGpx";
-        var text="Last opp";
-        var name ="";
-        var desc ="";
-        var type="hiking";
-        var tags="";
-        if(this.update){
-            target="updateTrack";
-            text="Oppdater";
-            name = this.trip.name;
-            if(this.trip.tags){
-                tags=this.trip.tags;
-            }
-            if(this.trip.description){
-                desc=this.trip.description;
-            }
-            type=this.trip.type;
-        }
-        $uplDiv = $("<div id=\"uploadDiv\" class=\"uploadForm\"></div>");
-
-
-        var formString;
-        if(!this.update){
-            formString= "<form id='uploadForm' action='"+target+"' method=\"POST\" enctype=\"multipart/form-data\"  accept-charset=\"UTF-8\">";
-            formString+= "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"10000000\" />"+
-                "GPX-fil: <input id=\"upload_file\" type=\"file\" name=\"file\" /><br />";
-        }
-        else {
-            formString= "<form id='uploadForm' action='"+target+"' method=\"POST\" accept-charset=\"UTF-8\">";
-            formString+= "<input type='hidden' name='tripid' value='"+ this.trip.id+"' />";
-        }
-        formString+="Navn: <input id=\"upload_name\" type=\"text\" name=\"name\" value='"+name+"'><br />"+
-        "Flickr-tags: <input id=\"upload_flickr\" type=\"text\" name=\"tags\" value='"+tags+"'><br />"+
-            "Aktivitetstype: <select name='type'>";
-        for(var key in TripOrganizer.types){
-            if(key == type){
-                formString+="<option value='"+key+"' selected='true'>"+ TripOrganizer.types[key]+"</option>";
+    toggle: function(id){
+        for(var i=0;i<this.trips.length;i++){
+            if(this.trips[i].id == id){
+                this.trips[i].toggle();
             }
             else {
-                formString+="<option value='"+key+"'>"+ TripOrganizer.types[key]+"</option>";
+                this.trips[i].hideTrip();
             }
-
         }
-        formString+="</select><br/>"+
-            "Beskrivelse: <br /><textarea id=\"upload_desc\" name=\"desc\">"+ desc+ "</textarea><br />"+
-            "<input type=\"submit\" value='"+text+"' />"+
-            "<div id=\"uploadLoader\" class=\"hidden\"><img src=\"gfx/ajax-loader.gif\"></div>"+
-            "</form>";
+        this.redraw();
+    },
 
-        var $form = $(formString);
-        var that = this;
-        $form.ajaxForm({
-            beforeSubmit: function(a,f,o) {
-                console.log("SUBMIT!!!");
-                o.dataType = "json";
-                $('#uploadLoader').removeClass("hidden");
-                $('#uploadErr').addClass("hidden");
-                $('#uploadErr').html("");
-            },
-            success: function(data) {
-                //console.log(data);
-                if(that.update){
-                    that.hideUploadForm();
 
-                    $.getJSON(
-                        "getTrip",
-                        {
-                            id:that.trip.id,
-                            geom: false
-                        },
-                        function(trip) {
-                            //console.log(trips);
-                            //that.doDisplayTrip(trips);
-                            that.updateTrip(trip);
-                        }
-                    );
-                    //todo: call trip displayer with updated data..
-                }
-                else {
-                    if(data.status == "OK"){
-                        that.hideUploadForm();
-                        that.getTrip(data.id);
-                        that.fetcher.tripDisplayer.showSpinner();
-                    }
-                    else {
-                        $('#uploadLoader').addClass("hidden");
-                        $('#uploadErr').removeClass("hidden");
-                        $('#uploadErr').html("<h5>En feil oppsto</h5><p></p>"+data.errMsg+"</p>");
-                    }
-                }
+    addTrip: function(tripData){
+        var trip = new TripOrganizer.Trip(tripData.id,tripData.title,tripData.type,tripData.geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
+        this.trips.push(trip);
+        this.centroidDisplayer.addTrip(tripData);
+        this.showTrip(trip.id);
+    },
+
+    deleteTrip: function(id){
+        for(var i=0;i<this.trips.length;i++){
+            if(this.trips[i].id == id){
+                var del = this.trips.splice(i, 1);
+                del[0].hideTrip();
             }
-        });
-
-
-        var $close = $("<a class=\"link\">Lukk</a>");
-        $close.click(function(){
-            console.log("close");
-            that.hideUploadForm();
-        });
-        $uplDiv.append($form);
-        $uplDiv.append($("<div id=\"uploadErr\" class=\"error hidden\">"));
-        $uplDiv.append($close);
-
-
-        return $uplDiv;
+        }
+        this.centroidDisplayer.removeFeature(id);
+        this.redraw();
     },
 
     updateTrip: function(trip){
-        $("#head_for_"+trip.id).html("<h4>"+ trip.name+"</h4>");
-        this.parent.displayTripInfo(trip,true);
-    },
+        for(var i=0;i<this.trips.length;i++){
+            if(this.trips[i].id == trip.id){
 
-    getTrip: function(id){
-        var that = this;
-        $.getJSON(
-            "getTrip",
-            {
-                id:id,
-                geom: true
-            },
-            function(trip) {
-                //console.log(trips);
-                //that.doDisplayTrip(trips);
-                that.fetcher.addAndDisplayTrip(trip);
             }
-        );
-        //
-
+        }
     },
-
-
-    addFetcher: function(fetcher){
-        this.fetcher = fetcher;
-    },
-
-    CLASS_NAME: "TripOrganizer.TripUploader"
+    CLASS_NAME: "TripOrganizer.TripList"
 
 });
-TripOrganizer.HeightProfileDisplayer = OpenLayers.Class({
+TripOrganizer.Trip = OpenLayers.Class({
 
-    divId: null,
-    spinner: null,
-    displayingFor: null,
-    active: false,
+    id:null,
+    title:null,
+    type: null,
+    centroid: null,
+    tripLayer:null,
+    visible: null,
+    list: null,
 
-    initialize: function(divId){
-        this.divId = divId;
 
+    initialize: function(id,title,type,centroid,tripLayer,visible,list,options){
+        OpenLayers.Util.extend(this, options);
+        this.events = new OpenLayers.Events(this, null, this.EVENT_TYPES);
+        this.id=id;
+        this.title=title;
+        this.type=type;
+        this.centroid=centroid;
+        this.tripLayer=tripLayer;
+        this.visible = visible;
+        this.list = list;
+        this.registerMapMove(tripLayer.map);
     },
 
-    hideHeightProfile: function(){
-        $("#"+this.divId).html("");
-        this.active=false;
-    },
-
-    displayProfileFortrack: function(trackid){
-        this.active=true;
-        //console.log("display height");
-        $("#"+this.divId).html("");
-        var that = this;
-        //console.log("sending request");
-        $.getJSON(
-                        "getTripHeights",
-                        {id:trackid},
-                        function(data) {
-                            that.showHeightProfile(data);
-                        }
-                );
-
-    },
-
-    showHeightProfile: function(data){
-
-        $.plot($("#"+this.divId), [data]);
-    },
-
-    CLASS_NAME: "TripOrganizer.HeightProfileDisplayer"
-
-});
-TripOrganizer.SpeedProfileDisplayer = OpenLayers.Class({
-
-    divId: null,
-    spinner: null,
-    displayingFor: null,
-    active: false,
-
-    initialize: function(divId){
-        this.divId = divId;
-
-    },
-
-    hideProfile: function(){
-        $("#"+this.divId).html("");
-        this.active=false;
-    },
-
-    displayProfileFortrack: function(trackid){
-        this.active=true;
-        //console.log("display height");
-        $("#"+this.divId).html("");
-        var that = this;
-        //console.log("sending request");
-        $.getJSON(
-                        "getTripSpeeds",
-                        {id:trackid},
-                        function(data) {
-                            that.showProfile(data);
-                        }
-                );
-
-    },
-
-    showProfile: function(data){
-
-        $.plot($("#"+this.divId), [data]);
-    },
-
-    CLASS_NAME: "TripOrganizer.SpeedProfileDisplayer"
-
-});
-TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
-
-    divId: null,
-    spinner: null,
-    trip: null,
-    map: null,
-    displayTrip: false,
-    graphDisplayer: null,
-    imgloader: null,
-
-    initialize: function(divId){
-        this.divId = divId;
-    },
-
-    addImageLoader: function(imgloader){
-        this.imgloader = imgloader;
-
-    },
-
-    setMap: function(map){
-        this.map =map;
-                this.map.events.on({
+    registerMapMove:function(map){
+        map.events.on({
             'moveend': this.updateLink,
             'changelayer': this.updateLink,
             'changebaselayer': this.updateLink,
@@ -759,181 +426,181 @@ TripOrganizer.TripInfoDisplayer = OpenLayers.Class({
         });
     },
 
-    clear: function(){
-        this.displayTrip= false;
-        console.log(this.graphDisplayer);
-        if(this.graphDisplayer){
+     updateLink: function(){
+        //console.log("updateLInk ", this.displayTrip);
+        if(document.getElementById("perma")){
+            // console.log("map moved! ", this.createParams());
+            var perma = document.getElementById("perma");
 
-            this.graphDisplayer.clear();
+            var params = TripOrganizer.Util.getMapParams(this.tripLayer.map);
+            params.trip = this.id;
+            var paramstring = OpenLayers.Util.getParameterString(params);
+            perma.innerHTML = "Link";
+            perma.href="showTrip?"+paramstring;
         }
-        if(this.imgloader){
-            this.imgloader.clear();
-        }
-        $("#"+this.divId).html("");
-        this.trip=null;
     },
 
-    displayTripInfo: function(trip,update){
-        this.clear();
-        this.displayTrip=true;
-        this.trip=trip;
-        if(!update){
-            this.graphDisplayer = new TripOrganizer.GraphDisplayer("ele","graphHeader",trip.id,"");
-            this.graphDisplayer.display();
+    toggle: function(){
+        if(this.isActive()){
+            this.hideTrip();
         }
-        else {
-            this.parent.events.triggerEvent("tripupdated");
+        else{
+            this.showTrip();
         }
-        this.imgloader.load(trip.id);
+    },
 
-        //console.log("display trip info");
+    isActive: function(){
+        return this.visible;
+    },
+
+    showTrip: function(){
+        if(!this.visible){
+            this.visible = true;
+            var that = this;
+            this.showSpinner();
+             $.getJSON(
+                "getTrip",
+                {
+                    id:this.id,
+                    geom: true
+                },
+                function(tripData) {
+                    that.displayTripInfo(tripData,true);
+                }
+            );
+        }
+
+    },
+
+    updateTrip:function(tripData){
+        //this.list.updateTrip(tripData);
+        this.title=tripData.name;
+        this.type=tripData.type;
+        this.list.redraw();
+        this.list.centroidDisplayer.changeType(tripData.id,tripData.type);
+        tripData.tracks = this.tripData.tracks;
+        tripData.routes = this.tripData.routes;
+        tripData.waypoints = this.tripData.waypoints;
+        this.displayTripInfo(tripData,false);
+    },
+
+    displayTripInfo: function(tripData,geom){
+        this.tripData = tripData;
+
+        //setup map
+        if(geom){
+            var features = TripOrganizer.Util.createFeatures(this.tripData);
+            this.tripLayer.destroyFeatures();
+            this.tripLayer.addFeatures(features);
+            this.tripLayer.map.zoomToExtent(this.tripLayer.getDataExtent());
+        }
+        //images
+        this.list.imageLoader.load(tripData.id);
+
+        //graph
+        this.list.graphDisplayer.setTrackId(tripData.id);
 
         var desc = "";
-        if(trip.description){
-            desc = "<dd class='descr'>" + trip.description +"</dd>"
+        if(this.tripData.description){
+            desc = "<dd class='descr'>" + this.tripData.description +"</dd>"
         }
 
-        var heightDiff = trip.heights.maxHeight-trip.heights.minHeight;
+        var heightDiff = this.tripData.heights.maxHeight-this.tripData.heights.minHeight;
 
         var type = "Annet";
-        if(trip.type){
-            type=TripOrganizer.types[trip.type];
+        if(this.tripData.type){
+            type=TripOrganizer.types[this.tripData.type];
         }
 
-        var $body = $("<div class=\"tripbody\" id=\"body_for_"+ trip.id +"\">").html(
+        var $body = $("<div class=\"tripbody\" id=\"body_for_"+ this.tripData.id +"\">").html(
             "<dl>"+
                 desc +
                 "<dt>Aktivitetstype:</dt> <dd>" + type+"</dd>"+
-                "<dt>Start:</dt> <dd>" + trip.start+"</dd>"+
-                "<dt>Stopp:</dt> <dd>" + trip.stop+"</dd>" +
-                "<dt>Total tid:</dt> <dd>" + this.convertTime(trip.times.totalTime)  + "</dd>" +
-                "<dt>Aktiv tid:</dt> <dd>" + this.convertTime(trip.times.activeTime)  + "</dd>" +
-                "<dt>Lengde (2d):</dt> <dd>" + this.meterToKm(trip.lenghts.length2d)  + " km</dd>" +
-                "<dt>Lengde (3d):</dt> <dd>" + this.meterToKm(trip.lenghts.length3d)  + " km</dd>" +
-                "<dt>Gjennomsnittsfart:</dt> <dd> " + this.calcSpeed(trip.lenghts.length3d,trip.times.totalTime) + " km/t</dd>" +
-                "<dt>Gjennomsnittsfart uten pauser:</dt> <dd> " + this.calcSpeed(trip.lenghts.length3d,trip.times.activeTime) + " km/t</dd>" +
-                "<dt>Stigning opp:</dt> <dd>" + this.meterToKm(trip.lenghts.lengthAsc)  + " km, "+
-                        this.convertTime(trip.times.ascTime)  +", "+
-                        this.calcSpeed(trip.lenghts.lengthAsc,trip.times.ascTime)  + " km/t</dd>" +
-                "<dt>Stigning ned:</dt> <dd>" + this.meterToKm(trip.lenghts.lengthDesc)  + " km, " +
-                        this.convertTime(trip.times.descTime)  + ", " +
-                        this.calcSpeed(trip.lenghts.lengthDesc,trip.times.descTime)  + " km/t</dd>" +
-                "<dt>Flatt terreng:</dt> <dd>" + this.meterToKm(trip.lenghts.lengthFlat)  + " km, " +
-                    this.convertTime(trip.times.flatTime)  + ", "+
-                        this.calcSpeed(trip.lenghts.lengthFlat,trip.times.flatTime)  + " km/t</dd>" +
-                "<dt>Max høyde:</dt> <dd>" + this.round(trip.heights.maxHeight,2)  + " m.o.h.</dd>" +
-                "<dt>Min høyde:</dt> <dd>" + this.round(trip.heights.minHeight,2)  + " m.o.h.</dd>" +
-                "<dt>Total positiv stigning:</dt> <dd>" + this.round(trip.heights.totalAsc,2)  + " m.</dd>" +
-                "<dt>Total negativ stigning:</dt> <dd>" + this.round(Math.abs(trip.heights.totalDesc),2)  + " m</dd>" +
-                "<dt>Max høydeforskjell:</dt> <dd>" + this.round(heightDiff,2)  + " m</dd>" +
+                "<dt>Start:</dt> <dd>" + this.tripData.start+"</dd>"+
+                "<dt>Stopp:</dt> <dd>" + this.tripData.stop+"</dd>" +
+                "<dt>Total tid:</dt> <dd>" + TripOrganizer.Util.convertTime(this.tripData.times.totalTime)  + "</dd>" +
+                "<dt>Aktiv tid:</dt> <dd>" + TripOrganizer.Util.convertTime(this.tripData.times.activeTime)  + "</dd>" +
+                "<dt>Lengde (2d):</dt> <dd>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.length2d)  + " km</dd>" +
+                "<dt>Lengde (3d):</dt> <dd>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.length3d)  + " km</dd>" +
+                "<dt>Gjennomsnittsfart:</dt> <dd> " + TripOrganizer.Util.calcSpeed(this.tripData.lenghts.length3d,this.tripData.times.totalTime) + " km/t</dd>" +
+                "<dt>Gjennomsnittsfart uten pauser:</dt> <dd> " + TripOrganizer.Util.calcSpeed(this.tripData.lenghts.length3d,this.tripData.times.activeTime) + " km/t</dd>" +
+                "<dt>Stigning opp:</dt> <dd>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.lengthAsc)  + " km, "+
+                        TripOrganizer.Util.convertTime(this.tripData.times.ascTime)  +", "+
+                        TripOrganizer.Util.calcSpeed(this.tripData.lenghts.lengthAsc,this.tripData.times.ascTime)  + " km/t</dd>" +
+                "<dt>Stigning ned:</dt> <dd>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.lengthDesc)  + " km, " +
+                        TripOrganizer.Util.convertTime(this.tripData.times.descTime)  + ", " +
+                        TripOrganizer.Util.calcSpeed(this.tripData.lenghts.lengthDesc,this.tripData.times.descTime)  + " km/t</dd>" +
+                "<dt>Flatt terreng:</dt> <dd>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.lengthFlat)  + " km, " +
+                    TripOrganizer.Util.convertTime(this.tripData.times.flatTime)  + ", "+
+                        TripOrganizer.Util.calcSpeed(this.tripData.lenghts.lengthFlat,this.tripData.times.flatTime)  + " km/t</dd>" +
+                "<dt>Max høyde:</dt> <dd>" + TripOrganizer.Util.round(this.tripData.heights.maxHeight,2)  + " m.o.h.</dd>" +
+                "<dt>Min høyde:</dt> <dd>" + TripOrganizer.Util.round(this.tripData.heights.minHeight,2)  + " m.o.h.</dd>" +
+                "<dt>Total positiv stigning:</dt> <dd>" + TripOrganizer.Util.round(this.tripData.heights.totalAsc,2)  + " m.</dd>" +
+                "<dt>Total negativ stigning:</dt> <dd>" + TripOrganizer.Util.round(Math.abs(this.tripData.heights.totalDesc),2)  + " m</dd>" +
+                "<dt>Max høydeforskjell:</dt> <dd>" + TripOrganizer.Util.round(heightDiff,2)  + " m</dd>" +
                 "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
                 "<dt>Operasjoner:</dt><dd> <a id='edit'>Rediger</a> <a id='del'>Slett</a></dd>"+
                 "</dl>"
         );
         var that = this;
 
-        var updater = new TripOrganizer.TripUploader(true,{trip:trip,parent:this});
-        $("#"+this.divId).append("<h3>"+trip.name+"</h3>");
-        $("#"+this.divId).append($body);
-        this.updateLink();
+        $("#tripdetail").html("");
+        $("#tripdetail").append("<h3>"+this.tripData.name+"</h3>");
+        $("#tripdetail").append($body);
+
         $("#del").click(function(){
 
             var ok = confirm("Vil du virkelig slette denne turen?");
-            console.log("delete "+ that.trip.id + " " + ok);
             if(ok){
+                that.list.deleteTrip(that.id);
+
                 $.getJSON(
                 "deleteTrip",
                 {
-                    id:that.trip.id
+                    id:that.id
                 },
                 function(ok) {
                     if(ok){
-                        that.parent.deleteTrip(that.trip.id);
+                        that.list.deleteTrip(that.id);
                     }
-
                 }
             );
+
             }
         });
+
         $("#edit").click(function(){
-                console.log("edit"+ that.trip.id);
-                updater.showUploadForm("upload");
+            var updater = new TripOrganizer.TripUpdater();
+            updater.showUpdateForm(that.tripData,that);
+
         });
+
+        this.updateLink();
     },
 
-    updateLink: function(){
-        //console.log("updateLInk ", this.displayTrip);
-        if(this.displayTrip){
-            // console.log("map moved! ", this.createParams());
-            var perma = document.getElementById("perma");
-            var paramstring = OpenLayers.Util.getParameterString(this.createParams());
-            perma.innerHTML = "Link";
-            perma.href="showTrip?"+paramstring;
+    hideTrip: function(){
+        if(this.visible){
+            this.visible = false;
+            this.tripData = null;
+            this.tripLayer.destroyFeatures();
+            $("#tripdetail").html("");
+            this.list.imageLoader.clear();
+            this.list.graphDisplayer.clear();
         }
     },
 
-
-    setText: function(text){
-        var div = document.createElement("div");
-        div.className="vertContainer";
-        var p = document.createElement("p");
-        p.innerHTML=text;
-        p.className="customtext";
-        div.appendChild(p);
-        document.getElementById(this.divId).appendChild(div);
-    },
-
-
-    showSpinner: function(){
-        if(this.graphDisplayer){
-            this.graphDisplayer.showSpinner();
-        }
-        this.clear();
+     showSpinner: function(){
+        $("#tripdetail").html("");
         var img = document.createElement("img");
         img.setAttribute("src","gfx/ajax-loader.gif");
         img.className = "spinner";
-        document.getElementById(this.divId).appendChild(img);
+        document.getElementById("tripdetail").appendChild(img);
     },
 
-    createParams: function() {
-        var center = this.map.getCenter();
-        var params = {};
-        params.zoom = this.map.getZoom();
-        params.lat = center.lat;
-        params.lon = center.lon;
-
-        params.layerId = this.map.baseLayer.layerId;
-        params.trip = this.trip.id;
-        return params;
-    },
-
-
-    //TODO: move to util class
-    convertTime: function(a){
-        var hours=Math.floor(a/3600);
-        var minutes=Math.floor(a/60)-(hours*60);
-        var seconds=a-(hours*3600)-(minutes*60);
-        return hours +"t " + minutes + "m " + seconds +"s";
-    },
-
-    meterToKm: function(meter){
-        var km = meter/1000;
-        return this.round(km,2);
-    },
-
-    round: function(n,d){
-        var factor = Math.pow(10,d);
-        return Math.round(n * factor) / factor;
-    },
-
-    calcSpeed: function(dist,time){
-      return this.round((dist/time)*3.6,2)
-    },
-
-    CLASS_NAME: "TripOrganizer.TripInfoDisplayer"
+    CLASS_NAME: "TripOrganizer.Trip"
 
 });
-TripOrganizer.TripCentroidDisplayer = OpenLayers.Class({
+TripOrganizer.CentroidDisplayer = OpenLayers.Class({
 
     format: new OpenLayers.Format.WKT(),
     layer: null,
@@ -946,56 +613,34 @@ TripOrganizer.TripCentroidDisplayer = OpenLayers.Class({
 
     setUpSelect: function(){
         this.select= new OpenLayers.Control.SelectFeature(
-                            this.layer,
-                            {
-                                clickout: false,
-                                toggle: false,
-                                multiple: false,
-                                hover: false,
-                                toggleKey: "ctrlKey", // ctrl key removes from selection
-                                multipleKey: "shiftKey", // shift key adds to selection
-                                box: false
-                            }
-                        );
+            this.layer,
+            {
+                clickout: true,
+                toggle: false,
+                multiple: false,
+                hover: false,
+                toggleKey: "ctrlKey", // ctrl key removes from selection
+                multipleKey: "shiftKey", // shift key adds to selection
+                box: false
+            }
+        );
 
         this.layer.map.addControl(this.select);
     },
 
-    displayCentroids: function(update){
-        var that = this;
-       $.getJSON(
-            "getCentroids",
-            {},
-            function(centroids) {
-                //console.log(trips);
-                that.doDisplayCentroids(centroids,update);
-            }
-        );
+    addTrip: function(trip){
+        this.layer.addFeatures([this.generateFeature(trip)]);
     },
 
-    doDisplayCentroids: function(centroids,update){
+    displayCentroids: function(centroids,update){
 
         var features = [];
         this.layer.destroyFeatures();
-        var bounds =  new OpenLayers.Bounds();
         for(var i=0;i<centroids.length;i++){
-            var feature =this.format.read(centroids[i].geom);
-                bounds.extend(feature.geometry.getBounds());
-                var icon ="gfx/icons/default.png";
-                if(centroids[i].type){
-                   icon = "gfx/icons/"+centroids[i].type + ".png";
-                }
-                feature.style = {
-                    externalGraphic:icon,
-                    graphicWidth:32,
-                    graphicHeight:37,
-                    cursor: "pointer",
-                    graphicTitle: centroids[i].title
-                };
-                feature.attributes.tripid=centroids[i].id;
-                features.push(feature);
+            features.push(this.generateFeature(centroids[i]));
         }
         this.layer.addFeatures(features);
+        var bounds = this.layer.getDataExtent();
         if(features.length >0){
             var mapExt =this.layer.map.getExtent();
             if(!update){
@@ -1007,116 +652,44 @@ TripOrganizer.TripCentroidDisplayer = OpenLayers.Class({
         this.select.activate();
     },
 
-    CLASS_NAME:"TripOrganizer.TripCentroidDisplayer"
-});
-TripOrganizer.GraphDisplayer = OpenLayers.Class({
+    generateFeature: function(trip){
+        var feature =this.format.read(trip.geom);
 
-    graphDivId: null,
-    headerDivId: null,
-    spinner: null,
-    trackid: null,
-    active: false,
-    initType:"height_dist",
-    types: {
-        "height_dist":{name:"Høyde-Avstand",fill:true,color:"#1E13FF",xlabel:"Distanse (Kmr)",ylabel:"Høyde over havet (Meter)"},
-        "height_time":{name:"Høyde-Tid",fill:true,color:"#1E13FF",xlabel:"Tid (Timer)",ylabel:"Høyde over havet (Meter)"},
-        "speed_dist":{name:"Fart-Avstand",fill:false,color:"#008000",xlabel:"Distanse (Km)",ylabel:"Fart (km/h)"},
-        "speed_time":{name:"Fart-Tid",fill:false,color:"#008000",xlabel:"Tid (Timer)",ylabel:"Fart (km/h)"},
-        "dist_time":{name:"Avstand-Tid",fill:false,color:"#C05800",xlabel:"Tid (Timer)",ylabel:"Distanse (Km)"},
-        "hr_dist":{name:"HR - Avstand",fill:false,color:"#C05800",xlabel:"Distanse (Km)",ylabel:"Hr"},
-        "hr_time":{name:"HR - Tid",fill:false,color:"#C05800",xlabel:"Tid (Timer)",ylabel:"Hr"}
-        },
-
-    initialize: function(graphDivId,headerDivId,trackid,initType){
-        this.graphDivId = graphDivId;
-        this.headerDivId=headerDivId;
-        this.trackid = trackid;
-    },
-
-    clear: function(){
-        this.hideGraph();
-        $("#"+this.headerDivId).html("");
-    },
-
-    hideGraph: function(){
-        console.log("Hide");
-        $("#"+this.graphDivId).html("");
-        this.active=false;
-    },
-
-    display: function(){
-        this.showSpinner();
-        this.generateMenu();
-        this.active=true;
-        //console.log("display height");
-        $("#"+this.divId).html("");
-        var that = this;
-        //console.log("sending request");
-        $.getJSON(
-                        "getGraphSeries",
-                        {
-                            id:this.trackid,
-                            type:this.initType
-                        },
-                        function(data) {
-                            that.showGraph(data);
-                        }
-                );
-
-    },
-
-    generateMenu: function(){
-        var $ul = $("<ul class='graphChooser'></ul>");
-        var that = this;
-        for(var key in this.types){
-            var $li = $("<li id='li_for_"+ key+"' class='graphChooserLi'>"+this.types[key].name+"</li>");
-            if(key ==this.initType){
-                $li.addClass("selectedLi");
-            }
-            $li.click(function(){
-
-                var id = this.id.replace("li_for_","");
-                if(id!=that.initType){
-                    that.initType=id;
-                    that.generateMenu();
-                    that.display();
-                }
-
-            });
-            $ul.append($li);
+        var icon ="gfx/icons/default.png";
+        if(trip.type){
+            icon = "gfx/icons/"+trip.type + ".png";
         }
-        $("#"+this.headerDivId).html($ul);
+        feature.style = {
+            externalGraphic:icon,
+            graphicWidth:32,
+            graphicHeight:37,
+            cursor: "pointer",
+            graphicTitle: trip.title
+        };
+        feature.attributes.tripid=trip.id;
+
+        return feature;
     },
 
-    showSpinner: function(){
-        $("#"+this.graphDivId).html("");
-        var img = document.createElement("img");
-        img.setAttribute("src","gfx/ajax-loader.gif");
-        img.className = "spinner";
-        document.getElementById(this.graphDivId).appendChild(img);
+    removeFeature: function(id){
+        this.layer.removeFeatures(this.layer.getFeaturesByAttribute("tripid",id));
     },
 
-    showGraph: function(data){
-        $("#"+this.graphDivId).html("");
-        $.plot(
-            $("#"+this.graphDivId),
-            [data],
-            {
-                series: {
-                    color: this.types[this.initType].color,
-                    lines: {
-                        show: true,
-                        lineWidth: 1,
-                        fill: this.types[this.initType].fill
-                    }
-                }
+    changeType: function(id,type){
+        var feature;
+        for(var i=0;i<this.layer.features.length;i++){
+            if(this.layer.features[i].attributes.tripid==id){
+                feature =this.layer.features[i];
+                break;
             }
-        );
+        }
+        feature.style.externalGraphic = "gfx/icons/"+type + ".png";
+        this.layer.drawFeature(feature);
     },
 
-    CLASS_NAME: ""
+    CLASS_NAME:"TripOrganizer.CentroidDisplayer"
 });
-TripOrganizer.FlickrLoader = OpenLayers.Class({
+TripOrganizer.ImageLoader = OpenLayers.Class({
 
 
     url: null,
@@ -1128,7 +701,8 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
         var style = {
             externalGraphic:"gfx/photo.png",
             graphicHeight: 16,
-            graphicWidth:16
+            graphicWidth:16,
+            cursor:"pointer"
         };
         this.layer = new OpenLayers.Layer.Vector("Images", {style:style});
         map.addLayer(this.layer);
@@ -1144,7 +718,7 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
             this.map.removeLayer(this.layer);
         }
     },
-    
+
     load: function(tripid){
         this.clear();
         var that = this;
@@ -1153,14 +727,12 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
             url: "getGeoRSS?tripid="+tripid,
             dataType: "xml",
             success: function(xml) {
-                console.log("!!!!", xml);
                 that.parseData(xml);
             }
         });
     },
 
     parseData: function(doc) {
-        console.log("loaded", doc);
         if (!doc || !doc.documentElement) {
             doc = OpenLayers.Format.XML.prototype.read(ajaxRequest.responseText);
         }
@@ -1205,8 +777,6 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
                  width: this.width,
                  height: this.height
              });
-             
-             console.log("this, ", this);
          };
          img.src = feature.attributes.imageUrl;
 
@@ -1214,16 +784,312 @@ TripOrganizer.FlickrLoader = OpenLayers.Class({
          this.unselect(feature);
      },
 
-    CLASS_NAME: "TripOrganizer.FlickrLoader"
+    CLASS_NAME: "TripOrganizer.ImageLoader"
 
 });
 
 
 
 
+TripOrganizer.GraphDisplayer = OpenLayers.Class({
+
+
+
+    spinner: null,
+    trackid: null,
+    active: false,
+    initType:"height_dist",
+    types: {
+        "height_dist":{name:"Høyde-Avstand",fill:true,color:"#1E13FF",xlabel:"Distanse (Kmr)",ylabel:"Høyde over havet (Meter)"},
+        "height_time":{name:"Høyde-Tid",fill:true,color:"#1E13FF",xlabel:"Tid (Timer)",ylabel:"Høyde over havet (Meter)"},
+        "speed_dist":{name:"Fart-Avstand",fill:false,color:"#008000",xlabel:"Distanse (Km)",ylabel:"Fart (km/h)"},
+        "speed_time":{name:"Fart-Tid",fill:false,color:"#008000",xlabel:"Tid (Timer)",ylabel:"Fart (km/h)"},
+        "dist_time":{name:"Avstand-Tid",fill:false,color:"#C05800",xlabel:"Tid (Timer)",ylabel:"Distanse (Km)"},
+        "hr_dist":{name:"HR - Avstand",fill:false,color:"#C05800",xlabel:"Distanse (Km)",ylabel:"Hr"},
+        "hr_time":{name:"HR - Tid",fill:false,color:"#C05800",xlabel:"Tid (Timer)",ylabel:"Hr"}
+        },
+
+    initialize: function(){
+
+    },
+
+    setTrackId: function(id){
+        this.trackid=id;
+        this.display();
+    },
+
+    clear: function(){
+        this.hideGraph();
+        $("#graph").html("");
+        $("#graphHeader").html("");
+        this.trackid=null;
+        this.initType="height_dist";
+    },
+
+    hideGraph: function(){
+        $("#graph").html("");
+        this.active=false;
+    },
+
+    display: function(){
+        this.showSpinner();
+        this.generateMenu();
+        this.active=true;
+        $("#"+this.divId).html("");
+        var that = this;
+
+        $.getJSON(
+            "getGraphSeries",
+            {
+                id:this.trackid,
+                type:this.initType
+            },
+            function(data) {
+                that.showGraph(data);
+            }
+        );
+    },
+
+    generateMenu: function(){
+        var $ul = $("<ul class='graphChooser'></ul>");
+        var that = this;
+        for(var key in this.types){
+            var $li = $("<li id='li_for_"+ key+"' class='graphChooserLi'>"+this.types[key].name+"</li>");
+            if(key ==this.initType){
+                $li.addClass("selectedLi");
+            }
+            $li.click(function(){
+                var id = this.id.replace("li_for_","");
+                if(id!=that.initType){
+                    that.initType=id;
+                    that.generateMenu();
+                    that.display();
+                }
+
+            });
+            $ul.append($li);
+        }
+        $("#graphHeader").html($ul);
+    },
+
+    showSpinner: function(){
+        $("#graph").html("");
+        var img = document.createElement("img");
+        img.setAttribute("src","gfx/ajax-loader.gif");
+        img.className = "spinner";
+        document.getElementById("graph").appendChild(img);
+    },
+
+    showGraph: function(data){
+        $("#graph").html("");
+        $.plot(
+            $("#graph"),
+            [data],
+            {
+                series: {
+                    color: this.types[this.initType].color,
+                    lines: {
+                        show: true,
+                        lineWidth: 1,
+                        fill: this.types[this.initType].fill
+                    }
+                }
+            }
+        );
+    },
+
+    CLASS_NAME: "TripOrganizer.GraphDisplayer"
+});
+TripOrganizer.TripUploader = OpenLayers.Class({
+
+
+    list: null,
+
+    initialize: function(list){
+        this.list = list;
+    },
+
+    showUploadForm: function(){
+        $.fancybox.hideActivity();
+
+        var select ="";
+        var type="hiking";
+        for(var key in TripOrganizer.types){
+            if(key == type){
+                select+="<option value='"+key+"' selected='true'>"+ TripOrganizer.types[key]+"</option>";
+            }
+            else {
+                select+="<option value='"+key+"'>"+ TripOrganizer.types[key]+"</option>";
+            }
+        }
+
+        var string = "<h3>Last opp GPX-fil:</h3>"+
+            "<form accept-charset='UTF-8' enctype='multipart/form-data' method='POST' action='uploadGpx' id='uploadForm'>"+
+            "<input type='hidden' value='10000000' name='MAX_FILE_SIZE'>"+
+        "<table><tr>"+
+            "<td>GPX-fil::</td>"+
+            "<td> <input type='file' name='file' id='upload_file'></td>"+
+        "</tr>"+
+            "<tr>"+
+            "<td>Tittel:</td>"+
+            "<td><input type='text' value='' name='name' id='upload_name'></td>"+
+        "</tr>"+
+
+        "<tr>"+
+            "<td>Aktivitetstype:</td>"+
+            "<td><select name='type'>"+select+"</select></td>"+
+        "</tr>"+
+        "<tr>"+
+            "<td>Flickr-tags:</td>"+
+            "<td><input type='text' value='' name='tags' id='upload_flickr'></td>"+
+        "</tr>"+
+        "<tr >"+
+            "<td>Beskrivelse:</td>"+
+            "<td><textarea name='desc' id='upload_desc'></textarea><br></td>"+
+        "</tr>"+
+        "<tr>"+
+            "<td colspan='2'><input type='submit' value='Last opp'/></td>"+
+        "</tr>"+
+    "</table>"+
+    "<div id='uploadLoader' class='hidden'><img src='gfx/ajax-loader.gif'> Laster opp</div>"+
+    "<div id='uploadErr' class='error hidden'>";
+
+        $.fancybox({
+            content: string
+        });
+
+        var that = this;
+        $("#uploadForm").ajaxForm({
+            beforeSubmit: function(a,f,o) {
+                o.dataType = "json";
+                $('#uploadLoader').removeClass("hidden");
+                $('#uploadErr').addClass("hidden");
+                $('#uploadErr').html("");
+            },
+            success: function(data) {
+                if(data.status == "OK"){
+                    $.getJSON(
+                        "getCentroid",
+                        {
+                            id:data.id
+                        },
+                        function(trip) {
+                            $('#uploadLoader').addClass("hidden");
+                            that.list.addTrip(trip);
+                            $.fancybox.close();
+
+                        }
+                    );
+
+                }
+                else {
+                    $('#uploadLoader').addClass("hidden");
+                    $('#uploadErr').removeClass("hidden");
+                    $('#uploadErr').html("<h5>En feil oppsto</h5><p></p>"+data.errMsg+"</p>");
+                }
+            }
+        });
+
+    },
+    CLASS_NAME: "TripOrganizer.TripUploader"
+});
+
+
+
+
+TripOrganizer.TripUpdater = OpenLayers.Class({
+
+
+    callerObj: null,
+    tripData:null,
+
+    initialize: function(){
+    },
+
+    showUpdateForm: function(tripData,callObj){
+        this.callObj = callObj;
+        var select ="";
+        var type=tripData.type;
+        this.tripData=tripData;
+        for(var key in TripOrganizer.types){
+            if(key == type){
+                select+="<option value='"+key+"' selected='true'>"+ TripOrganizer.types[key]+"</option>";
+            }
+            else {
+                select+="<option value='"+key+"'>"+ TripOrganizer.types[key]+"</option>";
+            }
+        }
+        var tags ="";
+        if(tripData.tags){
+            tags=tripData.tags;
+        }
+
+        var desc = "";
+        if (tripData.description){
+            desc=tripData.description;
+        }
+
+        var string = "<h3>Last opp GPX-fil:</h3>"+
+            "<form accept-charset='UTF-8'  method='POST' action='updateTrack' id='updateForm'>"+
+            "<input type='hidden' name='tripid' value='"+ tripData.id+"'/>"+
+        "<table>" +
+        "<tr>"+
+            "<td>Tittel:</td>"+
+            "<td><input type='text' name='name' id='update_name' value='"+tripData.name+"'></td>"+
+        "</tr>"+
+
+        "<tr>"+
+            "<td>Aktivitetstype:</td>"+
+            "<td><select name='type'>"+select+"</select></td>"+
+        "</tr>"+
+        "<tr>"+
+            "<td>Flickr-tags:</td>"+
+            "<td><input type='text' name='tags' id='update_flickr' value='"+tags+"'></td>"+
+        "</tr>"+
+        "<tr >"+
+            "<td>Beskrivelse:</td>"+
+            "<td><textarea name='desc' id='update_desc'>"+ desc+"</textarea><br></td>"+
+        "</tr>"+
+        "<tr>"+
+            "<td colspan='2'><input type='submit' value='Oppdater'/></td>"+
+        "</tr>"+
+    "</table>"+
+    "<div id='updateLoader' class='hidden'><img src='gfx/ajax-loader.gif'> Oppdaterer..</div>";
+
+
+        $.fancybox({
+            content: string
+        });
+
+        var that = this;
+        $("#updateForm").ajaxForm({
+            beforeSubmit: function(a,f,o) {
+                o.dataType = "json";
+                $('#updateLoader').removeClass("hidden");
+            },
+            success: function(data) {
+                $.getJSON(
+                        "getTrip",
+                        {
+                            id:that.tripData.id,
+                            geom: false
+                        },
+                        function(tripData) {
+                            that.callObj.updateTrip(tripData);
+                            $.fancybox.close();
+                        }
+                    );
+            }
+        });
+
+    },
+    CLASS_NAME: "TripOrganizer.TripUpdater"
+});
+
+
+
+
 TripOrganizer.ProfileEditor = OpenLayers.Class({
-
-
 
     initialize: function(){
 
@@ -1263,8 +1129,6 @@ TripOrganizer.ProfileEditor = OpenLayers.Class({
         "</tr>"+
     "</table>";
 
-
-
         $.fancybox({
             content: string
         });
@@ -1274,8 +1138,6 @@ TripOrganizer.ProfileEditor = OpenLayers.Class({
             var name = document.getElementById("fullname").value;
             var flickrid = document.getElementById("flickrid").value;
             var email = document.getElementById("email").value;
-
-            console.log(name + " " + flickrid + " " + email);
 
             $.getJSON(
                 "updateUser",
@@ -1293,12 +1155,7 @@ TripOrganizer.ProfileEditor = OpenLayers.Class({
         });
 
     },
-
-
-
-
     CLASS_NAME: "TripOrganizer.ProfileEditor"
-
 });
 
 

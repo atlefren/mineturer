@@ -6,16 +6,14 @@
             <includes>
                 <include>myLib/Config.js</include>
                 <include>setupMap.js</include>
-                <include>TripFetcher.js</include>
-                <include>TripMapDisplayer.js</include>
-                <include>TripUploader.js</include>
-                <include>HeightProfileDisplayer.js</include>
-                <include>SpeedProfileDisplayer.js</include>
-                <include>TripInfoDisplayer.js</include>
-                <include>TripCentroidDisplayer.js</include>
-                <include>GraphDisplayer.js</include>
-                <include>FlickrLoader.js</include>
-                <include>ProfileEditor.js</include>
+                <include>myLib/TripList.js</include>
+                <include>myLib/Trip.js</include>
+                <include>myLib/CentroidDisplayer.js</include>
+                <include>myLib/ImageLoader.js</include>
+                <include>myLib/GraphDisplayer.js</include>
+                <include>myLib/TripUploader.js</include>
+                <include>myLib/TripUpdater.js</include>
+                <include>myLib/ProfileEditor.js</include>
             </includes>
         </script>
     </scripts>

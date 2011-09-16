@@ -62,7 +62,7 @@ public class TripDao {
 
     public List<Trip> getSimpleTripInfo(int tripId){
 
-        String sql = "SELECT t.tripid as tripid, t.title as title, u.username as username FROM "+schema+".trips t, "+schema+".users u WHERE t.tripid='"+tripId+"' AND t.userid=t.userid";
+        String sql = "SELECT t.tripid as tripid, t.title as title, u.username as username FROM "+schema+".trips t, "+schema+".users u WHERE t.tripid='"+tripId+"' AND t.userid=u.userid";
         Map<String, Object> map = new HashMap<String, Object>();
         return namedParameterJdbcTemplate.query(sql, map, tripRowMapperWithUser);
     }
@@ -72,11 +72,15 @@ public class TripDao {
     }
 
     public List<CentroidPoint> getCentroids(int userid,String srid){
-        //String sql = "SELECT asText(ST_Centroid(st_transform(t.geom,"+srid+"))) as point, ts.tripid as tripid,ts.title as title FROM trips.tracks as t, trips.trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+user+"'";
-        //String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),"+srid+"))) as point,tripid,title FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+userid+"') AS f GROUP BY tripid,title";
         String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),"+srid+"))) as point,tripid,title,triptype FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+userid+"') AS f GROUP BY tripid,title,triptype";
         Map<String, Object> map = new HashMap<String, Object>();
         return namedParameterJdbcTemplate.query(sql,map,wktPointRowMapper);
+    }
+
+    public CentroidPoint getCentroid(int tripid, int userid,String srid){
+        String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),"+srid+"))) as point,tripid,title,triptype FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+userid+"' AND t.tripid='"+ tripid +"') AS f GROUP BY tripid,title,triptype";
+        Map<String, Object> map = new HashMap<String, Object>();
+        return namedParameterJdbcTemplate.query(sql,map,wktPointRowMapper).get(0);
     }
 
     public Trip getTripDetails(int userid, String srid, int id,boolean includeGeom){
