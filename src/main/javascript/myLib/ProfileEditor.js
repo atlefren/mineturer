@@ -21,47 +21,33 @@ TripOrganizer.ProfileEditor = OpenLayers.Class({
     showEditForm: function(user){
         $.fancybox.hideActivity();
 
-        var string ="<table><tr>"+
-            "<td>Fullt navn:</td>"+
-            "<td> <input id='fullname' type='text' name='fullname' value='"+user.fullname+"' /></td>"+
-        "</tr>"+
-            "<tr>"+
-            "<td>Flickr ID:</td>"+
-            "<td> <input id='flickrid' type='text' name='flickrid'  value='"+user.flickrId+"'/> <a href='http://support.statsmix.com/kb/faq/how-do-i-find-my-flickr-id' target='_blank'>Huh?</a></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td>E-Post:</td>"+
-            "<td><input id='email' type='text' name='email' value='"+user.email+"'/></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td colspan='2'><input type='submit' value='Oppdater' id='updateUser'/></td>"+
-        "</tr>"+
-    "</table>";
+        var string ="<div id='profile_update_form_wrapper'>"+
+            "<h3>Rediger profil</h3>"+
+            "<form accept-charset='UTF-8'  method='POST' action='editMyUser' id='updateUserForm'>"+
+            "<p><label>Fullt navn:</label>"+
+            "<input id='fullname' type='text' name='fullname' value='"+user.fullname+"' /></p>"+
+
+            "<p><label>Flickr ID:</label>"+
+            "<input id='flickrid' type='text' name='flickrid'  value='"+user.flickrId+"'/> <a target='_blank' href='http://support.statsmix.com/kb/faq/how-do-i-find-my-flickr-id' style='margin-top: 3px;'><img src='gfx/question.png' alt='Hva er dette?' style='border: 0'/></a></p>"+
+            "<p><label>E-Post:</label>"+
+            "<input id='email' type='text' name='email' value='"+user.email+"'/></p>"+
+
+            "<input type='submit' value='Rediger' id='updateUser'/>"+
+
+            "</div" +
+            "</form>";
 
         $.fancybox({
-            content: string
+            content: string,
+            overlayShow: false
         });
 
-        $("#updateUser").click(function(){
-
-            var name = document.getElementById("fullname").value;
-            var flickrid = document.getElementById("flickrid").value;
-            var email = document.getElementById("email").value;
-
-            $.getJSON(
-                "updateUser",
-                {
-                    name:name,
-                    flickrid:flickrid,
-                    email:email
-
-                },
-                function(response) {
-                    $.fancybox.close();
-                }
-            );
-
+        $("#updateUserForm").ajaxForm({
+            success: function() {
+                $.fancybox.close();
+            }
         });
+
 
     },
     CLASS_NAME: "TripOrganizer.ProfileEditor"

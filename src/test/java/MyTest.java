@@ -27,7 +27,11 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -39,11 +43,30 @@ import java.util.Map;
 public class MyTest extends TestCase {
 
     public void testGetData() throws Exception {
+        int year = 2003;
+    int month = 12;
+    int day = 12;
 
-        String hash = DigestUtils.shaHex("p");
-        System.out.println("hash = " + hash);
-            
+    String date = year + "/" + month + "/" + day;
+    java.util.Date utilDate = null;
 
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+            utilDate = formatter.parse(date);
+            System.out.println(formatDate(utilDate));
+            System.out.println("utilDate:" + utilDate);
+        } catch (ParseException e) {
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
+
+    }
+
+    private String formatDate(Date date){
+        Locale norge = new java.util.Locale( "no" );
+
+
+        return new SimpleDateFormat("d. MMMM yyyy",norge).format(date);
     }
 }
 

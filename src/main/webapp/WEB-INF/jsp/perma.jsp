@@ -3,6 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <link rel="icon" type="image/png" href="gfx/map.png">
     <style type="text/css">
         #layers p {
             color: blue;
@@ -27,7 +28,7 @@
     <title>Vis Tur - MineTurer</title>
 
     <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
-    <script type="text/javascript" src="scripts/OpenLayers-2.11-rc1/OpenLayers.js"></script>
+    <script type="text/javascript" src="scripts/OpenLayers-2.11/OpenLayers.js"></script>
     <script type="text/javascript" src="scripts/GpxUploader.js"></script>
 </head>
 <body>

@@ -22,11 +22,14 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
 
     setTrackId: function(id){
         this.trackid=id;
+        //console.log("display", id);
         this.display();
     },
 
     clear: function(){
+
         this.hideGraph();
+        $("#graphContainer").addClass("hidden");
         $("#graph").html("");
         $("#graphHeader").html("");
         this.trackid=null;
@@ -41,6 +44,7 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
     display: function(){
         this.showSpinner();
         this.generateMenu();
+         $("#graphContainer").removeClass("hidden");
         this.active=true;
         $("#"+this.divId).html("");
         var that = this;
@@ -61,12 +65,15 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
         var $ul = $("<ul class='graphChooser'></ul>");
         var that = this;
         for(var key in this.types){
-            var $li = $("<li id='li_for_"+ key+"' class='graphChooserLi'>"+this.types[key].name+"</li>");
+            var $li = $("<li class='graphChooserLi'></li>");
+            var $a = $("<a href='#!' id='link_for_"+ key+"'>"+this.types[key].name+"</a>");
+            $li.append($a);
             if(key ==this.initType){
-                $li.addClass("selectedLi");
+                $a.addClass("selected");
             }
-            $li.click(function(){
-                var id = this.id.replace("li_for_","");
+            $a.click(function(){
+                var id = this.id.replace("link_for_","");
+                $("#"+this.id).addClass("selected");
                 if(id!=that.initType){
                     that.initType=id;
                     that.generateMenu();
@@ -77,6 +84,7 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
             $ul.append($li);
         }
         $("#graphHeader").html($ul);
+        //console.log("generated header");
     },
 
     showSpinner: function(){

@@ -1,19 +1,6 @@
 CREATE SCHEMA mineturer;
 
 
---DROP TABLE mineturer."userRoles" CASCADE;
---DROP TABLE mineturer.users CASCADE;
---DROP TABLE mineturer.mineturer.CASCADE;
---DROP TABLE mineturer.tracks CASCADE;
---DROP TABLE mineturer.waypoints CASCADE;
---DROP TABLE mineturer.routes CASCADE;
---DROP TABLE mineturer.points CASCADE;
-
-
-
-
-
-
 CREATE TABLE mineturer.users
 (
   userid SERIAL NOT NULL,
@@ -51,7 +38,10 @@ userid int references mineturer.users(userid),
 title varchar ,
 description text ,
 start timestamp ,
-stop timestamp );
+stop timestamp,
+triptype varchar(50),
+flickrtags varchar(255)
+ );
 
 CREATE TABLE mineturer.tracks(
 trackid serial NOT NULL PRIMARY KEY,
@@ -77,7 +67,9 @@ CREATE TABLE mineturer.points(
 pid serial NOT NULL PRIMARY KEY,
 tripid int references mineturer.trips (tripid) ON DELETE CASCADE,
 ele DOUBLE PRECISION,
-"time" timestamp
+"time" timestamp,
+hr DOUBLE PRECISION
+
 );
 
 SELECT addGeometryColumn('mineturer','points','geom',4326,'POINT',2);
@@ -86,6 +78,6 @@ SELECT addGeometryColumn('mineturer','points','geom',4326,'POINT',2);
 
 
 
-ALTER TABLE mineturer.points ADD COLUMN hr double precision;
-ALTER TABLE mineturer.trips ADD COLUMN triptype varchar(50);
-ALTER TABLE mineturer.trips ADD COLUMN flickrtags varchar(255);
+--ALTER TABLE mineturer.points ADD COLUMN hr double precision;
+--ALTER TABLE mineturer.trips ADD COLUMN triptype varchar(50);
+--ALTER TABLE mineturer.trips ADD COLUMN flickrtags varchar(255);

@@ -8,7 +8,7 @@ TripOrganizer.TripUploader = OpenLayers.Class({
     },
 
     showUploadForm: function(){
-        $.fancybox.hideActivity();
+      
 
         var select ="";
         var type="hiking";
@@ -21,39 +21,27 @@ TripOrganizer.TripUploader = OpenLayers.Class({
             }
         }
 
-        var string = "<h3>Last opp GPX-fil:</h3>"+
+        var string = "<div id='upload_form_wrapper'>" +
+            "<h3>Last opp GPX-fil:</h3>"+
             "<form accept-charset='UTF-8' enctype='multipart/form-data' method='POST' action='uploadGpx' id='uploadForm'>"+
             "<input type='hidden' value='10000000' name='MAX_FILE_SIZE'>"+
-        "<table><tr>"+
-            "<td>GPX-fil::</td>"+
-            "<td> <input type='file' name='file' id='upload_file'></td>"+
-        "</tr>"+
-            "<tr>"+
-            "<td>Tittel:</td>"+
-            "<td><input type='text' value='' name='name' id='upload_name'></td>"+
-        "</tr>"+
-
-        "<tr>"+
-            "<td>Aktivitetstype:</td>"+
-            "<td><select name='type'>"+select+"</select></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td>Flickr-tags:</td>"+
-            "<td><input type='text' value='' name='tags' id='upload_flickr'></td>"+
-        "</tr>"+
-        "<tr >"+
-            "<td>Beskrivelse:</td>"+
-            "<td><textarea name='desc' id='upload_desc'></textarea><br></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td colspan='2'><input type='submit' value='Last opp'/></td>"+
-        "</tr>"+
-    "</table>"+
-    "<div id='uploadLoader' class='hidden'><img src='gfx/ajax-loader.gif'> Laster opp</div>"+
-    "<div id='uploadErr' class='error hidden'>";
-
+            "<p><label>GPX-fil:</label>"+
+            "<input type='file' name='file' id='upload_file'></p>"+
+            "<p><label>Tittel:</label>"+
+            "<input type='text' value='' name='name' id='upload_name'></p>"+
+            "<p><label>Aktivitetstype:</label>"+
+            "<select id='upload_type' name='type'>"+select+"</select></p>"+
+            "<p><label>Flickr-tags:</label>"+
+            "<input type='text' value='' name='tags' id='upload_flickr'></p>"+
+            "<p><label>Beskrivelse:</label>"+
+            "<textarea name='desc' id='upload_desc'></textarea></p>"+
+            "<input type='submit' value='Last opp' id='update'/>" +
+            "<div id='uploadLoader' class='hidden'><img src='gfx/ajax-loader.gif'> Laster opp</div>"+
+            "<div id='uploadErr' class='error hidden'>"+
+            "</div>";
         $.fancybox({
-            content: string
+            content: string,
+            overlayShow: false
         });
 
         var that = this;

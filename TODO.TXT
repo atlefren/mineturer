@@ -20,45 +20,65 @@ OK - fix charset error on user registration
 OK - add icons and labels to trip points
 OK - add triptype field to trip
 OK - hover on trip points show tooltip
+OK - fix js-mess
+OK - fix charset hell on user registration
+OK - find a faster server than kj0leskap
+OK - make it possible to delete trips
+OK - make it possible to edit trip info
+OK - consider flickr-integration
+OK - implement flickr-integration
+OK use minified OpenLayers build
+OK - "zoom to all routes" button (solved in another way, possible to deselect a trip)
+STARTED - check for more GPX-types (tested qstarz(via bt747) and mytracks, and garmin forerunner + some strange )
+STARTED - handle different kinds of errors with gpx files
+STARTED - some kind of documentation?
 - some gui-improvements - mail sent
 - prettier login-page - mail sent
 - some kind of logo? - mail sent
 - prettify the upload-page - mail sent
-STARTED - check for more GPX-types (tested qstarz(via bt747) and mytracks, and garmin forerunner + some strange )
-STARTED - handle different kinds of errors with gpx files
+
+
+
+
 - add labels to graph
+
 - clustering on trip points
-- find a faster server than kj0leskap
-OK - make it possible to delete trips
-OK - make it possible to edit trip info
+- handle error with large GPX-files
 - consider displaying a simplified version of the geometry
-- make a "merge trips" function
-- write tests(!)
-- some kind of documentation?
+- drop to store lines, rebuild from points table (and add section number to point)?
+- static link for height profile
 - make it possible to change color for a trip
+- embed-function
+- share on facebook
+- share on twitter
+- share on g+
+- write tests(!)
+
+- use coocies for "remember me?"-function
+- lost password function
+- check password in letter/number combo
+- make a "merge trips" function
+
+
 - discard waypoints? Or at least find a nicer presentation
 - figure out if "routes" is relevant
 - more intuitive layer-switcher
-OK - consider flicker-integration
-- handle error with large GPX-files
+
 - some solution for bit.ly style permalinks
 - export geom as KML/GeoJSON
 - store actual GPX file for later download
-- static link for height profile
+
 - more maps (from where?)
 - better presentation of statistics
-- use minified OpenLayers build
 - better hover on trip-point (highlight list?)
-- lost password function
-- check password in letter/number combo
+
 - better presentation of statistics
-- remove seroius outliers in graphs
+- remove serious outliers in graphs
 - embed function
 - place trip marker on start of trip instead of "center"?
-- use coocies for "remember me?"-function
+
 - admin page
 - bing aerial map
-- "zoom to all routes" button
 - buttons above map
 
 http://api.flickr.com/services/feeds/photos_public.gne?id=35362064@N08&tags=test&georss=1

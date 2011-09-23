@@ -1,16 +1,17 @@
 TripOrganizer.TripList = OpenLayers.Class({
 
-    div: null,
+    listId: null,
     map:null,
     tripLayer:null,
     trips: null,
     centroidDisplayer: null,
     imageLoader: null,
+    carousel: null,
 
-    initialize: function(div,map,tripLayer,clayer,options){
+    initialize: function(listId,map,tripLayer,clayer,options){
         OpenLayers.Util.extend(this, options);
         this.events = new OpenLayers.Events(this, null, this.EVENT_TYPES);
-        this.div=div;
+        this.listId=listId;
         this.map=map;
         this.tripLayer=tripLayer;
         this.centroidDisplayer = new TripOrganizer.CentroidDisplayer(clayer);
@@ -23,6 +24,9 @@ TripOrganizer.TripList = OpenLayers.Class({
                 that.showTrip(id);
             }
         });
+
+        this.createCarousel();
+        //console.log(this.carousel);
     },
 
     listTrips:function(){
@@ -41,7 +45,7 @@ TripOrganizer.TripList = OpenLayers.Class({
     createTrips: function(trips){
         var tripObjects = [];
         for(var i=0;i<trips.length;i++){
-            var trip = new TripOrganizer.Trip(trips[i].id,trips[i].title,trips[i].type,trips[i].geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
+            var trip = new TripOrganizer.Trip(trips[i].id,trips[i].title,trips[i].type,trips[i].date,trips[i].geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
             tripObjects.push(trip);
         }
         return tripObjects;
@@ -49,28 +53,43 @@ TripOrganizer.TripList = OpenLayers.Class({
 
     redraw: function(){
         var that = this;
-        $('#'+this.div).html("");
+        $('#'+this.listId).html("");
         var active = false;
+        this.carousel.reset();
         for(var i=0;i<this.trips.length;i++){
             var trip = this.trips[i];
-            var $head;
+            
+            var $item;
+
+            var title = trip.title;
+            if(trip.title==""){
+                title="Uten navn";
+            }
+            if(trip.title.length>23){
+                ;;;console.log("shortening");
+                title = trip.title.substring(0,23);
+            }
             if(trip.isActive()){
-                $head = $("<div class='triphead open' id='head_for_"+ trip.id +"'>").html("<h4>"+trip.title+"</h4>");
+                $item = $("<li id='head_for_"+ trip.id +"'><a href='#!' class='active trip_type_"+trip.type+"'>"+title+"<br /><span class='trip_metadata'>"+trip.date+"</span></a></li>");
+                //$head = $("<div class='triphead open' id='head_for_"+ trip.id +"'>").html("<h4>"+trip.title+"</h4>");
                 active=true;
             }
             else {
-                $head = $("<div class='triphead closed' id='head_for_"+ trip.id +"'>").html("<h4>"+trip.title+"</h4>");
+                $item = $("<li id='head_for_"+ trip.id +"'><a href='#!' class='trip_type_"+trip.type+"'>"+title+"<br /><span class='trip_metadata'>"+trip.date+"</span></a></li>");
             }
 
-        $head.click(function(){
-            var id = this.id.replace("head_for_","");
-            that.toggle(id);
-        });
-            $('#'+this.div).append($head);
+            $item.click(function(){
+                var id = this.id.replace("head_for_","");
+                that.toggle(id);
+            });
+            //$('#'+this.listId).append($item);
+            //console.log("add ", $item, " to carousel at ", i);
+            this.carousel.add(i, $item);
         }
 
         if(!active){
-            $('#tripdetail').html($("<div class='vertContainer'><p class='customtext'>Velg en tur i menyen eller kartet</p></div>"));
+            $('#tripdetail').html($("<p class='customtext'>Velg en tur i menyen eller kartet</p>"));
+            $("#toolbar").addClass("hidden");
             this.tripLayer.map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
         }
     },
@@ -101,8 +120,8 @@ TripOrganizer.TripList = OpenLayers.Class({
 
 
     addTrip: function(tripData){
-        var trip = new TripOrganizer.Trip(tripData.id,tripData.title,tripData.type,tripData.geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
-        this.trips.push(trip);
+        var trip = new TripOrganizer.Trip(tripData.id,tripData.title,tripData.type,tripData.date,tripData.geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
+        this.trips.unshift(trip);
         this.centroidDisplayer.addTrip(tripData);
         this.showTrip(trip.id);
     },
@@ -124,6 +143,67 @@ TripOrganizer.TripList = OpenLayers.Class({
 
             }
         }
+    },
+
+
+    createCarousel: function(){
+        var that = this;
+        function mycarousel_initCallback(carousel) {
+/*
+            jQuery('.jcarousel-control a').bind('click', function() {
+                carousel.scroll(jQuery.jcarousel.intval(jQuery(this).text()));
+                return false;
+            });
+
+            jQuery('.jcarousel-scroll select').bind('change', function() {
+                carousel.options.scroll = jQuery.jcarousel.intval(this.options[this.selectedIndex].value);
+                return false;
+            });
+*/
+            jQuery('#mycarousel-next').bind('click', function() {
+                carousel.next();
+                return false;
+            });
+
+            jQuery('#mycarousel-prev').bind('click', function() {
+                carousel.prev();
+                return false;
+            });
+
+            that.carousel = carousel;
+        }
+
+
+
+            $("#trips_list").jcarousel({
+                scroll: 5,
+                vertical: true,
+                initCallback: mycarousel_initCallback,
+                // This tells jCarousel NOT to autobuild prev/next buttons
+                //buttonNextHTML: null,
+                //buttonPrevHTML: null,
+                itemFallbackDimension:32,
+                itemFirstOutCallback: {
+                    onBeforeAnimation: function(){
+
+                    },
+                    onAfterAnimation: function(){
+                        $(".jcarousel-prev").removeClass("jcarousel-prev-disabled");
+                        $(".jcarousel-prev").removeClass("jcarousel-prev-disabled-vertical");
+                    }
+                },
+                itemLastOutCallback: {
+                    onBeforeAnimation: function(){
+
+                    },
+                    onAfterAnimation: function(){
+                        $(".jcarousel-next").removeClass("jcarousel-next-disabled");
+                        $(".jcarousel-next").removeClass("jcarousel-next-disabled-vertical");
+                    }
+                }
+
+            });
+
     },
     CLASS_NAME: "TripOrganizer.TripList"
 

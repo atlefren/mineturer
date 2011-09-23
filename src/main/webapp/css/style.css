@@ -252,3 +252,7 @@ a {
     color: blue;
     cursor: pointer;
 }
+
+.noborder {
+    border: none;
+}

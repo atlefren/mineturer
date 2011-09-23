@@ -118,9 +118,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     }
     else {
 
-
-
-        var list = new TripOrganizer.TripList("trips",map,featureLayer,cLayer);
+        var list = new TripOrganizer.TripList("trips_list",map,featureLayer,cLayer);
         list.listTrips();
 
         var uploader = new TripOrganizer.TripUploader(list);

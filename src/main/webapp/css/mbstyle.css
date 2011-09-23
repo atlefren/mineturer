@@ -1,0 +1,871 @@
+
+
+
+/* ---------------------------------------------------------------- */
+/*                                                                  */
+/*   MineTurer.org                                                  */
+/*                                                                  */
+/*   Utviklet av: Atle Frenvik Sveen   http://www.atlefren.net/     */
+/*   Designet av: Martin Bekkelund     http://www.bekkelund.net/    */
+/*                                                                  */
+/*   Løsning lisensiert under GPL v2. Se lisenstekst i lisens.txt   */
+/*                                                                  */
+/* ---------------------------------------------------------------- */
+
+
+
+
+/* ---------------------------------------------------------------- */
+/*    Generelle elementer                                           */
+/* ---------------------------------------------------------------- */
+
+
+body {
+    margin: 0;
+    padding: 20px;
+    background-color: #2b2929;
+    color: #2b2929;
+    font-family: 'lucida grande', Tahoma, Arial, Helvetica, sans-serif;
+}
+
+
+/* ---------------------------------------------------------------- */
+/*    Innlogging og registrering                                    */
+/* ---------------------------------------------------------------- */
+
+
+div#login_wrapper {
+	margin: 50px auto;
+	width: 500px;
+	background-color: white;
+	-moz-border-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+div#login_header {
+	padding: 15px 20px;
+	text-align: center;
+	background-color: #eaeae6;
+	font-size: 120%;
+	font-weight: lighter;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+}
+
+div#login_form_wrapper,div#register_form_wrapper,#upload_form_wrapper {
+	padding: 15px 30px;
+	font-size: 85%;
+}
+
+div#profile_update_form_wrapper{
+    padding: 15px 30px;
+    font-size: 85%;
+}
+
+div#login_form_wrapper label,div#register_form_wrapper label,div#upload_form_wrapper label,div#update_trip_form_wrapper label{
+	display: block;
+	float: left;
+	width: 150px;
+}
+
+div#profile_update_form_wrapper label {
+    display: block;
+	float: left;
+	width: 100px;
+}
+
+
+input#login_username, input#login_password, input#username, input#password, input#password2, input#fullname, input#email, input#flickrid ,input#upload_file,input#upload_name,input#upload_flickr,select#upload_type,textarea#upload_desc,input#update_name,input#update_flickr,textarea#update_desc,select#update_type  {
+	-moz-border-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+	border: 2px solid #c3c3c3;
+	padding: 5px;
+	font-size: 90%;
+	width: 50%
+}
+
+
+
+input#login_send, input#register,input#upload,input#updateUser,input#update {
+	padding: 10px 15px;
+	border: none;
+	background-color: #6f9b48;
+	color: white;
+	-moz-border-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+	font-size: 90%;
+    cursor: pointer;
+}
+
+
+/* ---------------------------------------------------------------- */
+/*    Mystiske klasser                                              */
+/* ---------------------------------------------------------------- */
+
+
+.text_green {
+	color: #6f9b48;
+}
+
+.text_red {
+	color: red;
+}
+
+.text_large {
+	font-size: 150%;
+}
+
+p.breaker {
+	clear: both;
+}
+
+.hidden{
+    display: none;
+}
+
+
+/* ---------------------------------------------------------------- */
+/*    Strukturelle elementer                                        */
+/* ---------------------------------------------------------------- */
+
+
+div#container {
+	margin: 30px auto;
+	width: 970px;
+	background-color: white;
+	-moz-border-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+div#head {
+	padding: 15px 30px;
+	height: 80px;
+	background-color: #eaeae6;
+	font-weight: lighter;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+}
+
+div#head h1 {
+	float: left;
+
+}
+
+
+/* ------------------------------------ */
+/*    Meny i header                     */
+/* ------------------------------------ */
+
+
+div#meta {
+	margin: 30px 0 0 0;
+	text-align: right;
+	font-size: 85%;
+}
+
+div#meta a {
+	padding: 10px 15px 10px 34px;
+	text-decoration: none;
+	color: #2b2929;
+	background-color: white;
+	-moz-border-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+div#meta a#uploadfile {
+	background-image: url(../gfx/file_upload.png);
+	background-repeat: no-repeat;
+	background-position: 8px;
+	/* image used with permission: http://www.iconfinder.com/icondetails/53443/20/file_upload_icon */
+}
+
+div#meta a#editprofile {
+	background-image: url(../gfx/edit_profile.png);
+	background-repeat: no-repeat;
+	background-position: 8px;
+	/* image used with permission: http://www.iconfinder.com/icondetails/53580/20/settings_icon */
+	/* image used with permission: http://www.iconfinder.com/icondetails/53703/20/profile_user_icon */
+	/* image used with permission: http://www.iconfinder.com/icondetails/53509/20/alt_closed_edit_mail_icon */
+}
+
+div#meta a#logout {
+	background-image: url(../gfx/logout.png);
+	background-repeat: no-repeat;
+	background-position: 10px;
+	/* image used with permission: http://www.iconfinder.com/icondetails/33844/128/power_shutdown_icon */
+}
+
+div#meta a#uploadfile:hover {
+	background-color: #6f9b48;
+	color: white;
+}
+
+div#meta a#editprofile:hover {
+	background-color: #6f9b48;
+	color: white;
+}
+
+div#meta a#logout:hover {
+	background-color: red;
+	color: white;
+}
+
+div#wrapper {
+	padding: 20px;
+	font-size: 85%;
+}
+
+
+/* ------------------------------------ */
+/*    Lister turer                      */
+/* ------------------------------------ */
+
+
+div#trips {
+	width: 230px;
+	float: left;
+	text-align: center;
+}
+
+div#trips h3 {
+	margin: 0 0 20px 10px;
+	text-align: left;
+}
+
+ul#trips_list {
+	margin: 0 0 30px 0;
+	padding: 0;
+	list-style-type: none;
+	text-align: left;
+}
+
+ul#trips_list li a {
+	height:35px;
+	margin: 0 0 5px 0;
+	padding: 10px 10px 10px 46px;
+	display: block;
+	background-color: #f9f9f5;
+	text-decoration: none;
+	color: gray;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	border-top-left-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+ul#trips_list li a:hover {
+	background-color: #ecece8;
+}
+
+ul#trips_list li a.active {
+	background-color: #eaeae6;
+	color: #2b2929;
+}
+
+span.trip_metadata {
+	font-size: 80%;
+}
+
+a.trip_type_atv {
+	background-image: url(../gfx/icons/atv.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_car {
+	background-image: url(../gfx/icons/car.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_cycling {
+	background-image: url(../gfx/icons/cycling.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_default {
+	background-image: url(../gfx/icons/default.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_hiking {
+	background-image: url(../gfx/icons/hiking.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_jogging {
+	background-image: url(../gfx/icons/hiking.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_motorbike {
+	background-image: url(../gfx/icons/motorbike.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_nordicski {
+	background-image: url(../gfx/icons/nordicski.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_rollerskate {
+	background-image: url(../gfx/icons/rollerskate.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_snowmobiling {
+	background-image: url(../gfx/icons/snowmobiling.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+a.trip_type_walking {
+	background-image: url(../gfx/icons/walking.png);
+	background-repeat: no-repeat;
+	background-position: 9px;
+}
+
+div#pagination a {
+	padding: 10px 15px;
+	text-decoration: none;
+	color: #2b2929;
+	background-color: #ecece8;
+	-moz-border-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+div#pagination a:hover {
+	color: #2b2929;
+	background-color: #eaeae6;
+}
+
+div#pagination a.pagination_newer {
+	margin: 0 8px 0 0;
+	padding: 10px 15px 10px 32px;
+	background-image: url(../gfx/arrow_left.png);
+	background-repeat: no-repeat;
+	background-position: 10px 10px;
+	/* image used with permission: http://www.iconfinder.com/icondetails/16110/16/arrow_right_icon */
+	/* image used with permission: http://www.iconfinder.com/icondetails/11202/48/arrow_left_icon */
+}
+
+div#pagination a.pagination_older {
+	padding: 10px 37px 10px 15px;
+	background-image: url(../gfx/arrow_right.png);
+	background-repeat: no-repeat;
+	background-position: 85% 10px;
+	/* image used and modified with permission: http://www.iconfinder.com/icondetails/11202/48/arrow_left_icon */
+}
+
+/* ------------------------------------ */
+/*    Kart, graf og detaljer            */
+/* ------------------------------------ */
+
+div#main {
+	margin: 0 0 0 230px;
+	font-size: 90%;
+}
+
+div#main_full {
+	margin: 0;
+	font-size: 90%;
+}
+
+div#map {
+	width: 700px;
+	height: 800px;
+}
+
+div#toolbar {
+	margin: 20px 0;
+	text-decoration: none;
+	color: #2b2929;
+	background-color: #eaeae6;
+	-moz-border-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+div#toolbar p {
+	padding: 10px 15px;
+}
+
+div#toolbar a {
+	text-decoration: none;
+	color: #2b2929;
+}
+
+div#toolbar a:hover {
+	text-decoration: underline;
+}
+
+div#toolbar a.tool_fullscreen {
+	padding: 10px 10px 10px 25px;
+	background-image: url(../gfx/zoom_in.png);
+	background-repeat: no-repeat;
+	background-position: 1px;
+	/* image used with permission: http://www.iconfinder.com/icondetails/53504/20/in_magnify_zoom_icon */
+}
+
+div#toolbar a.tool_share {
+	padding: 10px 10px 10px 25px;
+	background-image: url(../gfx/share.png);
+	background-repeat: no-repeat;
+	background-position: 1px 6px;
+	/* image used with permission: http://www.iconfinder.com/icondetails/53673/20/group_user_icon */
+}
+
+div#toolbar a.tool_export {
+	padding: 10px 10px 10px 25px;
+	background-image: url(../gfx/export.png);
+	background-repeat: no-repeat;
+	background-position: 1px 5px;
+	/* image used with permission: http://www.iconfinder.com/icondetails/53510/20/alt_closed_mail_receive_icon */
+}
+
+div#toolbar a.tool_edit {
+	padding: 10px 10px 10px 25px;
+	background-image: url(../gfx/edit.png);
+	background-repeat: no-repeat;
+	background-position: 1px;
+	/* image used with permission: http://www.iconfinder.com/icondetails/53426/20/edit_file_icon */
+}
+
+div#toolbar a.tool_delete {
+	padding: 10px 10px 10px 25px;
+	background-image: url(../gfx/delete.png);
+	background-repeat: no-repeat;
+	background-position: 1px;
+	/* image used with permission: http://www.iconfinder.com/icondetails/53591/20/02_alt_delete_system_icon */
+}
+
+div#tripdetail {
+	width: 700px;
+	clear: both;
+}
+
+div#tripdetail table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+div#tripdetail table td {
+	padding: 5px;
+}
+
+div#tripdetail table tr {
+	color: gray;
+	border-bottom: 1px solid gray;
+}
+
+div#tripdetail table tr:hover {
+	color: black;
+	background-color: #eaeae6;
+}
+
+td.align_right {
+	text-align: right;
+}
+
+div#graphContainer {
+	width: 700px;
+}
+
+div#graphContainer ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+div#graphContainer ul li {
+	float: left;
+}
+
+div#graphContainer ul li a {
+	margin: 20px 2px 0 0;
+	padding: 9px 13px;
+	display: block;
+	background-color: #eaeae6;
+	color: gray;
+	text-decoration: none;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-khtml-border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+}
+
+div#graphContainer ul li a:hover,div#graphContainer ul li a.selected {
+	background-color: silver;
+	color: black;
+}
+
+div#graph {
+	padding: 0;
+    width: 700px;
+    height: 300px;
+    clear: both;
+}
+
+/* ------------------------------------ */
+/*    jCarousel                         */
+/* ------------------------------------ */
+
+.jcarousel-skin-mineturer .jcarousel-clip-vertical {
+    height: 705px;
+}
+
+.jcarousel-skin-mineturer .jcarousel-clip {
+    overflow: hidden;
+}
+
+.jcarousel-skin-mineturer .jcarousel-item {
+
+    height: 65px;
+    width: 100%;
+}
+
+
+/* ------------------------------------ */
+/*    Bunntekst                         */
+/* ------------------------------------ */
+
+div#footer {
+	color: white;
+	font-size: 80%;
+	text-align: center;
+}
+
+
+/* avventes */
+
+/* http://www.iconfinder.com/icondetails/53505/20/magnify_out_zoom_icon */
+
+
+/* Gamal moro, oppbevares til senere bruk
+
+#trips .triphead{
+    margin: 0;
+    background: #ccc;
+    padding: 4px;
+    cursor: pointer;
+}
+.triphead h4{
+    margin: 0;
+}
+
+.hidden{
+    display: none;
+}
+
+.uploadForm {
+    background: none repeat scroll 0 0 white;
+    border: 1px solid black;
+    -moz-border-radius: 5px;
+
+    position: absolute;
+    height: 500px;
+    left: 715px;
+    top: 49px;
+    width: 400px;
+    z-index: 3000;
+    padding: 3px;
+}
+
+.link {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#wrapper {
+    width: 1510px;
+}
+
+#graphContainer{
+    width: 800px;
+    height: 330px;
+    clear: both;
+    border-top: 1px solid gray;
+}
+
+#graph{
+    width:770px;
+    height:280px;
+    float:left;
+    margin:5px;
+}
+
+.graphChooser{
+    margin: 0;
+    padding: 0;
+    font-size: 10px;
+}
+
+.selectedLi{
+    background: red;
+}
+
+.graphChooserLi{
+    cursor: pointer;
+    display: inline;
+    list-style-type: none;
+    margin-right: 20px;
+    padding: 3px;
+}
+#graphHeader{
+    height: 20px;
+    background: #eee;
+}
+
+#sidebar {
+
+    margin-left: 5px;
+    padding-top: 0;
+    border:  1px solid gray;
+    width:800px;
+    height: 800px;
+    float:left;
+
+}
+
+#triplist {
+    width:250px;
+    height: 400px;
+    float: left;
+    background: none repeat scroll 0 0 #EEEEEE;
+}
+
+#tripdetail{
+    width:539px;
+    height: 400px;
+    float: left;
+    padding: 5px;
+    border-right:  1px dotted gray;
+}
+
+#tripdetail h3{
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+.tripbody p{
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+#tripdetail .spinner  {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 190px;
+}
+
+#tripdetail .vertContainer{
+    display: table-cell;
+    vertical-align: middle;
+    height: 390px;
+    width: 100%;
+}
+
+#tripdetail .customtext{
+    color: gray;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#tripdetail .descr{
+    background: #FFFF80;
+    border:  1px dotted gray;
+    padding: 3px;
+    margin-left: 0;
+}
+
+.tripbody {
+    font-size: 12px;
+    background: #ffffff;
+    padding: 3px;
+}
+
+#upload {
+    margin-top: 2px;
+    margin-left: 3px;
+}
+
+.sidebarhead h3 {
+    margin: 0;
+    
+}
+
+.sidebarhead {
+    padding: 3px;
+    height: 20px;
+    
+}
+
+#trips .open {
+    background: white;
+}
+#trips {
+    height: 350px;
+    overflow-y: scroll;
+}
+
+#map {
+    border:  1px solid gray;
+    width:700px;
+    height:800px;
+    float:left
+}
+#graphHeader {
+    padding: 5px;
+}
+
+#graphHeader h4{
+    display: inline;
+    padding: 2px;
+    cursor: pointer;
+}
+
+#graphHeader .inactive{
+    background: #999;
+}
+#graphHeader .active {
+
+    background: #eee;
+}
+
+dl dt {
+    float:left;
+    font-weight:bold;
+    margin-right: 2px;
+}
+
+.error {
+    margin: 5px;
+    padding: 3px;
+    border: 1px dotted gray;
+    color: red;
+    background: #FFFF80;
+}
+
+.error h5 {
+    padding: 0;
+    margin: 0;
+}
+
+.yAxisLabel{
+    width:20px;
+    float:left;
+    height: 100%;
+}
+
+p.rot{
+    -moz-transform: rotate(270deg);
+  -moz-transform-origin: 50% 50%;
+  -webkit-transform: rotate(270deg);
+  -webkit-transform-origin: 50% 50%;
+
+}
+
+.xAxisLabel{
+    height:20px;
+    clear:both;
+    text-align:right;
+}
+
+*/

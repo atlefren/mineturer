@@ -1,5 +1,9 @@
 package net.atlefren.GpxUploader.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * Created by IntelliJ IDEA.
  * User: atle
@@ -11,6 +15,7 @@ public class CentroidPoint {
     private int id;
     private String title;
     private String type;
+    private String date;
 
     public String getGeom() {
         return geom;
@@ -42,5 +47,18 @@ public class CentroidPoint {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = formatDate(date);
+    }
+
+    private String formatDate(Date date){
+        Locale norge = new java.util.Locale( "no" );
+        return new SimpleDateFormat("d. MMMM yyyy",norge).format(date);
     }
 }

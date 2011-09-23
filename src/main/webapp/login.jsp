@@ -1,65 +1,72 @@
 <%@ page contentType="text/html;charset=utf-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<%--
-  Created by IntelliJ IDEA.
-  User: atlefren
---%>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen"/>
-     <title>MineTurer - Innlogging</title>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="no-NO">
+<head profile="http://gmpg.org/xfn/11">
+<meta name="author" content="Atle Frenvik Sveen og Martin Bekkelund" />
+
+    <meta name="keywords" content="" />
+	<meta name="description" content="" />
+
+	<meta name="title" content="MineTurer" />
+	<meta name="copyright" content="MineTurer" />
+	<meta name="robots" content="all" />
+
+	<link rel="icon" type="image/png" href="gfx/map.png">
+	<link rel="stylesheet" href="css/mbstyle.css" type="text/css" media="screen"/>
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+
+      _gaq.push(['_setAccount', 'UA-25795622-1']);
+
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+
+      })();
+    </script>
+
 </head>
+
 <body>
 
-<h1>MineTurer Beta</h1>
+<div id="login_wrapper">
 
-<c:if test="${not empty param.login_error}">
-  <font color="red">
-    Innlogging feilet.<br/>
-  </font>
-</c:if>
+	<div id="login_header">
+		<h1><span class="text_green">Mine</span>Turer</h1>
+	</div>
 
-    <form name="f" action="j_spring_security_check" method="POST">
-      <table>
-        <tr>
-            <td>Bruker:</td>
-            <td><input type='text' name='j_username' value='<c:if test="${not empty param.login_error}"><c:out value="${SPRING_SECURITY_LAST_USERNAME}"/></c:if>'/></td>
-        </tr>
-        <tr>
-            <td>Passord:</td>
-            <td><input type='password' name='j_password'></td>
-        </tr>
-        <tr><td colspan='2'><input name="submit" type="submit" value="Logg inn"></td></tr>
-      </table>
-    </form>
+	<div id="login_form_wrapper">
 
-<div style="width:700px;">
-    <p>MineTurer er en webtjeneste for å holde rede på GPX-filer (også kjent som GPS-spor/GPS-tracks), altså data fra GPS-loggere. Dataene lastes opp og vises på kart (Statens Kartverk, Google Maps eller OpenStreetMap). For hver tur vises statistikk og grafer. Alle dataene lagres i en romlig database. Tjenesten er i kraftig beta, og utvikles av Atle F. Sveen på frivillig basis. Kildekoden er lisensiert under BSD-lisensen, og du finner den på <a href="https://bitbucket.org/atlefren/gpsorganizer" target="_blank">BitBucket</a>. Ta kontakt på atle dått sveen ætt gmail dått com for spørsmål eller feilmeldinger. OBS: Nedetid, ustabilitet og feil må forventes så lenge vi er i Beta og kjører på denne serveren.</a></p>
-</div>
+		<form name="f" action="j_spring_security_check" method="POST">
+			<p><label>Brukernavn</label><input type='text' name='j_username' value='' id="login_username" /></p>
+			<p><label>Passord</label><input type='password' name='j_password' id="login_password" /></p>
+			<input name="submit" type="submit" value="Logg inn" id="login_send" />
+		</form>
+        <c:if test="${not empty param.login_error}">
+            <font color="red">
+                Innlogging feilet.<br/>
+            </font>
+        </c:if>
 
-<div>
-    <p>Ny bruker? Registrer en ny bruker <a href="newUser">her</a></p>
-</div>
+        <div>
+            <p>Har du ikke bruker? <a href="newUser">Registrer deg</a> eller <a href="about">l&aelig;r mer</a>.</p>
+        </div>
 
+	</div> <!-- div#login_form_wrapper -->
 
-<div>
-    <h5>Siste nytt</h5>
-    <ul>
-        <li>16.09.2011: Mye bak-kulissene-omskrivinger. Ting burde generelt funke bedre!</li>
-        <li>15.09.2011: Mulighet for å redigere bruker, redigere og slette tur, samt flickr-integrasjon</li>
-        <li>07.09.2011: Aktivitetstyper lagt til, endret ikoner + tegnsettfix</li>
-        <li>05.09.2011: Fler grafer og mer statistikk</li>
-    </ul>
-</div>
+</div> <!-- div#login_wrapper -->
 
-<p>Les mer om MineTurer <a href="about">her</a></p>
 </body>
 </html>
-
-
-
-
 

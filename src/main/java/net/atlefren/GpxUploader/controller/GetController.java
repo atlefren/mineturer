@@ -166,6 +166,7 @@ public class GetController {
         return userDao.userExists(username);
     }
 
+    /*
     @RequestMapping(value = "registerUser", method = RequestMethod.GET)
     @ResponseBody
     //public boolean registerUser(@RequestParam("username") String username,@RequestParam("password") String password,@RequestParam("fullname") String fullname,@RequestParam("email") String email){
@@ -198,8 +199,9 @@ public class GetController {
             return false;
         }
     }
+*/
 
-
+    /*
     @RequestMapping(value = "updateUser", method = RequestMethod.GET)
     @ResponseBody
     //public boolean registerUser(@RequestParam("username") String username,@RequestParam("password") String password,@RequestParam("fullname") String fullname,@RequestParam("email") String email){
@@ -231,4 +233,6 @@ public class GetController {
             return false;
         }
     }
+
+    */
 }

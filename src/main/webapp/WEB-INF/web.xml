@@ -33,6 +33,7 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -143,5 +144,14 @@
         <servlet-mapping>
         <servlet-name>GpxUploader</servlet-name>
         <url-pattern>/about</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/createMyUser</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GpxUploader</servlet-name>
+        <url-pattern>/editMyUser</url-pattern>
     </servlet-mapping>
 </web-app>

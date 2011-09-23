@@ -7,14 +7,16 @@ TripOrganizer.Trip = OpenLayers.Class({
     tripLayer:null,
     visible: null,
     list: null,
+    date:null,
 
 
-    initialize: function(id,title,type,centroid,tripLayer,visible,list,options){
+    initialize: function(id,title,type,date,centroid,tripLayer,visible,list,options){
         OpenLayers.Util.extend(this, options);
         this.events = new OpenLayers.Events(this, null, this.EVENT_TYPES);
         this.id=id;
         this.title=title;
         this.type=type;
+        this.date=date;
         this.centroid=centroid;
         this.tripLayer=tripLayer;
         this.visible = visible;
@@ -42,6 +44,9 @@ TripOrganizer.Trip = OpenLayers.Class({
             var paramstring = OpenLayers.Util.getParameterString(params);
             perma.innerHTML = "Link";
             perma.href="showTrip?"+paramstring;
+
+          //  var fb = document.getElementById("facebook");
+          //  fb.href= "http://www.facebook.com/sharer.php?u=" + encodeURIComponent(TripOrganizer.baseUrl + "showTrip?"+paramstring)+"&t="+encodeURIComponent(this.title);
         }
     },
 
@@ -117,6 +122,89 @@ TripOrganizer.Trip = OpenLayers.Class({
             type=TripOrganizer.types[this.tripData.type];
         }
 
+        $("#toolbar").removeClass("hidden");
+
+        var $table = $("<table>"+
+					"<tr>"+
+						"<td colspan='2' class='text_large'>"+this.tripData.name+"</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Type</td>"+
+						"<td class='align_right'>"+type+"</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Start</td>"+
+						"<td class='align_right'>"+this.tripData.start+"</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Stopp</td>"+
+						"<td class='align_right'>"+this.tripData.stop+"</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Total tid</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.convertTime(this.tripData.times.totalTime) + "</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Aktiv tid</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.convertTime(this.tripData.times.activeTime)  + "</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Lengde (2d)</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.length2d)  + " km</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Lengde (3d)</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.length3d)  + " km</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Snittfart</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.calcSpeed(this.tripData.lenghts.length3d,this.tripData.times.totalTime) + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Snittsfart uten pauser</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.calcSpeed(this.tripData.lenghts.length3d,this.tripData.times.activeTime) + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Oppstigning</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.lengthAsc)  + " km, "+
+                        TripOrganizer.Util.convertTime(this.tripData.times.ascTime)  +", "+
+                        TripOrganizer.Util.calcSpeed(this.tripData.lenghts.lengthAsc,this.tripData.times.ascTime)  + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Nedstigning</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.lengthDesc)  + " km, " +
+                        TripOrganizer.Util.convertTime(this.tripData.times.descTime)  + ", " +
+                        TripOrganizer.Util.calcSpeed(this.tripData.lenghts.lengthDesc,this.tripData.times.descTime)  + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Flatt terreng</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.lengthFlat)  + " km, " +
+                    TripOrganizer.Util.convertTime(this.tripData.times.flatTime)  + ", "+
+                        TripOrganizer.Util.calcSpeed(this.tripData.lenghts.lengthFlat,this.tripData.times.flatTime)  + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Maks høyde</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(this.tripData.heights.maxHeight,2)  + " m.o.h.</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Min høyde</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(this.tripData.heights.minHeight,2)  + " m.o.h.</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Total oppstigning</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(this.tripData.heights.totalAsc,2)  + " m</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Total nedstigning</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(Math.abs(this.tripData.heights.totalDesc),2)  + " m</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Høydeforskjell</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(heightDiff,2)  + " m</td>"+
+					"</tr>"+
+				    "</table>");
+/*
+
         var $body = $("<div class=\"tripbody\" id=\"body_for_"+ this.tripData.id +"\">").html(
             "<dl>"+
                 desc +
@@ -144,16 +232,19 @@ TripOrganizer.Trip = OpenLayers.Class({
                 "<dt>Total negativ stigning:</dt> <dd>" + TripOrganizer.Util.round(Math.abs(this.tripData.heights.totalDesc),2)  + " m</dd>" +
                 "<dt>Max høydeforskjell:</dt> <dd>" + TripOrganizer.Util.round(heightDiff,2)  + " m</dd>" +
                 "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
+                "<dt>Del: </dt><dd> <a href='' target='_blank' id='facebook' title='Del på Facbook'><img src='gfx/facebook.gif' class='noborder'/></a></dd>"+
                 "<dt>Operasjoner:</dt><dd> <a id='edit'>Rediger</a> <a id='del'>Slett</a></dd>"+
                 "</dl>"
         );
+        */
         var that = this;
 
         $("#tripdetail").html("");
-        $("#tripdetail").append("<h3>"+this.tripData.name+"</h3>");
-        $("#tripdetail").append($body);
+        //$("#tripdetail").append("<h3>"+this.tripData.name+"</h3>");
+        $("#tripdetail").append($table);
 
-        $("#del").click(function(){
+        $("#delete_btn").unbind();
+        $("#delete_btn").click(function(){
 
             var ok = confirm("Vil du virkelig slette denne turen?");
             if(ok){
@@ -174,13 +265,15 @@ TripOrganizer.Trip = OpenLayers.Class({
             }
         });
 
-        $("#edit").click(function(){
+        $("#edit_btn").unbind();
+        $("#edit_btn").click(function(){
             var updater = new TripOrganizer.TripUpdater();
             updater.showUpdateForm(that.tripData,that);
 
         });
 
-        this.updateLink();
+        //this.updateLink();
+
     },
 
     hideTrip: function(){

@@ -30,36 +30,25 @@ TripOrganizer.TripUpdater = OpenLayers.Class({
             desc=tripData.description;
         }
 
-        var string = "<h3>Last opp GPX-fil:</h3>"+
+
+        var string = "<div id='update_trip_form_wrapper'>" +
+            "<h3>Rediger tur</h3>"+
             "<form accept-charset='UTF-8'  method='POST' action='updateTrack' id='updateForm'>"+
             "<input type='hidden' name='tripid' value='"+ tripData.id+"'/>"+
-        "<table>" +
-        "<tr>"+
-            "<td>Tittel:</td>"+
-            "<td><input type='text' name='name' id='update_name' value='"+tripData.name+"'></td>"+
-        "</tr>"+
-
-        "<tr>"+
-            "<td>Aktivitetstype:</td>"+
-            "<td><select name='type'>"+select+"</select></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td>Flickr-tags:</td>"+
-            "<td><input type='text' name='tags' id='update_flickr' value='"+tags+"'></td>"+
-        "</tr>"+
-        "<tr >"+
-            "<td>Beskrivelse:</td>"+
-            "<td><textarea name='desc' id='update_desc'>"+ desc+"</textarea><br></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td colspan='2'><input type='submit' value='Oppdater'/></td>"+
-        "</tr>"+
-    "</table>"+
-    "<div id='updateLoader' class='hidden'><img src='gfx/ajax-loader.gif'> Oppdaterer..</div>";
-
+            "<p><label>Tittel:</label>"+
+            "<input type='text' value='"+tripData.name+"' name='name' id='update_name'></p>"+
+            "<p><label>Aktivitetstype:</label>"+
+            "<select name='type' id='update_type'>"+select+"</select></p>"+
+            "<p><label>Flickr-tags:</label>"+
+            "<input type='text' value='"+tags+"' name='tags' id='update_flickr'></p>"+
+            "<p><label>Beskrivelse:</label>"+
+            "<textarea name='desc' id='update_desc'>"+ desc+"</textarea></p>"+
+            "<input type='submit' value='Rediger' id='update'/>" +
+            "</div>";
 
         $.fancybox({
-            content: string
+            content: string,
+            overlayShow: false
         });
 
         var that = this;

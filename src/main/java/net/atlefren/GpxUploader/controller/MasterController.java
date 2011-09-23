@@ -26,7 +26,7 @@ public class MasterController {
     }
 
     @RequestMapping("/newUser")
-    public ModelAndView registerUser() {
+    public ModelAndView newUser() {
         return new ModelAndView("newuser");
     }
 

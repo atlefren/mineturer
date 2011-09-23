@@ -19,7 +19,7 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.nio.charset.Charset;
+
 
 /**
  * Created by IntelliJ IDEA.

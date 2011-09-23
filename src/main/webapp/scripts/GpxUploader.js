@@ -200,9 +200,7 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     }
     else {
 
-
-
-        var list = new TripOrganizer.TripList("trips",map,featureLayer,cLayer);
+        var list = new TripOrganizer.TripList("trips_list",map,featureLayer,cLayer);
         list.listTrips();
 
         var uploader = new TripOrganizer.TripUploader(list);
@@ -213,69 +211,23 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
         map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
 
-        /*
-        var flickr = new TripOrganizer.FlickrLoader(map);
-
-
-        var tripDisplayer = new TripOrganizer.TripInfoDisplayer("tripdetail");
-        tripDisplayer.setMap(map);
-        tripDisplayer.setText("Velg en tur i menyen!");
-        var uploader = new TripOrganizer.TripUploader(false);
-        var tripFetcher = new TripOrganizer.TripFetcher("trips");
-        tripFetcher.addLayer(featureLayer);
-        tripFetcher.addTripDisplayer(tripDisplayer);
-        tripFetcher.addImageLoader(flickr);
-        tripFetcher.getTrips();
-
-
-        tripFetcher.addUploadManager(uploader);
-        uploader.createLink("upload");
-
-
-
-        map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
-        var centroidFetcher = new TripOrganizer.TripCentroidDisplayer(cLayer);
-        centroidFetcher.displayCentroids(false);
-
-        cLayer.events.on({
-                        'featureselected': function(evt) {
-                            var id = evt.feature.attributes.tripid;
-                            tripFetcher.displayTrip(id);
-                        }
-                    });
-        tripFetcher.events.on({
-            'tripadded':function(evt){
-                centroidFetcher.displayCentroids(true);
-            }
-        });
-        tripFetcher.events.on({
-            'tripdeleted':function(evt){
-                centroidFetcher.displayCentroids(false);
-            }
-        });
-        tripFetcher.events.on({
-            'tripupdated':function(evt){
-                centroidFetcher.displayCentroids(true);
-            }
-        });
-
-*/
     }
 
 }
 TripOrganizer.TripList = OpenLayers.Class({
 
-    div: null,
+    listId: null,
     map:null,
     tripLayer:null,
     trips: null,
     centroidDisplayer: null,
     imageLoader: null,
+    carousel: null,
 
-    initialize: function(div,map,tripLayer,clayer,options){
+    initialize: function(listId,map,tripLayer,clayer,options){
         OpenLayers.Util.extend(this, options);
         this.events = new OpenLayers.Events(this, null, this.EVENT_TYPES);
-        this.div=div;
+        this.listId=listId;
         this.map=map;
         this.tripLayer=tripLayer;
         this.centroidDisplayer = new TripOrganizer.CentroidDisplayer(clayer);
@@ -288,6 +240,9 @@ TripOrganizer.TripList = OpenLayers.Class({
                 that.showTrip(id);
             }
         });
+
+        this.createCarousel();
+        //console.log(this.carousel);
     },
 
     listTrips:function(){
@@ -306,7 +261,7 @@ TripOrganizer.TripList = OpenLayers.Class({
     createTrips: function(trips){
         var tripObjects = [];
         for(var i=0;i<trips.length;i++){
-            var trip = new TripOrganizer.Trip(trips[i].id,trips[i].title,trips[i].type,trips[i].geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
+            var trip = new TripOrganizer.Trip(trips[i].id,trips[i].title,trips[i].type,trips[i].date,trips[i].geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
             tripObjects.push(trip);
         }
         return tripObjects;
@@ -314,28 +269,43 @@ TripOrganizer.TripList = OpenLayers.Class({
 
     redraw: function(){
         var that = this;
-        $('#'+this.div).html("");
+        $('#'+this.listId).html("");
         var active = false;
+        this.carousel.reset();
         for(var i=0;i<this.trips.length;i++){
             var trip = this.trips[i];
-            var $head;
+            
+            var $item;
+
+            var title = trip.title;
+            if(trip.title==""){
+                title="Uten navn";
+            }
+            if(trip.title.length>23){
+                ;;;console.log("shortening");
+                title = trip.title.substring(0,23);
+            }
             if(trip.isActive()){
-                $head = $("<div class='triphead open' id='head_for_"+ trip.id +"'>").html("<h4>"+trip.title+"</h4>");
+                $item = $("<li id='head_for_"+ trip.id +"'><a href='#!' class='active trip_type_"+trip.type+"'>"+title+"<br /><span class='trip_metadata'>"+trip.date+"</span></a></li>");
+                //$head = $("<div class='triphead open' id='head_for_"+ trip.id +"'>").html("<h4>"+trip.title+"</h4>");
                 active=true;
             }
             else {
-                $head = $("<div class='triphead closed' id='head_for_"+ trip.id +"'>").html("<h4>"+trip.title+"</h4>");
+                $item = $("<li id='head_for_"+ trip.id +"'><a href='#!' class='trip_type_"+trip.type+"'>"+title+"<br /><span class='trip_metadata'>"+trip.date+"</span></a></li>");
             }
 
-        $head.click(function(){
-            var id = this.id.replace("head_for_","");
-            that.toggle(id);
-        });
-            $('#'+this.div).append($head);
+            $item.click(function(){
+                var id = this.id.replace("head_for_","");
+                that.toggle(id);
+            });
+            //$('#'+this.listId).append($item);
+            //console.log("add ", $item, " to carousel at ", i);
+            this.carousel.add(i, $item);
         }
 
         if(!active){
-            $('#tripdetail').html($("<div class='vertContainer'><p class='customtext'>Velg en tur i menyen eller kartet</p></div>"));
+            $('#tripdetail').html($("<p class='customtext'>Velg en tur i menyen eller kartet</p>"));
+            $("#toolbar").addClass("hidden");
             this.tripLayer.map.setCenter(new OpenLayers.LonLat(1932453.2623743,9735786.7850962),5);
         }
     },
@@ -366,8 +336,8 @@ TripOrganizer.TripList = OpenLayers.Class({
 
 
     addTrip: function(tripData){
-        var trip = new TripOrganizer.Trip(tripData.id,tripData.title,tripData.type,tripData.geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
-        this.trips.push(trip);
+        var trip = new TripOrganizer.Trip(tripData.id,tripData.title,tripData.type,tripData.date,tripData.geom,this.tripLayer,false,this); //id,title,type,centroid,tripLayer,visible
+        this.trips.unshift(trip);
         this.centroidDisplayer.addTrip(tripData);
         this.showTrip(trip.id);
     },
@@ -390,6 +360,67 @@ TripOrganizer.TripList = OpenLayers.Class({
             }
         }
     },
+
+
+    createCarousel: function(){
+        var that = this;
+        function mycarousel_initCallback(carousel) {
+/*
+            jQuery('.jcarousel-control a').bind('click', function() {
+                carousel.scroll(jQuery.jcarousel.intval(jQuery(this).text()));
+                return false;
+            });
+
+            jQuery('.jcarousel-scroll select').bind('change', function() {
+                carousel.options.scroll = jQuery.jcarousel.intval(this.options[this.selectedIndex].value);
+                return false;
+            });
+*/
+            jQuery('#mycarousel-next').bind('click', function() {
+                carousel.next();
+                return false;
+            });
+
+            jQuery('#mycarousel-prev').bind('click', function() {
+                carousel.prev();
+                return false;
+            });
+
+            that.carousel = carousel;
+        }
+
+
+
+            $("#trips_list").jcarousel({
+                scroll: 5,
+                vertical: true,
+                initCallback: mycarousel_initCallback,
+                // This tells jCarousel NOT to autobuild prev/next buttons
+                //buttonNextHTML: null,
+                //buttonPrevHTML: null,
+                itemFallbackDimension:32,
+                itemFirstOutCallback: {
+                    onBeforeAnimation: function(){
+
+                    },
+                    onAfterAnimation: function(){
+                        $(".jcarousel-prev").removeClass("jcarousel-prev-disabled");
+                        $(".jcarousel-prev").removeClass("jcarousel-prev-disabled-vertical");
+                    }
+                },
+                itemLastOutCallback: {
+                    onBeforeAnimation: function(){
+
+                    },
+                    onAfterAnimation: function(){
+                        $(".jcarousel-next").removeClass("jcarousel-next-disabled");
+                        $(".jcarousel-next").removeClass("jcarousel-next-disabled-vertical");
+                    }
+                }
+
+            });
+
+    },
     CLASS_NAME: "TripOrganizer.TripList"
 
 });
@@ -402,14 +433,16 @@ TripOrganizer.Trip = OpenLayers.Class({
     tripLayer:null,
     visible: null,
     list: null,
+    date:null,
 
 
-    initialize: function(id,title,type,centroid,tripLayer,visible,list,options){
+    initialize: function(id,title,type,date,centroid,tripLayer,visible,list,options){
         OpenLayers.Util.extend(this, options);
         this.events = new OpenLayers.Events(this, null, this.EVENT_TYPES);
         this.id=id;
         this.title=title;
         this.type=type;
+        this.date=date;
         this.centroid=centroid;
         this.tripLayer=tripLayer;
         this.visible = visible;
@@ -437,6 +470,9 @@ TripOrganizer.Trip = OpenLayers.Class({
             var paramstring = OpenLayers.Util.getParameterString(params);
             perma.innerHTML = "Link";
             perma.href="showTrip?"+paramstring;
+
+          //  var fb = document.getElementById("facebook");
+          //  fb.href= "http://www.facebook.com/sharer.php?u=" + encodeURIComponent(TripOrganizer.baseUrl + "showTrip?"+paramstring)+"&t="+encodeURIComponent(this.title);
         }
     },
 
@@ -512,6 +548,89 @@ TripOrganizer.Trip = OpenLayers.Class({
             type=TripOrganizer.types[this.tripData.type];
         }
 
+        $("#toolbar").removeClass("hidden");
+
+        var $table = $("<table>"+
+					"<tr>"+
+						"<td colspan='2' class='text_large'>"+this.tripData.name+"</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Type</td>"+
+						"<td class='align_right'>"+type+"</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Start</td>"+
+						"<td class='align_right'>"+this.tripData.start+"</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Stopp</td>"+
+						"<td class='align_right'>"+this.tripData.stop+"</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Total tid</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.convertTime(this.tripData.times.totalTime) + "</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Aktiv tid</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.convertTime(this.tripData.times.activeTime)  + "</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Lengde (2d)</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.length2d)  + " km</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Lengde (3d)</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.length3d)  + " km</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Snittfart</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.calcSpeed(this.tripData.lenghts.length3d,this.tripData.times.totalTime) + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Snittsfart uten pauser</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.calcSpeed(this.tripData.lenghts.length3d,this.tripData.times.activeTime) + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Oppstigning</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.lengthAsc)  + " km, "+
+                        TripOrganizer.Util.convertTime(this.tripData.times.ascTime)  +", "+
+                        TripOrganizer.Util.calcSpeed(this.tripData.lenghts.lengthAsc,this.tripData.times.ascTime)  + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Nedstigning</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.lengthDesc)  + " km, " +
+                        TripOrganizer.Util.convertTime(this.tripData.times.descTime)  + ", " +
+                        TripOrganizer.Util.calcSpeed(this.tripData.lenghts.lengthDesc,this.tripData.times.descTime)  + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Flatt terreng</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.meterToKm(this.tripData.lenghts.lengthFlat)  + " km, " +
+                    TripOrganizer.Util.convertTime(this.tripData.times.flatTime)  + ", "+
+                        TripOrganizer.Util.calcSpeed(this.tripData.lenghts.lengthFlat,this.tripData.times.flatTime)  + " km/t</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Maks høyde</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(this.tripData.heights.maxHeight,2)  + " m.o.h.</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Min høyde</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(this.tripData.heights.minHeight,2)  + " m.o.h.</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Total oppstigning</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(this.tripData.heights.totalAsc,2)  + " m</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Total nedstigning</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(Math.abs(this.tripData.heights.totalDesc),2)  + " m</td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td>Høydeforskjell</td>"+
+						"<td class='align_right'>" + TripOrganizer.Util.round(heightDiff,2)  + " m</td>"+
+					"</tr>"+
+				    "</table>");
+/*
+
         var $body = $("<div class=\"tripbody\" id=\"body_for_"+ this.tripData.id +"\">").html(
             "<dl>"+
                 desc +
@@ -539,16 +658,19 @@ TripOrganizer.Trip = OpenLayers.Class({
                 "<dt>Total negativ stigning:</dt> <dd>" + TripOrganizer.Util.round(Math.abs(this.tripData.heights.totalDesc),2)  + " m</dd>" +
                 "<dt>Max høydeforskjell:</dt> <dd>" + TripOrganizer.Util.round(heightDiff,2)  + " m</dd>" +
                 "<dt>Permalenke:</dt><dd> <a href='' target='blank' id='perma'>Permalink</a></dd>"+
+                "<dt>Del: </dt><dd> <a href='' target='_blank' id='facebook' title='Del på Facbook'><img src='gfx/facebook.gif' class='noborder'/></a></dd>"+
                 "<dt>Operasjoner:</dt><dd> <a id='edit'>Rediger</a> <a id='del'>Slett</a></dd>"+
                 "</dl>"
         );
+        */
         var that = this;
 
         $("#tripdetail").html("");
-        $("#tripdetail").append("<h3>"+this.tripData.name+"</h3>");
-        $("#tripdetail").append($body);
+        //$("#tripdetail").append("<h3>"+this.tripData.name+"</h3>");
+        $("#tripdetail").append($table);
 
-        $("#del").click(function(){
+        $("#delete_btn").unbind();
+        $("#delete_btn").click(function(){
 
             var ok = confirm("Vil du virkelig slette denne turen?");
             if(ok){
@@ -569,13 +691,15 @@ TripOrganizer.Trip = OpenLayers.Class({
             }
         });
 
-        $("#edit").click(function(){
+        $("#edit_btn").unbind();
+        $("#edit_btn").click(function(){
             var updater = new TripOrganizer.TripUpdater();
             updater.showUpdateForm(that.tripData,that);
 
         });
 
-        this.updateLink();
+        //this.updateLink();
+
     },
 
     hideTrip: function(){
@@ -815,11 +939,14 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
 
     setTrackId: function(id){
         this.trackid=id;
+        //console.log("display", id);
         this.display();
     },
 
     clear: function(){
+
         this.hideGraph();
+        $("#graphContainer").addClass("hidden");
         $("#graph").html("");
         $("#graphHeader").html("");
         this.trackid=null;
@@ -834,6 +961,7 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
     display: function(){
         this.showSpinner();
         this.generateMenu();
+         $("#graphContainer").removeClass("hidden");
         this.active=true;
         $("#"+this.divId).html("");
         var that = this;
@@ -854,12 +982,15 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
         var $ul = $("<ul class='graphChooser'></ul>");
         var that = this;
         for(var key in this.types){
-            var $li = $("<li id='li_for_"+ key+"' class='graphChooserLi'>"+this.types[key].name+"</li>");
+            var $li = $("<li class='graphChooserLi'></li>");
+            var $a = $("<a href='#!' id='link_for_"+ key+"'>"+this.types[key].name+"</a>");
+            $li.append($a);
             if(key ==this.initType){
-                $li.addClass("selectedLi");
+                $a.addClass("selected");
             }
-            $li.click(function(){
-                var id = this.id.replace("li_for_","");
+            $a.click(function(){
+                var id = this.id.replace("link_for_","");
+                $("#"+this.id).addClass("selected");
                 if(id!=that.initType){
                     that.initType=id;
                     that.generateMenu();
@@ -870,6 +1001,7 @@ TripOrganizer.GraphDisplayer = OpenLayers.Class({
             $ul.append($li);
         }
         $("#graphHeader").html($ul);
+        //console.log("generated header");
     },
 
     showSpinner: function(){
@@ -910,7 +1042,7 @@ TripOrganizer.TripUploader = OpenLayers.Class({
     },
 
     showUploadForm: function(){
-        $.fancybox.hideActivity();
+      
 
         var select ="";
         var type="hiking";
@@ -923,39 +1055,27 @@ TripOrganizer.TripUploader = OpenLayers.Class({
             }
         }
 
-        var string = "<h3>Last opp GPX-fil:</h3>"+
+        var string = "<div id='upload_form_wrapper'>" +
+            "<h3>Last opp GPX-fil:</h3>"+
             "<form accept-charset='UTF-8' enctype='multipart/form-data' method='POST' action='uploadGpx' id='uploadForm'>"+
             "<input type='hidden' value='10000000' name='MAX_FILE_SIZE'>"+
-        "<table><tr>"+
-            "<td>GPX-fil::</td>"+
-            "<td> <input type='file' name='file' id='upload_file'></td>"+
-        "</tr>"+
-            "<tr>"+
-            "<td>Tittel:</td>"+
-            "<td><input type='text' value='' name='name' id='upload_name'></td>"+
-        "</tr>"+
-
-        "<tr>"+
-            "<td>Aktivitetstype:</td>"+
-            "<td><select name='type'>"+select+"</select></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td>Flickr-tags:</td>"+
-            "<td><input type='text' value='' name='tags' id='upload_flickr'></td>"+
-        "</tr>"+
-        "<tr >"+
-            "<td>Beskrivelse:</td>"+
-            "<td><textarea name='desc' id='upload_desc'></textarea><br></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td colspan='2'><input type='submit' value='Last opp'/></td>"+
-        "</tr>"+
-    "</table>"+
-    "<div id='uploadLoader' class='hidden'><img src='gfx/ajax-loader.gif'> Laster opp</div>"+
-    "<div id='uploadErr' class='error hidden'>";
-
+            "<p><label>GPX-fil:</label>"+
+            "<input type='file' name='file' id='upload_file'></p>"+
+            "<p><label>Tittel:</label>"+
+            "<input type='text' value='' name='name' id='upload_name'></p>"+
+            "<p><label>Aktivitetstype:</label>"+
+            "<select id='upload_type' name='type'>"+select+"</select></p>"+
+            "<p><label>Flickr-tags:</label>"+
+            "<input type='text' value='' name='tags' id='upload_flickr'></p>"+
+            "<p><label>Beskrivelse:</label>"+
+            "<textarea name='desc' id='upload_desc'></textarea></p>"+
+            "<input type='submit' value='Last opp' id='update'/>" +
+            "<div id='uploadLoader' class='hidden'><img src='gfx/ajax-loader.gif'> Laster opp</div>"+
+            "<div id='uploadErr' class='error hidden'>"+
+            "</div>";
         $.fancybox({
-            content: string
+            content: string,
+            overlayShow: false
         });
 
         var that = this;
@@ -1029,36 +1149,25 @@ TripOrganizer.TripUpdater = OpenLayers.Class({
             desc=tripData.description;
         }
 
-        var string = "<h3>Last opp GPX-fil:</h3>"+
+
+        var string = "<div id='update_trip_form_wrapper'>" +
+            "<h3>Rediger tur</h3>"+
             "<form accept-charset='UTF-8'  method='POST' action='updateTrack' id='updateForm'>"+
             "<input type='hidden' name='tripid' value='"+ tripData.id+"'/>"+
-        "<table>" +
-        "<tr>"+
-            "<td>Tittel:</td>"+
-            "<td><input type='text' name='name' id='update_name' value='"+tripData.name+"'></td>"+
-        "</tr>"+
-
-        "<tr>"+
-            "<td>Aktivitetstype:</td>"+
-            "<td><select name='type'>"+select+"</select></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td>Flickr-tags:</td>"+
-            "<td><input type='text' name='tags' id='update_flickr' value='"+tags+"'></td>"+
-        "</tr>"+
-        "<tr >"+
-            "<td>Beskrivelse:</td>"+
-            "<td><textarea name='desc' id='update_desc'>"+ desc+"</textarea><br></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td colspan='2'><input type='submit' value='Oppdater'/></td>"+
-        "</tr>"+
-    "</table>"+
-    "<div id='updateLoader' class='hidden'><img src='gfx/ajax-loader.gif'> Oppdaterer..</div>";
-
+            "<p><label>Tittel:</label>"+
+            "<input type='text' value='"+tripData.name+"' name='name' id='update_name'></p>"+
+            "<p><label>Aktivitetstype:</label>"+
+            "<select name='type' id='update_type'>"+select+"</select></p>"+
+            "<p><label>Flickr-tags:</label>"+
+            "<input type='text' value='"+tags+"' name='tags' id='update_flickr'></p>"+
+            "<p><label>Beskrivelse:</label>"+
+            "<textarea name='desc' id='update_desc'>"+ desc+"</textarea></p>"+
+            "<input type='submit' value='Rediger' id='update'/>" +
+            "</div>";
 
         $.fancybox({
-            content: string
+            content: string,
+            overlayShow: false
         });
 
         var that = this;
@@ -1112,47 +1221,33 @@ TripOrganizer.ProfileEditor = OpenLayers.Class({
     showEditForm: function(user){
         $.fancybox.hideActivity();
 
-        var string ="<table><tr>"+
-            "<td>Fullt navn:</td>"+
-            "<td> <input id='fullname' type='text' name='fullname' value='"+user.fullname+"' /></td>"+
-        "</tr>"+
-            "<tr>"+
-            "<td>Flickr ID:</td>"+
-            "<td> <input id='flickrid' type='text' name='flickrid'  value='"+user.flickrId+"'/> <a href='http://support.statsmix.com/kb/faq/how-do-i-find-my-flickr-id' target='_blank'>Huh?</a></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td>E-Post:</td>"+
-            "<td><input id='email' type='text' name='email' value='"+user.email+"'/></td>"+
-        "</tr>"+
-        "<tr>"+
-            "<td colspan='2'><input type='submit' value='Oppdater' id='updateUser'/></td>"+
-        "</tr>"+
-    "</table>";
+        var string ="<div id='profile_update_form_wrapper'>"+
+            "<h3>Rediger profil</h3>"+
+            "<form accept-charset='UTF-8'  method='POST' action='editMyUser' id='updateUserForm'>"+
+            "<p><label>Fullt navn:</label>"+
+            "<input id='fullname' type='text' name='fullname' value='"+user.fullname+"' /></p>"+
+
+            "<p><label>Flickr ID:</label>"+
+            "<input id='flickrid' type='text' name='flickrid'  value='"+user.flickrId+"'/> <a target='_blank' href='http://support.statsmix.com/kb/faq/how-do-i-find-my-flickr-id' style='margin-top: 3px;'><img src='gfx/question.png' alt='Hva er dette?' style='border: 0'/></a></p>"+
+            "<p><label>E-Post:</label>"+
+            "<input id='email' type='text' name='email' value='"+user.email+"'/></p>"+
+
+            "<input type='submit' value='Rediger' id='updateUser'/>"+
+
+            "</div" +
+            "</form>";
 
         $.fancybox({
-            content: string
+            content: string,
+            overlayShow: false
         });
 
-        $("#updateUser").click(function(){
-
-            var name = document.getElementById("fullname").value;
-            var flickrid = document.getElementById("flickrid").value;
-            var email = document.getElementById("email").value;
-
-            $.getJSON(
-                "updateUser",
-                {
-                    name:name,
-                    flickrid:flickrid,
-                    email:email
-
-                },
-                function(response) {
-                    $.fancybox.close();
-                }
-            );
-
+        $("#updateUserForm").ajaxForm({
+            success: function() {
+                $.fancybox.close();
+            }
         });
+
 
     },
     CLASS_NAME: "TripOrganizer.ProfileEditor"

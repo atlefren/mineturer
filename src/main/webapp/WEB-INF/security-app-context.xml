@@ -14,6 +14,7 @@
             <intercept-url pattern="/about"  access="permitAll" />
             <intercept-url pattern="/showTrip"  access="permitAll" />
             <intercept-url pattern="/checkUsername" access="permitAll" />
+            <intercept-url pattern="/createMyUser" method="POST" access="permitAll" />
             <intercept-url pattern="/registerUser" access="permitAll" />
             <intercept-url pattern="/newUser"  access="permitAll" />
             <intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
@@ -29,14 +30,5 @@
             <password-encoder hash="sha" />
         </authentication-provider>
     </authentication-manager>
-<!--
-    <authentication-manager>
-        <authentication-provider>
-            <user-service>
-                <user name="atle" password="p" authorities="user" />
-                <user name="test" password="test" authorities="user" />
-            </user-service>
-        </authentication-provider>
-    </authentication-manager>
-    -->
+
 </beans:beans>
