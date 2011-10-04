@@ -28,9 +28,7 @@ public class TripDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insertAssignment;
-
     private String srid;
-
     private static String schema = "mineturer";
 
     @Autowired
@@ -58,9 +56,9 @@ public class TripDao {
     }
 
     public List<Trip> getSimpleTripInfo(int tripId){
-
-        String sql = "SELECT t.tripid as tripid, t.title as title, u.username as username FROM "+schema+".trips t, "+schema+".users u WHERE t.tripid='"+tripId+"' AND t.userid=u.userid";
+        String sql = "SELECT t.tripid as tripid, t.title as title, u.username as username FROM "+schema+".trips t, "+schema+".users u WHERE t.tripid=':tripId' AND t.userid=u.userid";
         Map<String, Object> map = new HashMap<String, Object>();
+        map.put("tripId",tripId);
         return namedParameterJdbcTemplate.query(sql, map, tripRowMapperWithUser);
     }
 
@@ -69,21 +67,29 @@ public class TripDao {
     }
 
     public List<CentroidPoint> getCentroids(int userid,String srid){
-        String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),"+srid+"))) as point,tripid,title,triptype,start FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype,ts.start as start FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+userid+"') AS f GROUP BY start,tripid,title,triptype ORDER BY start DESC";
+        String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),:srid))) as point,tripid,title,triptype,start FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype,ts.start as start FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid=:userId) AS f GROUP BY start,tripid,title,triptype ORDER BY start DESC";
         Map<String, Object> map = new HashMap<String, Object>();
+        map.put("srid",Integer.valueOf(srid));
+        map.put("userId",userid);
         return namedParameterJdbcTemplate.query(sql,map,wktPointRowMapper);
     }
 
     public CentroidPoint getCentroid(int tripid, int userid,String srid){
-        String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),"+srid+"))) as point,tripid,title,triptype,start FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype,ts.start as start FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid='"+userid+"' AND t.tripid='"+ tripid +"') AS f GROUP BY start,tripid,title,triptype";
+        String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),:srid))) as point,tripid,title,triptype,start FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype,ts.start as start FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid=:userId AND t.tripid=:tripId) AS f GROUP BY start,tripid,title,triptype";
         Map<String, Object> map = new HashMap<String, Object>();
+        map.put("tripId",tripid);
+        map.put("userId",userid);
+        map.put("srid",Integer.valueOf(srid));
         return namedParameterJdbcTemplate.query(sql,map,wktPointRowMapper).get(0);
     }
 
-    public Trip getTripDetails(int userid, String srid, int id,boolean includeGeom){
+    public Trip getTripDetails(int userid, String srid, int tripid,boolean includeGeom){
         this.srid = srid;
-        String sql = "SELECT * FROM "+schema+".trips WHERE userid='"+userid+"' AND tripid="+id;
+        String sql = "SELECT * FROM "+schema+".trips WHERE userid=:userId AND tripid=:tripId";
         Map<String, Object> map = new HashMap<String, Object>();
+        map.put("tripId",tripid);
+        map.put("userId",userid);
+        map.put("srid",Integer.valueOf(srid));
         if(includeGeom){
             return namedParameterJdbcTemplate.query(sql, map, tripGeomRowMapper).get(0);
         }
@@ -93,10 +99,10 @@ public class TripDao {
     }
 
 
-
-    public List<GpxPoint> getPointsForTrip(int id,int userid){
-        String sql = "SELECT st_x(geom) as lon, st_y(geom) as lat, ele, \"time\",hr FROM "+schema+".points WHERE tripid="+id;
+    public List<GpxPoint> getPointsForTrip(int tripId,int userId){
+        String sql = "SELECT st_x(geom) as lon, st_y(geom) as lat, ele, \"time\",hr FROM "+schema+".points WHERE tripid=:tripId";
         Map<String, Object> map = new HashMap<String, Object>();
+        map.put("tripId",tripId);
         return namedParameterJdbcTemplate.query(sql,map,pointRowMapper);
     }
 
@@ -159,47 +165,55 @@ public class TripDao {
         return tripId;
     }
 
-    private List<String> getTracksAsEwkt(int tripid){
+    private List<String> getTracksAsEwkt(int tripId){
         String sql;
         if(srid != null){
-            sql = "SELECT asEWKT(st_transform(geom,"+ srid+")) as ewkt FROM "+schema+".tracks WHERE tripid=" + tripid;
+            sql = "SELECT asEWKT(st_transform(geom,:srid)) as ewkt FROM "+schema+".tracks WHERE tripid=:tripId";
         }else {
-            sql = "SELECT asEWKT(geom) as ewkt FROM "+schema+".tracks WHERE tripid=" + tripid;
+            sql = "SELECT asEWKT(geom) as ewkt FROM "+schema+".tracks WHERE tripid=:tripId";
         }
         Map<String, Object> map = new HashMap<String, Object>();
+        map.put("tripId",tripId);
+        map.put("srid",Integer.valueOf(srid));
         return  namedParameterJdbcTemplate.query(sql, map, geomRowMapper);
     }
 
-    private List<String> getTracks(int tripid){
+    private List<String> getTracks(int tripId){
         String sql;
         if(srid != null){
-            sql = "SELECT AsText(st_transform(geom,"+ srid+")) as ewkt FROM "+schema+".tracks WHERE tripid=" + tripid;
+            sql = "SELECT AsText(st_transform(geom,:srid)) as ewkt FROM "+schema+".tracks WHERE tripid=:tripId";
         }else {
-            sql = "SELECT AsText(geom) as ewkt FROM "+schema+".tracks WHERE tripid=" + tripid;
+            sql = "SELECT AsText(geom) as ewkt FROM "+schema+".tracks WHERE tripid=:tripId";
         }
         Map<String, Object> map = new HashMap<String, Object>();
+        map.put("tripId",tripId);
+        map.put("srid",Integer.valueOf(srid));
         return  namedParameterJdbcTemplate.query(sql, map, geomRowMapper);
     }
 
-    private List<String> getWaypoints(int tripid){
+    private List<String> getWaypoints(int tripId){
         String sql;
         if(srid != null){
-            sql = "SELECT AsText(st_transform(geom,"+ srid+")) as ewkt FROM "+schema+".waypoints WHERE tripid=" + tripid;
+            sql = "SELECT AsText(st_transform(geom,:srid)) as ewkt FROM "+schema+".waypoints WHERE tripid=:tripId";
         }else {
-            sql = "SELECT AsText(geom) as ewkt FROM "+schema+".waypoints WHERE tripid=" + tripid;
+            sql = "SELECT AsText(geom) as ewkt FROM "+schema+".waypoints WHERE tripid=:tripId";
         }
         Map<String, Object> map = new HashMap<String, Object>();
+        map.put("tripId",tripId);
+        map.put("srid",Integer.valueOf(srid));
         return  namedParameterJdbcTemplate.query(sql, map, geomRowMapper);
     }
 
-    private List<String> getRoutes(int tripid){
+    private List<String> getRoutes(int tripId){
         String sql;
         if(srid != null){
-            sql = "SELECT AsText(st_transform(geom,"+ srid+")) as ewkt FROM "+schema+".routes WHERE tripid=" + tripid;
+            sql = "SELECT AsText(st_transform(geom,:srid)) as ewkt FROM "+schema+".routes WHERE tripid=:tripId";
         }else {
-            sql = "SELECT AsText(geom) as ewkt FROM "+schema+".routes WHERE tripid=" + tripid;
+            sql = "SELECT AsText(geom) as ewkt FROM "+schema+".routes WHERE tripid=:tripId";
         }
         Map<String, Object> map = new HashMap<String, Object>();
+        map.put("tripId",tripId);
+        map.put("srid",Integer.valueOf(srid));
         return  namedParameterJdbcTemplate.query(sql, map, geomRowMapper);
     }
 

@@ -84,8 +84,8 @@ public class UserDao {
     }
 
     public boolean userExists(String username){
-        String sql = "select count(*) from "+schema+".users where username = '"+username+"'";
-        int count = jdbcTemplate.queryForInt(sql);
+        String sql = "select count(*) from "+schema+".users where username = ?";
+        int count = jdbcTemplate.queryForInt(sql,username);
         if(count == 0){
             return false;
         }
