@@ -7,6 +7,7 @@ TripOrganizer.TripList = OpenLayers.Class({
     centroidDisplayer: null,
     imageLoader: null,
     carousel: null,
+    nextBtnActive: null,
 
     initialize: function(listId,map,tripLayer,clayer,options){
         OpenLayers.Util.extend(this, options);
@@ -25,6 +26,7 @@ TripOrganizer.TripList = OpenLayers.Class({
             }
         });
 
+        this.nextBtnActive = true;
         this.createCarousel();
         //console.log(this.carousel);
     },
@@ -51,7 +53,7 @@ TripOrganizer.TripList = OpenLayers.Class({
         return tripObjects;
     },
 
-    redraw: function(){
+    redraw: function(scrollIdx){
         var that = this;
         $('#'+this.listId).html("");
         var active = false;
@@ -66,7 +68,7 @@ TripOrganizer.TripList = OpenLayers.Class({
                 title="Uten navn";
             }
             if(trip.title.length>23){
-                ;;;console.log("shortening");
+                //;;;console.log("shortening");
                 title = trip.title.substring(0,23);
             }
             if(trip.isActive()){
@@ -82,9 +84,11 @@ TripOrganizer.TripList = OpenLayers.Class({
                 var id = this.id.replace("head_for_","");
                 that.toggle(id);
             });
-            //$('#'+this.listId).append($item);
-            //console.log("add ", $item, " to carousel at ", i);
             this.carousel.add(i, $item);
+        }
+
+        if(scrollIdx){
+            this.carousel.scroll(scrollIdx-5);
         }
 
         if(!active){
@@ -95,15 +99,17 @@ TripOrganizer.TripList = OpenLayers.Class({
     },
 
     showTrip: function(id){
+        var idx = 0;
         for(var i=0;i<this.trips.length;i++){
             if(this.trips[i].id == id){
                 this.trips[i].showTrip();
+                idx = i;
             }
             else {
                 this.trips[i].hideTrip();
             }
         }
-        this.redraw();
+        this.redraw(idx);
     },
 
     toggle: function(id){
@@ -138,30 +144,34 @@ TripOrganizer.TripList = OpenLayers.Class({
     },
 
     updateTrip: function(trip){
-        for(var i=0;i<this.trips.length;i++){
-            if(this.trips[i].id == trip.id){
 
-            }
-        }
+    },
+
+    disableLast: function(){
+        this.nextBtnActive = false;
+    },
+
+    enableLast: function(){
+        this.nextBtnActive = true;
     },
 
 
     createCarousel: function(){
         var that = this;
         function mycarousel_initCallback(carousel) {
-/*
-            jQuery('.jcarousel-control a').bind('click', function() {
-                carousel.scroll(jQuery.jcarousel.intval(jQuery(this).text()));
-                return false;
-            });
 
-            jQuery('.jcarousel-scroll select').bind('change', function() {
-                carousel.options.scroll = jQuery.jcarousel.intval(this.options[this.selectedIndex].value);
-                return false;
-            });
-*/
+
+
             jQuery('#mycarousel-next').bind('click', function() {
-                carousel.next();
+                if(that.nextBtnActive){
+                    carousel.next();
+                }
+                if(carousel.last >that.trips.length){
+                    that.disableLast();
+                }
+                else {
+                    that.enableLast();
+                }
                 return false;
             });
 
@@ -171,6 +181,7 @@ TripOrganizer.TripList = OpenLayers.Class({
             });
 
             that.carousel = carousel;
+            TripOrganizer.carousel = carousel;
         }
 
 

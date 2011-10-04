@@ -1,6 +1,8 @@
 function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
+     OpenLayers.ImgPath = "gfx/oltheme/";
 
+    OpenLayers.Lang.setCode("nb");
 
     var maxExtent = new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508),
         restrictedExtent = maxExtent.clone(),
@@ -84,9 +86,9 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
 
 
     var featureLayer = new OpenLayers.Layer.Vector("test",{displayInLayerSwitcher:false,styleMap: styleMap});
-    var cLayer = new OpenLayers.Layer.Vector("Turpunkter",{displayInLayerSwitcher:true,styleMap: centroidStyleMap});
+    var cLayer = new OpenLayers.Layer.Vector("Turpunkter",{displayInLayerSwitcher:false,styleMap: centroidStyleMap});
 
-    map.addControl(new OpenLayers.Control.LayerSwitcher());
+    map.addControl(new OpenLayers.Control.LayerSwitcher({roundedCornerColor:"black"}));
 
     if(typeof(google) != "undefined"){
         map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);

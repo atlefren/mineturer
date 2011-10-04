@@ -77,7 +77,9 @@
             <ul>
                 <li><a href="http://www.famfamfam.com/lab/icons/silk/">FamFamFam</a>  (Creative Commons Attribution 2.5)</li>
                 <li><a href="http://mapicons.nicolasmollet.com/">Map Icons Collection</a> (Creative Commons Attribution-Share Alike 3.0)</li>
-                <li><a href="http://www.iconfinder.com/search/?q=iconset%3Aspirit20">Spirit20</a> (Fritt til ikke-kommersiell bruk)</li>
+                <li><a href="http://www.iconfinder.com/search/?q=iconset%3Aspirit20">Spirit20</a> (Fri bruk)</li>
+                <li><a href="http://www.iconfinder.com/search/?q=iconset%3Atoken">Token</a>(Creative Commons (Attribution-Noncommercial-No Derivative Works 3.0 Unported))</li>
+                <li><a href="https://github.com/developmentseed/openlayers_themes" >Developmentseed OpenLayers Themes</a> (BSD/GPL)</li>
             </ul>
 
 

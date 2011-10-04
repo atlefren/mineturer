@@ -15,6 +15,9 @@
     <context:component-scan base-package="net.atlefren.GpxUploader"/>
     <!-- We want to use Spring MVC, configured by annotations -->
     <mvc:annotation-driven/>
+    <mvc:resources mapping="/css/**" location="/css/" />
+    <mvc:resources mapping="/gfx/**" location="/gfx/" />
+    <mvc:resources mapping="/scripts/**" location="/scripts/" />
 
     <context:property-placeholder location="classpath:datasource.properties"/>
 
@@ -38,13 +41,9 @@
         <property name="password" value="${dataSource.password}"/>
     </bean>
 
-    <bean id="multipartResolver"
-    class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-
-    <!-- one of the properties available; the maximum file size in bytes -->
-    <property name="maxUploadSize" value="10000000"/>
-</bean>
-
-
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- one of the properties available; the maximum file size in bytes -->
+        <property name="maxUploadSize" value="10000000"/>
+    </bean>
 
 </beans>

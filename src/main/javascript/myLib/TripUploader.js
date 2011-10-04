@@ -10,6 +10,7 @@ TripOrganizer.TripUploader = OpenLayers.Class({
     showUploadForm: function(){
       
 
+
         var select ="";
         var type="hiking";
         for(var key in TripOrganizer.types){
@@ -43,6 +44,8 @@ TripOrganizer.TripUploader = OpenLayers.Class({
             content: string,
             overlayShow: false
         });
+
+
 
         var that = this;
         $("#uploadForm").ajaxForm({
