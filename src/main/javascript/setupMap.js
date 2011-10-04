@@ -112,7 +112,6 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         var format = new OpenLayers.Format.WKT();
         var features = [];
         for(var j = 0;j<wkt.length;j++){
-            //console.log(wkt[j]);
             features.push(format.read(wkt[j]));
         }
         featureLayer.addFeatures(features);

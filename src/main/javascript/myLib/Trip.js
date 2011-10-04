@@ -35,19 +35,22 @@ TripOrganizer.Trip = OpenLayers.Class({
 
      updateLink: function(){
         //console.log("updateLInk ", this.displayTrip);
+
+         if(this.visible){
+
         if(document.getElementById("perma")){
             // console.log("map moved! ", this.createParams());
             var perma = document.getElementById("perma");
-
             var params = TripOrganizer.Util.getMapParams(this.tripLayer.map);
             params.trip = this.id;
             var paramstring = OpenLayers.Util.getParameterString(params);
-            perma.innerHTML = "Link";
+            //perma.innerHTML = "Link";
             perma.href="showTrip?"+paramstring;
 
           //  var fb = document.getElementById("facebook");
           //  fb.href= "http://www.facebook.com/sharer.php?u=" + encodeURIComponent(TripOrganizer.baseUrl + "showTrip?"+paramstring)+"&t="+encodeURIComponent(this.title);
         }
+             }
     },
 
     toggle: function(){

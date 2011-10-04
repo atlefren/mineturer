@@ -56,7 +56,7 @@ public class TripDao {
     }
 
     public List<Trip> getSimpleTripInfo(int tripId){
-        String sql = "SELECT t.tripid as tripid, t.title as title, u.username as username FROM "+schema+".trips t, "+schema+".users u WHERE t.tripid=':tripId' AND t.userid=u.userid";
+        String sql = "SELECT t.tripid as tripid, t.title as title, u.username as username FROM "+schema+".trips t, "+schema+".users u WHERE t.tripid=:tripId AND t.userid=u.userid";
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("tripId",tripId);
         return namedParameterJdbcTemplate.query(sql, map, tripRowMapperWithUser);

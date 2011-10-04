@@ -86,9 +86,9 @@
 
             <div id="toolbar" class="hidden">
                 <p>
-                    <a href="#!" class="tool_fullscreen">Fullskjerm</a>
-                    <a href="#!" class="tool_share">Del</a>
-                    <a href="#!" class="tool_export">Eksporter</a>
+                    <a href="#" class="tool_fullscreen">Fullskjerm</a>
+                    <a href="#" class="tool_share" id="perma" target="_blank">Del</a>
+                    <a href="#" class="tool_export">Eksporter</a>
                     <a href="#1" class="tool_edit" id="edit_btn">Rediger</a>
                     <a href="#!" class="tool_delete" id="delete_btn">Slett</a>
 

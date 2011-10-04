@@ -194,7 +194,6 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         var format = new OpenLayers.Format.WKT();
         var features = [];
         for(var j = 0;j<wkt.length;j++){
-            //console.log(wkt[j]);
             features.push(format.read(wkt[j]));
         }
         featureLayer.addFeatures(features);
@@ -474,19 +473,24 @@ TripOrganizer.Trip = OpenLayers.Class({
 
      updateLink: function(){
         //console.log("updateLInk ", this.displayTrip);
+
+         if(this.visible){
+
         if(document.getElementById("perma")){
             // console.log("map moved! ", this.createParams());
             var perma = document.getElementById("perma");
 
             var params = TripOrganizer.Util.getMapParams(this.tripLayer.map);
             params.trip = this.id;
+            console.log("this.id",this.id);
             var paramstring = OpenLayers.Util.getParameterString(params);
-            perma.innerHTML = "Link";
+            //perma.innerHTML = "Link";
             perma.href="showTrip?"+paramstring;
 
           //  var fb = document.getElementById("facebook");
           //  fb.href= "http://www.facebook.com/sharer.php?u=" + encodeURIComponent(TripOrganizer.baseUrl + "showTrip?"+paramstring)+"&t="+encodeURIComponent(this.title);
         }
+             }
     },
 
     toggle: function(){
