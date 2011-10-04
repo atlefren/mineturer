@@ -120,8 +120,8 @@
             errors.push("Du må skrive inn samme passord to ganger!")
         }
         else{
-            if(pwd1.length <8){
-                errors.push("Passordet må ha minst 8 tegn");
+            if(pwd1.length <1){
+                errors.push("Passordet må ha minst 1 tegn");
             }
         }
         if(username==""){

@@ -33,7 +33,7 @@ public class UserController {
             @RequestParam("fullname") String fullname,
             @RequestParam("flickrid") String flickrid,
             @RequestParam("email") String email) {
-        if(!userDao.userExists(username) && password.length()>7 && !email.equals("") && password.equals(password2)){
+        if(!userDao.userExists(username) && password.length()>0 && !email.equals("") && password.equals(password2)){
                 User newUser = new User();
                 newUser.setUsername(username);
                 newUser.setPassword(DigestUtils.shaHex(password));
