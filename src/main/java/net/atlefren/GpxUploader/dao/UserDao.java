@@ -7,6 +7,7 @@ package net.atlefren.GpxUploader.dao;
  * Time: 1:21 PM
  */
 
+import net.atlefren.GpxUploader.model.Trip;
 import net.atlefren.GpxUploader.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -103,6 +104,25 @@ public class UserDao {
 
     }
 
+    public List<User> getUserList(){
+        String sql = "SELECT count(t.tripid) as count, u.username as username,u.email as email,u.fullname as fullname,u.flickrid as flickrid FROM mineturer.users u LEFT JOIN mineturer.trips t ON t.userid = u.userid group by u.username,u.email,u.fullname,u.flickrid";
+        Map<String, Object> map = new HashMap<String, Object>();
+        return namedParameterJdbcTemplate.query(sql, map, usersRowMapper);
+
+    }
+
+     private final RowMapper<User> usersRowMapper = new RowMapper<User>() {
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User();
+            user.setUsername(rs.getString("username"));
+            user.setFullname(rs.getString("fullname"));
+            user.setEmail(rs.getString("email"));
+            user.setFlickrId(rs.getString("flickrid"));
+            user.setNumTrips(rs.getInt("count"));
+            return user;
+        }
+    };
+
     private final RowMapper<User> userRowMapper = new RowMapper<User>() {
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {
             User user = new User();
@@ -131,5 +151,7 @@ public class UserDao {
         }
         return grantedAuthorities;
     }
+
+
 }
 

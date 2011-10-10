@@ -70,7 +70,10 @@ public class GpxTrack {
     public MultiLineString getTrackAsMultiLineString(String epsg){
         ArrayList<LineString> lineStrings = new ArrayList<LineString>();
         for(ArrayList<GpxPoint> segment : trackSegments){
-            lineStrings.add(createLineStringFromSegment(segment,epsg));
+            LineString ls = createLineStringFromSegment(segment,epsg);
+            if(ls!=null){
+                lineStrings.add(ls);
+            }
         }
         LineString[] lsArr = new LineString[lineStrings.size()];
         return factory.createMultiLineString(lineStrings.toArray(lsArr));
@@ -78,11 +81,18 @@ public class GpxTrack {
 
     private LineString createLineStringFromSegment(ArrayList<GpxPoint> segmentCoords,String epsg){
         ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
+
         for (GpxPoint point : segmentCoords){
             coordinates.add(point.getPointAsCoord(epsg));
         }
         Coordinate[] coordArray = new Coordinate[coordinates.size()];
+        
+        if(coordArray.length >1){
         return factory.createLineString(coordinates.toArray(coordArray));
+        }
+        else {
+            return null;
+        }
     }
 
 }

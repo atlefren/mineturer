@@ -17,12 +17,15 @@
             <intercept-url pattern="/createMyUser" method="POST" access="permitAll" />
             <intercept-url pattern="/registerUser" access="permitAll" />
             <intercept-url pattern="/newUser"  access="permitAll" />
+            <intercept-url pattern="/admin" access="hasRole('ROLE_ADMIN')"/>
             <intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
             <form-login login-page='/login.jsp' default-target-url='/trips'
                         always-use-default-target='true'
                     authentication-failure-url="/login.jsp?login_error=1"/>
             <logout />
         </http>
+
+
 
 
     <authentication-manager>

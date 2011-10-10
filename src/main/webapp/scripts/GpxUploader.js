@@ -479,10 +479,8 @@ TripOrganizer.Trip = OpenLayers.Class({
         if(document.getElementById("perma")){
             // console.log("map moved! ", this.createParams());
             var perma = document.getElementById("perma");
-
             var params = TripOrganizer.Util.getMapParams(this.tripLayer.map);
             params.trip = this.id;
-            console.log("this.id",this.id);
             var paramstring = OpenLayers.Util.getParameterString(params);
             //perma.innerHTML = "Link";
             perma.href="showTrip?"+paramstring;

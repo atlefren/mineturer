@@ -57,4 +57,9 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
+    <session-config>
+        <!-- Default to 60 minute session timeouts -->
+        <session-timeout>60</session-timeout>
+    </session-config>
+
 </web-app>

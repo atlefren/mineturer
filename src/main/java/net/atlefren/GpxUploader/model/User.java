@@ -20,6 +20,7 @@ public class User implements UserDetails {
     private String email;
     private String fullname;
     private String flickrId;
+    private int numTrips;
     private boolean enabled;
     private Collection<GrantedAuthority> authorities;
 
@@ -143,6 +144,14 @@ public class User implements UserDetails {
 
     public void setFlickrId(String flickrId) {
         this.flickrId = flickrId;
+    }
+
+    public int getNumTrips() {
+        return numTrips;
+    }
+
+    public void setNumTrips(int numTrips) {
+        this.numTrips = numTrips;
     }
 }
 

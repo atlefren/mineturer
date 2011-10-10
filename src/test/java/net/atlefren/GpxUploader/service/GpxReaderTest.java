@@ -20,7 +20,7 @@ public class GpxReaderTest extends TestCase {
 
         GpxReader reader = new GpxReader();
 
-        GpxFileContents contents = reader.readGpxFile("/home/atle/privat/20100514.gpx");
+        GpxFileContents contents = reader.readGpxFile("/home/atle/privat/lillomarka.gpx");
 
         contents.getTracks();
 
@@ -30,7 +30,7 @@ public class GpxReaderTest extends TestCase {
         }
 
     }
-
+/*
     public void testReadGpxFileCheckTime() throws Exception {
 
         GpxReader reader = new GpxReader();
@@ -61,5 +61,5 @@ public class GpxReaderTest extends TestCase {
 
 
     }
-
+*/
 }

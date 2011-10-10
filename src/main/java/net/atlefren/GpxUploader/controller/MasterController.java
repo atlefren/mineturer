@@ -2,7 +2,9 @@ package net.atlefren.GpxUploader.controller;
 
 import com.google.gson.Gson;
 import net.atlefren.GpxUploader.dao.TripDao;
+import net.atlefren.GpxUploader.dao.UserDao;
 import net.atlefren.GpxUploader.model.Trip;
+import net.atlefren.GpxUploader.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -19,6 +21,9 @@ public class MasterController {
 
     @Resource
     private TripDao tripDao;
+
+    @Resource
+    private UserDao userDao;
 
     @RequestMapping("/trips")
     public ModelAndView mapRequest() {
@@ -55,6 +60,15 @@ public class MasterController {
         params.put("user",info.getUser());
 
         return new ModelAndView("perma",params);
+    }
+
+    @RequestMapping("/admin")
+    public ModelAndView AdminPage() {
+
+        List<User> users =  userDao.getUserList();
+        ModelAndView modelAndView = new ModelAndView("admin");
+		modelAndView.addObject("users",users);
+        return modelAndView;
     }
 
 }
