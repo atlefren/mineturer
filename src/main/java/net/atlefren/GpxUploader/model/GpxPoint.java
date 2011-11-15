@@ -29,6 +29,7 @@ public class GpxPoint {
     private double ele;
     private double hr=0.0;
     private Date time;
+    private int segmentNr;
 
     private static Logger logger = Logger.getLogger(GpxPoint.class);
 
@@ -84,6 +85,14 @@ public class GpxPoint {
 
     public void setHr(double hr) {
         this.hr = hr;
+    }
+
+    public int getSegmentNr() {
+        return segmentNr;
+    }
+
+    public void setSegmentNr(int segmentNr) {
+        this.segmentNr = segmentNr;
     }
 
     public Coordinate getPointAsCoord(String epsg){

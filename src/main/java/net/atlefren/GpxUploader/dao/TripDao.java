@@ -1,9 +1,14 @@
 package net.atlefren.GpxUploader.dao;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.io.WKTWriter;
 import net.atlefren.GpxUploader.model.*;
 import net.atlefren.GpxUploader.service.HeightComputer;
 import net.atlefren.GpxUploader.service.LengthComputer;
 import net.atlefren.GpxUploader.service.TimeComputer;
+import org.opengis.geometry.coordinate.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -66,16 +71,30 @@ public class TripDao {
         jdbcTemplate.update("DELETE FROM "+schema+".trips WHERE userid="+userid+" AND tripid= "+tripId);
     }
 
+
+    //TODO: rewrite to get from points instead
     public List<CentroidPoint> getCentroids(int userid,String srid){
-        String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),:srid))) as point,tripid,title,triptype,start FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype,ts.start as start FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid=:userId) AS f GROUP BY start,tripid,title,triptype ORDER BY start DESC";
+        //String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),:srid))) as point,tripid,title,triptype,start FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype,ts.start as start FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid=:userId) AS f GROUP BY start,tripid,title,triptype ORDER BY start DESC";
+        String sql = "SELECT t.tripid,t.title,t.triptype,t.start, astext(st_transform(ST_Line_Interpolate_Point(ST_MakeLine(points.geom),0.5),:srid)) As point " +
+                "FROM (SELECT tripid,time, geom FROM "+schema+".points ORDER BY tripid, time) As points, "+schema+".trips t " +
+                "WHERE t.tripid=points.tripid " +
+                "AND t.userid=:userId "+
+                "GROUP BY points.tripid,t.title,t.triptype,t.start,t.tripid";
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("srid",Integer.valueOf(srid));
         map.put("userId",userid);
         return namedParameterJdbcTemplate.query(sql,map,wktPointRowMapper);
     }
 
+    //TODO: rewrite to get from points instead
     public CentroidPoint getCentroid(int tripid, int userid,String srid){
-        String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),:srid))) as point,tripid,title,triptype,start FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype,ts.start as start FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid=:userId AND t.tripid=:tripId) AS f GROUP BY start,tripid,title,triptype";
+        //String sql = "SELECT asText(ST_Centroid(st_transform(ST_Multi(ST_Collect(f.the_geom)),:srid))) as point,tripid,title,triptype,start FROM (SELECT (ST_Dump(t.geom)).geom As the_geom, ts.tripid as tripid,ts.title as title,ts.triptype as triptype,ts.start as start FROM "+schema+".tracks as t, "+schema+".trips AS ts WHERE ts.tripid=t.tripid AND ts.userid=:userId AND t.tripid=:tripId) AS f GROUP BY start,tripid,title,triptype";
+        String sql = "SELECT t.tripid,t.title,t.triptype,t.start, astext(st_transform(ST_Line_Interpolate_Point(ST_MakeLine(points.geom),0.5),:srid)) As point " +
+                "FROM (SELECT tripid,time, geom FROM "+schema+".points ORDER BY tripid, time) As points, "+schema+".trips t " +
+                "WHERE t.tripid=points.tripid " +
+                "ABD t.userid=:userId "+
+                "AND t.tripid=:tripId "+
+                "GROUP BY points.tripid,t.title,t.triptype,t.start,t.tripid";
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("tripId",tripid);
         map.put("userId",userid);
@@ -100,12 +119,13 @@ public class TripDao {
 
 
     public List<GpxPoint> getPointsForTrip(int tripId,int userId){
-        String sql = "SELECT st_x(geom) as lon, st_y(geom) as lat, ele, \"time\",hr FROM "+schema+".points WHERE tripid=:tripId";
+        String sql = "SELECT st_x(geom) as lon, st_y(geom) as lat, ele, \"time\",hr,segment FROM "+schema+".points WHERE tripid=:tripId ORDER BY \"time\"";
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("tripId",tripId);
         return namedParameterJdbcTemplate.query(sql,map,pointRowMapper);
     }
 
+    //TODO: rewrite to new way of handling tracks!
     public List<String> getTracksForTrip(String srid, int id){
         this.srid = srid;
         List<String> trackWkts =getTracksAsEwkt(id);
@@ -145,21 +165,28 @@ public class TripDao {
         int tripId = insertAndGetKey(namedParameters);
         trip.setId(Integer.toString(tripId));
 
+        /*
         for(String track:trip.getTracksAsWKT()){
             this.jdbcTemplate.update("INSERT INTO "+schema+".tracks (tripid,geom) VALUES (?,GeomFromText(?,4326))",tripId,track);
         }
+
         for(String route:trip.getRoutesAsWKT()){
             this.jdbcTemplate.update("INSERT INTO "+schema+".routes (tripid,geom) VALUES (?,GeomFromText(?,4326))",tripId,route);
-        }
+        }*/
+
+        //TODO: fix
         for(String wp:trip.getWaypointsAsWKT()){
             this.jdbcTemplate.update("INSERT INTO "+schema+".waypoints (tripid,geom) VALUES (?,GeomFromText(?,4326))",tripId,wp);
         }
 
         for(GpxTrack track:trip.getTracks()){
+            int segmentNr = 0;
             for (List<GpxPoint> segment: track.getTrackSegments()){
                 for(GpxPoint point:segment){
-                    this.jdbcTemplate.update("INSERT INTO "+schema+".points (tripid,geom,ele,\"time\",hr) VALUES (?,ST_SetSRID(ST_MakePoint(?, ?),4326) ,?,?,?)",tripId,point.getLon(),point.getLat(), point.getEle(),point.getTime(),point.getHr());
+                    point.setSegmentNr(segmentNr);
+                    this.jdbcTemplate.update("INSERT INTO "+schema+".points (tripid,geom,ele,\"time\",hr,segment) VALUES (?,ST_SetSRID(ST_MakePoint(?, ?),4326) ,?,?,?,?)",tripId,point.getLon(),point.getLat(), point.getEle(),point.getTime(),point.getHr(),point.getSegmentNr());
                 }
+                segmentNr++;
             }
         }
         return tripId;
@@ -228,12 +255,15 @@ public class TripDao {
             trip.setStart(rs.getTimestamp("start"));
             trip.setStop(rs.getTimestamp("stop"));
             trip.setTags(rs.getString("flickrtags"));
-            trip.setTracks(getTracks(rs.getInt("tripid")));
+            //trip.setTracks(getTracks(rs.getInt("tripid")));
+            ArrayList<String> trackList = new ArrayList<String>();
+            trackList.add(createWkt(points));
+            trip.setTracks(trackList);
             trip.setLenghts(LengthComputer.generateLengthts(points));
             trip.setTimes(TimeComputer.generateTimes(points));
             trip.setHeights(HeightComputer.computeHeights(points));
             trip.setWaypoints(getWaypoints(rs.getInt("tripid")));
-            trip.setRoutes(getRoutes(rs.getInt("tripid")));
+           // trip.setRoutes(getRoutes(rs.getInt("tripid")));
             return trip;
         }
     };
@@ -264,6 +294,7 @@ public class TripDao {
             point.setEle(rs.getDouble("ele"));
             point.setTime(rs.getTimestamp("time"));
             point.setHr(rs.getDouble("hr"));
+            point.setSegmentNr(rs.getInt("segment"));
             return point;
         }
     };
@@ -311,6 +342,32 @@ public class TripDao {
             return cp;
         }
     };
+
+    private String createWkt(List<GpxPoint> points){
+        com.vividsolutions.jts.geom.GeometryFactory factory = new com.vividsolutions.jts.geom.GeometryFactory();
+        int segment = 0;
+        ArrayList<LineString> lineStrings = new ArrayList<LineString>();
+        ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
+        for(GpxPoint point:points){
+
+            if(point.getSegmentNr() != segment){
+                segment =point.getSegmentNr();
+                Coordinate[] coordArray = new Coordinate[coordinates.size()];
+                lineStrings.add(factory.createLineString(coordinates.toArray(coordArray)));
+                coordinates.clear();
+            }
+            coordinates.add(point.getPointAsCoord("900913"));
+        }
+
+        Coordinate[] coordArray = new Coordinate[coordinates.size()];
+        lineStrings.add(factory.createLineString(coordinates.toArray(coordArray)));
+
+        LineString[] lsArr = new LineString[lineStrings.size()];
+        MultiLineString mls = factory.createMultiLineString(lineStrings.toArray(lsArr));
+        WKTWriter wktWriter = new WKTWriter();
+        return wktWriter.write(mls);
+
+    }
 
 
     private int insertAndGetKey(Map parametermap){

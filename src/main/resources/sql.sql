@@ -76,7 +76,7 @@ SELECT addGeometryColumn('mineturer','points','geom',4326,'POINT',2);
 
 
 
-
+ALTER TABLE mineturer.points ADD COLUMN segment integer default 0;
 
 --ALTER TABLE mineturer.points ADD COLUMN hr double precision;
 --ALTER TABLE mineturer.trips ADD COLUMN triptype varchar(50);

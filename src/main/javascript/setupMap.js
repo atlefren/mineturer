@@ -41,7 +41,15 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     // create OSM layer
     var mapnik = new OpenLayers.Layer.OSM();
     mapnik.layerId = "osm";
-    
+
+    /*
+    var cloudmade = new OpenLayers.Layer.CloudMade("CloudMade", {
+        key: '70133aca7b61402183a5b39c9ea6fb5c',
+        styleId: 999
+    });
+
+    cloudmade.layerId = "cloudmade";
+    */
     // create WMS layer
     var wms = new OpenLayers.Layer.WMS(
         "SK, Topografisk norgeskart",
@@ -71,6 +79,9 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
         }
     );
 
+
+
+
     // create a vector layer for drawing
     var styleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults({
                     strokeColor: "#1E13FF",
@@ -89,16 +100,14 @@ function setupMap(perma,lon,lat,zoom,layerId,wkt) {
     var cLayer = new OpenLayers.Layer.Vector("Turpunkter",{displayInLayerSwitcher:false,styleMap: centroidStyleMap});
 
     map.addControl(new OpenLayers.Control.LayerSwitcher({roundedCornerColor:"black"}));
+   // map.addControl(new OpenLayers.Control.Attribution());
 
     if(typeof(google) != "undefined"){
-        map.addLayers([wms,wms2, gmap, mapnik,gsat,cLayer, featureLayer]);
+        map.addLayers([wms,wms2, gmap, mapnik, gsat,cLayer, featureLayer]);
     }
     else {
         map.addLayers([wms,wms2, mapnik, cLayer, featureLayer]);
     }
-
-
-
 
 
     if(perma){

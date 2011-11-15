@@ -34,6 +34,7 @@
     <script type="text/javascript" src="scripts/jquery.jcarousel.min.js"></script>
     <script type="text/javascript" src="scripts/OpenLayers-2.11/OpenLayers.js"></script>
     <script type="text/javascript" src="scripts/OpenLayers-2.11/nb.js"></script>
+   <!--<script type="text/javascript" src="scripts/cloudmade.js"></script>-->
     <script type="text/javascript" src="scripts/GpxUploader.js"></script>
 
 

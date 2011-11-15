@@ -61,6 +61,7 @@ TripOrganizer.CentroidDisplayer = OpenLayers.Class({
             externalGraphic:icon,
             graphicWidth:32,
             graphicHeight:37,
+            graphicYOffset: -37,
             cursor: "pointer",
             graphicTitle: trip.title
         };
