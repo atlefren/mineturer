@@ -24,7 +24,7 @@ public class jaxbGpxParseTest extends TestCase{
          JAXBContext ctx = JAXBContext.newInstance(new Class[]{GpxType.class,Gpx.class});
          Unmarshaller um = ctx.createUnmarshaller();
          
-         Object o = um.unmarshal(new File("/home/atle/privat/lillomarka.gpx"));
+         Object o = um.unmarshal(new File("src/test/resources/lillomarka.gpx"));
 //         Object o = um.unmarshal(new File("/home/atle//code/privat/GpxUpload/pom.xml"));
 
 

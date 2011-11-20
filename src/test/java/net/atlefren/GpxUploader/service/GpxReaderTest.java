@@ -16,11 +16,14 @@ import java.util.List;
  * Time: 4:05 PM
  */
 public class GpxReaderTest extends TestCase {
+
+
     public void testReadGpxFile() throws Exception {
+
 
         GpxReader reader = new GpxReader();
 
-        GpxFileContents contents = reader.readGpxFile("/home/atle/privat/lillomarka.gpx");
+        GpxFileContents contents = reader.readGpxFile("src/test/resources/lillomarka.gpx");
 
         contents.getTracks();
 
@@ -29,7 +32,10 @@ public class GpxReaderTest extends TestCase {
             System.out.println("track = " + track);
         }
 
+
     }
+
+
 /*
     public void testReadGpxFileCheckTime() throws Exception {
 

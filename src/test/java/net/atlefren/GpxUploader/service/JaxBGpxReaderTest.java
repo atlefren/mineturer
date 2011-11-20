@@ -23,7 +23,7 @@ public class JaxBGpxReaderTest extends TestCase {
 
     public void testRead11Gpx() throws JAXBException{
         gpxReader = new JaxBGpxReader();
-        File file = new File("/home/atle/privat/gpslogger/test.gpx");
+        File file = new File("src/test/resources/test.gpx");
         GpxType gpx = gpxReader.readGpx(file);
         List<TrkType> tracks = gpx.getTrk();
         TrkType trk = tracks.get(0);
@@ -32,7 +32,7 @@ public class JaxBGpxReaderTest extends TestCase {
     }
     public void testRead10Gpx() throws JAXBException{
         gpxReader = new JaxBGpxReader();
-        File file = new File("/home/atle/privat/gpslogger/preikestolen-20110709.gpx");
+        File file = new File("src/test/resources/preikestolen-20110709.gpx");
         GpxType gpx = gpxReader.readGpx(file);
         List<TrkType> tracks = gpx.getTrk();
         System.out.println("tracks.size() = " + tracks.size());
