@@ -12,6 +12,7 @@ import org.opengis.geometry.coordinate.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -45,7 +46,6 @@ public class TripDao {
                 usingColumns("userid", "title", "description","start","stop","triptype","flickrtags").
                 usingGeneratedKeyColumns("tripid");
     }
-
 
     public List<Trip> getTrips(int userid){
         String sql = "SELECT * FROM "+schema+".trips WHERE userid='"+userid+"'";

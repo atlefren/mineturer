@@ -340,7 +340,7 @@
                 </executions>
             </plugin>
 
-            <!--
+
             <plugin>
                 <groupId>com.sun.tools.xjc.maven2</groupId>
                 <artifactId>maven-jaxb-plugin</artifactId>
@@ -356,8 +356,15 @@
                     <generateDirectory>src/main/java</generateDirectory>
                 </configuration>
             </plugin>
-            -->
+
         </plugins>
+
+          <resources>
+    <resource>
+      <directory>src/test/resources</directory>
+      <filtering>true</filtering>
+    </resource>
+  </resources>
 
     </build>
 

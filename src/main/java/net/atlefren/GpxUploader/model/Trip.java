@@ -20,6 +20,7 @@ public class Trip {
     private String user;
     private String type;
     private String tags;
+    private int userid;
 
     private LengthHolder lenghts;
     private TimeHolder times;
@@ -33,6 +34,13 @@ public class Trip {
     public Trip() {
     }
 
+    public int getUserid() {
+        return userid;
+    }
+
+    public void setUserid(int userid) {
+        this.userid = userid;
+    }
 
     public String getId() {
         return id;

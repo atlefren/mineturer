@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Endomondo.com" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd" xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <metadata>
+    <author>
+      <name>Atle Sveen</name>
+      <email id="atle" domain="frenviksveen.net"/>
+    </author>
+    <link href="http://www.test.com">
+      <text>test</text>
+    </link>
+    <time>2011-10-08T17:13:46Z</time>
+    <bounds minlat="59.978898" minlon="10.818427" maxlat="59.979467" maxlon="10.817826"/>
+  </metadata>
+  <trk>
+    <src>http://www.test.com/</src>
+    <link href="http://www.tes.com">
+      <text>test</text>
+    </link>
+    <type>WALKING</type>
+    <trkseg>
+      <trkpt lat="59.978898" lon="10.818427">
+        <time>2011-10-08T11:49:44Z</time>
+      </trkpt>
+      <trkpt lat="59.978898" lon="10.818427">
+        <ele>359.0</ele>
+        <time>2011-10-08T11:49:46Z</time>
+      </trkpt>
+      <trkpt lat="59.978877" lon="10.818556">
+        <ele>359.0</ele>
+        <time>2011-10-08T11:49:51Z</time>
+      </trkpt>
+      <trkpt lat="59.978845" lon="10.818685">
+        <ele>362.0</ele>
+        <time>2011-10-08T11:49:57Z</time>
+      </trkpt>
+      <trkpt lat="59.978839" lon="10.818824">
+        <ele>361.0</ele>
+        <time>2011-10-08T11:50:01Z</time>
+      </trkpt>
+</trkseg>
+  </trk>
+</gpx>

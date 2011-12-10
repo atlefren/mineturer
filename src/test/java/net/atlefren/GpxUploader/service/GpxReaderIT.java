@@ -1,11 +1,20 @@
 package net.atlefren.GpxUploader.service;
 
 import junit.framework.TestCase;
+import net.atlefren.GpxUploader.dao.TripDao;
 import net.atlefren.GpxUploader.model.GpxFileContents;
 import net.atlefren.GpxUploader.model.GpxPoint;
 import net.atlefren.GpxUploader.model.GpxTrack;
+import net.atlefren.GpxUploader.model.Trip;
 import net.atlefren.GpxUploader.util.Util;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,22 +24,38 @@ import java.util.List;
  * Date: 8/30/11
  * Time: 4:05 PM
  */
-public class GpxReaderTest extends TestCase {
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"/applicationContextTest.xml"})
+public class GpxReaderIT extends TestCase {
+
+     @Resource
+     TripDao tripDao;
+
+    @Test
+    public void testReadGpxFileAndSaveToDb() throws Exception {
 
 
-    public void testReadGpxFile() throws Exception {
 
 
-        GpxReader reader = new GpxReader();
+       File f = new File("src/test/resources/lillomarka.gpx");
 
-        GpxFileContents contents = reader.readGpxFile("src/test/resources/lillomarka.gpx");
+        FileInputStream fis = new FileInputStream(f);
+         GpxReader reader = new GpxReader(fis);
 
-        contents.getTracks();
+        GpxFileContents contents= reader.readAndCreateGpx();
+         contents.setName("testfil");
 
+        System.out.println("contents = " + contents);
+        System.out.println("tripDao = " + tripDao);
+        
+        int id = tripDao.saveTripToDb(contents,1,"hiking","hmm");
+        Trip trip = tripDao.getTripDetails(1, "900913", id,true);
 
-        for(String track:contents.getTracksAsWKT()){
-            System.out.println("track = " + track);
-        }
+        assertEquals("hmm",trip.getTags());
+        assertEquals("testfil",trip.getName());
+        assertEquals(1,trip.getTracks().size());
+
 
 
     }

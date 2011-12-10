@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/0"
+     creator="BT747 V2.X.1922" version="1.0"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+    <name>GPS-20110709</name>
+    <trk>
+        <name>#22747# 2011-07-09T10:43:39.000Z</name>
+        <trkseg>
+            <trkpt lat="58.992064" lon="6.139305" >
+                <ele>254.7</ele>
+                <time>2011-07-09T10:43:39.000Z</time>
+                <speed>1.4156</speed>
+                <name>trkpt-2011-07-09T10:43:39.000Z</name>
+                <type>TD</type>
+                <fix>3d</fix>
+            </trkpt>
+            <trkpt lat="58.992106" lon="6.139353" >
+                <ele>246.8</ele>
+                <time>2011-07-09T10:43:40.000Z</time>
+                <speed>1.5741</speed>
+                <name>trkpt-2011-07-09T10:43:40.000Z</name>
+                <type>D</type>
+                <fix>3d</fix>
+            </trkpt>
+            <trkpt lat="58.992132" lon="6.139403" >
+                <ele>240.5</ele>
+                <time>2011-07-09T10:43:41.000Z</time>
+                <speed>1.5270</speed>
+                <name>trkpt-2011-07-09T10:43:41.000Z</name>
+                <type>D</type>
+                <fix>3d</fix>
+            </trkpt>
+            <trkpt lat="58.992098" lon="6.139392" >
+                <ele>242.6</ele>
+                <time>2011-07-09T10:43:42.000Z</time>
+                <speed>1.5756</speed>
+                <name>trkpt-2011-07-09T10:43:42.000Z</name>
+                <type>D</type>
+                <fix>3d</fix>
+            </trkpt>
+            <trkpt lat="58.992125" lon="6.139448" >
+                <ele>236.4</ele>
+                <time>2011-07-09T10:43:43.000Z</time>
+                <speed>1.0073</speed>
+                <name>trkpt-2011-07-09T10:43:43.000Z</name>
+                <type>D</type>
+                <fix>3d</fix>
+            </trkpt>
+            <trkpt lat="58.992104" lon="6.139451" >
+                <ele>237.5</ele>
+                <time>2011-07-09T10:43:44.000Z</time>
+                <speed>1.1784</speed>
+                <name>trkpt-2011-07-09T10:43:44.000Z</name>
+                <type>D</type>
+                <fix>3d</fix>
+            </trkpt>
+            <trkpt lat="58.992106" lon="6.139464" >
+                <ele>236.0</ele>
+                <time>2011-07-09T10:43:45.000Z</time>
+                <speed>0.3562</speed>
+                i<name>trkpt-2011-07-09T10:43:45.000Z</name>
+                <type>D</type>
+                <fix>3d</fix>
+            </trkpt>
+            <trkpt lat="58.992082" lon="6.139457" >
+                <ele>237.7</ele>
+                <time>2011-07-09T10:43:47.000Z</time>
+                <speed>0.4180</speed>
+                <name>trkpt-2011-07-09T10:43:47.000Z</name>
+                <type>D</type>
+                <fix>3d</fix>
+            </trkpt>
+            <trkpt lat="58.992072" lon="6.139457" >
+                <ele>238.7</ele>
+                <time>2011-07-09T10:43:48.000Z</time>
+                <speed>0.4371</speed>
+                <name>trkpt-2011-07-09T10:43:48.000Z</name>
+                <type>D</type>
+                <fix>3d</fix>
+            </trkpt>
+            <trkpt lat="58.992060" lon="6.139465" >
+                <ele>239.3</ele>
+                <time>2011-07-09T10:43:49.000Z</time>
+                <speed>0.7612</speed>
+                <name>trkpt-2011-07-09T10:43:49.000Z</name>
+                <type>D</type>
+                <fix>3d</fix>
+            </trkpt>
+        </trkseg>
+    </trk>
+</gpx>

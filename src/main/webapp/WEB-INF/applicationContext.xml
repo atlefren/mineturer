@@ -12,7 +12,7 @@
     <!-- We want to use annotations to configure beans: -->
     <context:annotation-config/>
     <!-- This is the package to scan for beans (@Compontent, @Controller etc): -->
-    <context:component-scan base-package="net.atlefren.GpxUploader"/>
+    <context:component-scan base-package="net.atlefren"/>
     <!-- We want to use Spring MVC, configured by annotations -->
     <mvc:annotation-driven/>
     <mvc:resources mapping="/css/**" location="/css/" />
